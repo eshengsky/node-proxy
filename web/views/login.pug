@@ -1,0 +1,30 @@
+doctype html
+html(lang='en')
+    head
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
+        link(rel='stylesheet', href='/nodeProxy/static/bootswatch/dist/minty/bootstrap.min.css')
+        link(rel='stylesheet', href='/nodeProxy/static/index.css')
+        title nodeProxy - User login
+    body.login
+        nav.navbar.navbar-expand-lg.navbar-dark.fixed-top
+            .container
+                a.navbar-brand(href='/nodeProxy/') node-proxy
+        .container.login-container
+            .row.justify-content-center
+                .col-sm-8.col-lg-4
+                    .form-group
+                        h5.text-center.mb-4 User Login
+                    .form-group
+                        input.form-control.form-control-lg#input-username(name="username", placeholder="Username")
+                    .form-group
+                        input.form-control.form-control-lg#input-password(type="password", name="password", placeholder="Password")
+                    button.btn.btn-primary.btn-block.btn-lg#btn-login login
+        footer.login-footer
+            -const year = new Date().getFullYear();
+            |&copy; #{year} 
+            a(href="https://github.com/eshengsky/node-proxy") node-proxy
+        script(src='/nodeProxy/static/jquery/dist/jquery.min.js')
+        script(src='/nodeProxy/static/sweetalert/dist/sweetalert.min.js')
+        script(src='/nodeProxy/static/blueimp-md5/js/md5.min.js')
+        script(src='/nodeProxy/static/login.js')

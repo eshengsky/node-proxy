@@ -1,0 +1,121 @@
+doctype html
+html(lang='en')
+    head
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
+        link(rel='stylesheet', href='/nodeProxy/static/bootswatch/dist/minty/bootstrap.min.css')
+        link(rel='stylesheet', href='/nodeProxy/static/switchery/dist/switchery.min.css')
+        link(rel='stylesheet', href='/nodeProxy/static/iconfont.css')
+        link(rel='stylesheet', href='/nodeProxy/static/index.css')
+        title nodeProxy - routes
+    body
+        nav.navbar.navbar-expand-lg.navbar-dark.bg-primary.fixed-top
+            .container
+                a.navbar-brand(href='/nodeProxy/') node-proxy
+                button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarColor01', aria-controls='navbarColor01', aria-expanded='false', aria-label='Toggle navigation', style='')
+                    span.navbar-toggler-icon
+                #navbarColor01.collapse.navbar-collapse
+                    ul.navbar-nav.mr-auto
+                        li.nav-item.active
+                            a.nav-link(href='/nodeProxy/')
+                                | routes 
+                                span.sr-only (current)
+                        li.nav-item
+                            a.nav-link(href='/nodeProxy/servers/') servers
+                    .form-inline.my-2.my-lg-0.mr-2
+                        .input-group
+                            .input-group-prepend
+                                span.search-icon.input-group-text
+                                    i.iconfont.icon-search1187938easyiconnet
+                            input.form-control(type='search', placeholder='quick search')
+                            .input-group-append
+                                span.search-count.input-group-text
+                    .dropdown
+                        button.btn.btn-primary.dropdown-toggle#btn-logout-group(type="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false")=user
+                        .dropdown-menu(aria-labelledby="btn-logout-group")
+                            form(action="/nodeProxy/logout", method="Post")
+                                button.dropdown-item(type="submit") logout
+
+        .container.main-content
+            if (editable)
+                .row
+                    .col
+                        button.btn.btn-primary#btn-new-route New
+            .table-responsive.mt-4
+                table.table
+                    thead
+                        tr
+                            if (editable)
+                                th.th-sort
+                            th.text-left route
+                            th.th-remarks remarks
+                            th.th-active active
+                            if (editable)
+                                th.th-action operation
+                    tbody.results
+                        each route in routeList
+                            include route-tr.pug
+                    tfoot(style={display: routeList.length === 0 ? 'table-row-group' : 'none'})
+                        tr
+                            td(colspan=5) 
+                                p.no-data no data
+        .container
+            footer
+                -const year = new Date().getFullYear();
+                |&copy; #{year} 
+                a(href="https://github.com/eshengsky/node-proxy") node-proxy
+        .modal.fade#route-modal
+            .modal-dialog.modal-dialog-centered(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title New
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                    .modal-body
+                        .form-group
+                            label(for='input-uri') uri
+                            .input-group#group-uri
+                                .input-group-prepend
+                                    select.custom-select.form-control.prepend-select#select-type
+                                        option(value='start') start
+                                        option(value='exact') exact
+                                        option(value='regexp') regexp
+                                
+                                input.form-control#input-uri(placeholder="Math start of uri", spellcheck="false")
+                        .form-group
+                            label(for='') process
+                            select.custom-select.form-control.mb-3#select-process
+                                option(value='static') static file
+                                option(value='rewrite') URL rewrite
+                                option(value='forward') forward
+                            .input-group.my-input-group
+                                .input-group-prepend
+                                    span.input-group-text#input-content-addon directory:&nbsp;
+                                input.form-control#input-content(placeholder="directory path", spellcheck="false")
+                                select.custom-select.form-control#select-content
+                                    option(value="") --select--
+                                    for server in serverList
+                                        option(value=server.name)=server.name
+                            .alert.alert-danger#alert-server
+                                |No forward server, please firstly create it at 
+                                a.alert-link(href="/nodeProxy/servers/") servers
+                                |.
+                        .custom-control.custom-checkbox#group-tryFile(title="If can't find files, try sending index.html files from the configured root path, which is generally used for single page application.")
+                            input.custom-control-input#check-tryFile(type="checkbox")
+                            label.custom-control-label(for="check-tryFile") enable try_file
+                        .form-group
+                            label(for='input-remarks') remarks
+                            textarea.form-control#input-remarks(rows='3', placeholder='notes, example URL...', spellcheck="false")
+                    .modal-footer
+                        button.btn.btn-default(type='button' data-dismiss='modal') Cancel
+                        button.btn.btn-primary#btn-save(type='button') Save changes
+        input#uid(type="hidden")
+        input#editable(type="hidden", value=editable.toString())
+        script(src='/nodeProxy/static/jquery/dist/jquery.min.js')
+        script(src='/nodeProxy/static/popper.js/dist/umd/popper.min.js')
+        script(src='/nodeProxy/static/bootstrap/dist/js/bootstrap.min.js')
+        script(src='/nodeProxy/static/switchery/dist/switchery.min.js')
+        script(src='/nodeProxy/static/table-dragger/dist/table-dragger.min.js')
+        script(src='/nodeProxy/static/search.js')
+        script(src='/nodeProxy/static/sweetalert/dist/sweetalert.min.js')
+        script(src='/nodeProxy/static/index.js')

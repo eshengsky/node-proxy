@@ -1,0 +1,34 @@
+{
+  "name": "node-proxy",
+  "version": "1.0.0",
+  "description": "Node.js based proxy server, support to send static file, reverse proxy and URL rewrite, just like Nginx.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "eshengsky@163.com",
+  "license": "MIT",
+  "dependencies": {
+    "blueimp-md5": "^2.10.0",
+    "bootswatch": "^4.0.0",
+    "connect-ensure-login": "^0.1.1",
+    "connect-mongo": "^2.0.1",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
+    "http-proxy": "^1.16.2",
+    "log4js": "^1.1.1",
+    "lru-cache": "^4.1.1",
+    "mongoose": "^5.0.3",
+    "node-schedule": "^1.3.0",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0",
+    "pug": "^2.0.0-rc.4",
+    "request": "^2.83.0",
+    "serve-favicon": "^2.4.5",
+    "sweetalert": "^2.1.0",
+    "switchery": "git+https://github.com/abpetkov/switchery.git",
+    "table-dragger": "^1.0.2"
+  }
+}

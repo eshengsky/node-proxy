@@ -1,0 +1,430 @@
+html, body {
+    height: 100%;
+}
+
+body.login {
+    background-color: #505459;
+}
+
+body.login .navbar {
+    background-color: #505459;
+}
+
+body.login .navbar-brand {
+    color: #aaa;
+}
+
+body.login .login-footer {
+    color: #fff;
+}
+
+body.login .btn, body.login .form-control {
+    border-radius: 5px;
+}
+
+body.login h5 {
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    color: #fff;
+}
+
+.main-content {
+    min-height: 100%;
+    padding-top: 80px;
+}
+
+::selection {
+    background: #F3969A;
+    color: #fff;
+}
+
+.dropdown-menu {
+    min-width: 7rem;
+}
+
+.dropdown-item:hover, .dropdown-item:focus {
+    background-color: #78C2AD;
+}
+
+.table {
+    background: #fff !important;
+}
+
+.table thead th {
+    font-weight: normal;
+}
+
+.table th, .table td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+small, .small {
+    font-size: 90%;
+}
+
+/* input.form-control {
+    padding-top: 4px;
+} */
+
+.results tr {
+    -webkit-transition: opacity .2s ease-in;
+    -moz-transition: opacity .2s ease-in;
+    transition: opacity .2s ease-in;
+}
+
+input[type="search"] {
+    border: none;
+    padding-left: 0.3rem;
+    padding-right: 0;
+}
+
+input[type="search"]::before {
+    content: "\e62d"
+}
+
+.navbar, h6, .h6 {
+    font-family: 微软雅黑;
+}
+
+.badge {
+    font-weight: normal;
+    cursor: default;
+}
+
+.drag-icon {
+    font-size: 24px;
+    cursor: move;
+}
+
+.remarks-icon {
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.del-icon {
+    font-size: 19px;
+    cursor: pointer;
+    margin-left: 22px;
+}
+
+.del-icon:hover {
+    opacity: 0.8;
+}
+
+.edit-icon {
+    font-size: 20px;
+    cursor: pointer;
+    margin-top: 1px;
+    display: inline-block;
+}
+
+.edit-icon:hover {
+    opacity: 0.8;
+}
+
+.inactive {
+    opacity: 0.6;
+}
+
+.th-sort {
+    width: 50px;
+    min-width: 50px;
+}
+
+.th-remarks {
+    width: 60px;
+    min-width: 60px;
+}
+
+.th-active {
+    width: 60px;
+    min-width: 60px;
+}
+
+.th-action {
+    width: 87px;
+    min-width: 87px;
+}
+
+tfoot {
+    display: none;
+}
+
+.no-data {
+    color: #999;
+}
+
+.search-icon {
+    border: none;
+    background: #fff;
+    padding: 0 0.1rem 0 0.75rem;
+}
+
+.search-count {
+    background: #fff;
+    border: none;
+    color: #999;
+    width: 46px;
+    text-align: left;
+    display: inline-block;
+    -webkit-user-select: none;
+    font-size: 13px;
+    line-height: 24px;
+}
+
+.form-control:focus {
+    box-shadow: none;
+}
+
+.prepend-select {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#select-content {
+    display: none;
+    border-top-right-radius: 0;
+}
+
+#input-content {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0.4rem;
+}
+
+.group-regexp::before {
+    content: "/";
+    position: absolute;
+    left: 103px;
+    top: 7px;
+    z-index: 999;
+    color: #aaa;
+}
+
+.group-regexp::after {
+    content: "/g";
+    position: absolute;
+    right: 10px;
+    top: 7px;
+    z-index: 999;
+    color: #aaa;
+}
+
+.group-regexp input {
+    padding-left: 20px;
+    padding-right: 27px;
+}
+
+.switchery-small {
+    margin-top: -4px;
+}
+
+footer {
+    text-align: center;
+    font-size: 14px;
+    margin: 10px 0 5px 0;
+    color: #aaa;
+}
+
+.swal-text {
+    font-size: 20px;
+}
+
+.swal-title {
+    font-weight: normal;
+    font-size: 22px;
+}
+
+.swal-footer {
+    text-align: center;
+}
+
+.btn-default {
+    background: #c1c1c1;
+}
+
+.btn-default:hover {
+    background: #b9b9b9;
+}
+
+.btn-default:focus {
+    -webkit-box-shadow: 0 0 0 0.2rem #ddd;
+    box-shadow: 0 0 0 0.2rem #ddd;
+}
+
+.btn-default:active {
+    background: #b9b9b9;
+}
+
+.servers:empty:after {
+    content: "no data";
+    display: block;
+    width: 100%;
+    text-align: center;
+    color: #999;
+    margin-top: 1.5rem;
+}
+
+.server-remarks-icon {
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 24px;
+}
+
+.server-edit-icon {
+    font-size: 18px;
+    cursor: pointer;
+    margin-top: 1px;
+    display: inline-block;
+    line-height: 21px;
+}
+
+.server-edit-icon:hover {
+    opacity: 0.8;
+}
+
+.server-del-icon {
+    font-size: 17px;
+    cursor: pointer;
+    margin-left: 12px;
+    line-height: 21px;
+}
+
+.server-del-icon:hover {
+    opacity: 0.8;
+}
+
+.custom-checkbox {
+    margin-top: -7px;
+    margin-bottom: 1rem;
+}
+
+#alert-server {
+    display: none;
+    margin-top: 0.5rem;
+    background: #F3969A;
+}
+
+.alert-link {
+    font-weight: normal;
+    text-decoration: underline;
+}
+
+.login-container {
+    position: relative;
+    top: 50%;
+    margin-top: -150px;
+}
+
+.login-footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.dropdown-item {
+    font-size: 0.9rem;
+}
+
+.input-group-text {
+    border-right: 0;
+    padding-right: 0;
+    background: #fff;
+    color: #888;
+}
+
+.my-input-group {
+    margin-top: -17px;
+}
+
+.my-input-group .input-group-text {
+    border-top-left-radius: 0;
+}
+
+.my-input-group input.form-control, .my-input-group select.form-control {
+    border-left: 0;
+    padding-left: 1px;
+}
+
+.my-input-group input.form-control.is-invalid, .my-input-group select.form-control.is-invalid {
+    border-left: 1px solid #FF7851;
+}
+
+#select-process {
+    border-bottom: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.custom-checkbox .custom-control-label::before {
+    border-radius: 50%;
+}
+
+/**
+* hack: 移除自动填充的背景色
+*/
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px white inset !important;
+}
+
+.th-auth {
+    width: 60px;
+    min-width: 60px;
+}
+
+.th-excludes {
+    width: 76px;
+    min-width: 76px;
+}
+
+.auth-wx-icon {
+    font-size: 20px;
+    color: #56CC9D;
+}
+
+.auth-lv-icon {
+    font-size: 24px;
+    line-height: 28px;
+    color: #de4995;
+}
+
+.excludes-icon {
+    font-size: 26px;
+    line-height: 30px;
+    cursor: pointer;
+}
+
+.excludes-icon:hover {
+    opacity: 0.8;
+}
+
+.btn-exclude {
+    border-radius: 50% !important;
+    height: 24px;
+    width: 24px;
+    margin-top: 6px;
+    margin-left: 6px;
+    padding: 0px 0px 0px 1px;
+    line-height: 23px;
+}
+
+#btn-new-exclude {
+    margin-top: 0;
+}
+
+.input-group.exclude-group>.form-control:not(:last-child), .input-group>.custom-select:not(:last-child) {
+    border-top-right-radius: 0.4rem;
+    border-bottom-right-radius: 0.4rem;
+}
+
+.exclude-group.group-regexp::after {
+    right: 38px;
+}
+
+.exclude-body ul {
+    list-style: none;
+    padding-left: 10px;
+}
+
+.exclude-body ul li {
+    margin-bottom: 10px;
+}

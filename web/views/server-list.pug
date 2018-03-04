@@ -1,0 +1,70 @@
+doctype html
+html(lang='en')
+    head
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
+        link(rel='stylesheet', href='/nodeProxy/static/bootswatch/dist/minty/bootstrap.min.css')
+        link(rel='stylesheet', href='/nodeProxy/static/iconfont.css')
+        link(rel='stylesheet', href='/nodeProxy/static/index.css')
+        title nodeProxy - servers
+    body
+        nav.navbar.navbar-expand-lg.navbar-dark.bg-primary.fixed-top
+            .container
+                a.navbar-brand(href='/nodeProxy/') node-proxy
+                button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarColor01', aria-controls='navbarColor01', aria-expanded='false', aria-label='Toggle navigation', style='')
+                    span.navbar-toggler-icon
+                #navbarColor01.collapse.navbar-collapse
+                    ul.navbar-nav.mr-auto
+                        li.nav-item
+                            a.nav-link(href='/nodeProxy/') routes
+                        li.nav-item.active
+                            a.nav-link(href='/nodeProxy/servers/') 
+                                |servers
+                                span.sr-only (current)
+                    .dropdown
+                        button.btn.btn-primary.dropdown-toggle#btn-logout-group(type="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false")=user
+                        .dropdown-menu(aria-labelledby="btn-logout-group")
+                            form(action="/nodeProxy/logout", method="Post")
+                                button.dropdown-item(type="submit") logout
+        .container.main-content
+            if (editable)
+                .row
+                    .col
+                        button.btn.btn-primary#btn-new-server New
+            .row.servers
+                each server in serverList
+                    include server-item.pug
+        .container
+            footer
+                -const year = new Date().getFullYear();
+                |&copy; #{year} 
+                a(href="https://github.com/eshengsky/node-proxy") node-proxy
+        .modal.fade#server-modal
+            .modal-dialog.modal-dialog-centered(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title New
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                    .modal-body
+                        .form-group
+                            label(for='input-name') server
+                            input.form-control#input-name(placeholder="server name", spellcheck="false")
+                        .custom-control.custom-checkbox(title="Forward to this server if no matched route rule.")
+                            input.custom-control-input#check-fallback(type="checkbox")
+                            label.custom-control-label(for="check-fallback") fallback server
+                        .form-group
+                            label(for='input-hosts') host
+                            textarea.form-control#input-hosts(rows='5', placeholder='start with http(s), split with breakline if have multi hosts')
+                        .form-group
+                            label(for='input-remarks') remarks
+                            textarea.form-control#input-remarks(rows='3', placeholder='note info...', spellcheck="false")
+                    .modal-footer
+                        button.btn.btn-default(type='button' data-dismiss='modal') Cancel
+                        button.btn.btn-primary#btn-save(type='button') Save changes
+        input#uid(type="hidden")
+        script(src='/nodeProxy/static/jquery/dist/jquery.min.js')
+        script(src='/nodeProxy/static/popper.js/dist/umd/popper.min.js')
+        script(src='/nodeProxy/static/bootstrap/dist/js/bootstrap.min.js')
+        script(src='/nodeProxy/static/sweetalert/dist/sweetalert.min.js')
+        script(src='/nodeProxy/static/servers.js')
