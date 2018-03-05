@@ -6,8 +6,8 @@ const logger = log4js.getLogger('proxy');
 // mongoose.set('bufferCommands', false);
 mongoose.connect(dbPath, { keepAlive: 120 }).then(() => {
     logger.info(`MongoDB connect successfully: ${dbPath}`);
-});
-mongoose.connection.on('error', err => {
+}).catch(err => {
     logger.error('MongoDB connect error!', err);
-});
+});;
+
 exports.mongoose = mongoose;
