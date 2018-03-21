@@ -1,49 +1,43 @@
 const mongoose = require('../db').mongoose;
 const serverSchema = mongoose.Schema({
-    // server name
+    // 服务器名称
     name: {
         type: String,
         required: true
     },
 
-    // is fallback server
-    fallback: {
-        type: String,
-        required: true
-    },
-
-    // server host list
+    // 服务器地址
     hosts: {
         type: String,
         required: true
     },
 
-    // remarks info
+    // 备注信息
     remarks: String,
 
-    // is soft deleted
+    // 是否已被软删除（默认否）
     deleted: {
         type: Boolean,
         required: true,
         default: false
     },
 
-    // create time
+    // 创建时间（默认当前时间）
     createTime: {
         type: Date,
         default: Date.now
     },
 
-    // create user(username + ip)
+    // 创建人
     createUser: String,
 
-    // modify time
+    // 修改时间（默认当前时间）
     modifyTime: {
         type: Date,
         default: Date.now
     },
 
-    // modify user(username + ip)
+    // 修改人
     modifyUser: String
 });
 

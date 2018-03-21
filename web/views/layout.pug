@@ -1,0 +1,45 @@
+doctype html
+html(lang='en')
+    head
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
+        link(rel='shortcut icon' href='/nodeProxy/static/nodeProxy.ico')
+        link(rel='stylesheet', href='/nodeProxy/static/bootswatch/dist/minty/bootstrap.min.css')
+        link(rel='stylesheet', href='/nodeProxy/static/iconfont.css')
+        block styles
+        title Node Proxy - #{title}
+    body
+        nav.navbar.navbar-expand-lg.navbar-dark.bg-primary.fixed-top
+            .container
+                a.navbar-brand(href='/nodeProxy/') 
+                    i.iconfont.icon-shujufangwendaili 
+                    |Node Proxy
+                button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarColor01', aria-controls='navbarColor01', aria-expanded='false', aria-label='Toggle navigation', style='')
+                    span.navbar-toggler-icon
+                #navbarColor01.collapse.navbar-collapse
+                    ul.navbar-nav.mr-auto
+                        li.nav-item(class={ active: path === '/' })
+                            a.nav-link(href='/nodeProxy/') 路由处理
+                        li.nav-item(class={ active: path === '/servers/' })
+                            a.nav-link(href='/nodeProxy/servers/') 服务器
+                    if (path !== '/servers/')
+                        .form-inline.my-2.my-lg-0.mr-2
+                            .input-group
+                                .input-group-prepend
+                                    span.search-icon.input-group-text
+                                        i.iconfont.icon-search1187938easyiconnet
+                                input.form-control(type='search', placeholder='快速搜索')
+                                .input-group-append
+                                    span.search-count.input-group-text
+                    .dropdown
+                        button.btn.btn-primary.dropdown-toggle#btn-logout-group(type="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false")=user
+                        .dropdown-menu(aria-labelledby="btn-logout-group")
+                            form(action="/nodeProxy/logout", method="Post")
+                                button.dropdown-item(type="submit") 退出登录
+        block content
+        .container
+            footer
+                -const year = new Date().getFullYear();
+                |&copy; #{year} 
+                a(href="https://github.com/eshengsky/node-proxy", target="_blank") Node Proxy 
+        

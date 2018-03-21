@@ -1,30 +1,31 @@
 tr(id=route.id, data-type=route.type, data-uri=route.uri, data-process=route.process, data-content=route.content, data-tryfile=route.tryFile, data-remarks=route.remarks, data-sequence=route.sequence)
     if (editable)
         td(class={inactive: !route.active})
-            i.drag-icon.iconfont.icon-drag(title='trag to sequence')
+            i.drag-icon.iconfont.icon-drag(title='拖动排序')
     td.text-left(class={inactive: !route.active})
         h6
             if route.type === 'regexp'
                 -const showUri = new RegExp(route.uri);
                 span #{showUri} 
-                span.badge.badge-secondary(title="regexp match") regexp
+                span.badge.badge-secondary(title="正则匹配") 正则
             else if route.type === 'exact'
                 span #{route.uri} 
-                span.badge.badge-info(title="exact match") exact
+                span.badge.badge-info(title="精确匹配") 精确
             else
                 =route.uri
         case route.process
             when 'static'
                 if route.tryFile === 'Y'
-                    small static file(enable try_file) #{route.content}
+                    small 静态文件(启用try_file) /data/nfsroot/client/static/#{route.content}
                 else
-                    small static file #{route.content}
+                    small 静态文件 /data/nfsroot/client/static/#{route.content}
             when 'rewrite'
-                small redirect to #{route.content}
+                small 重定向到 #{route.content}
             default
                 small
-                    |forward to 
+                    |转发至 
                     a(href='/nodeProxy/servers/') #{route.content}
+        .d-none=route.id
     td(class={inactive: !route.active})
         if route.remarks
             i.remarks-icon.iconfont.icon-icon_remarks(data-toggle="popover" data-content=route.remarks)
@@ -33,5 +34,5 @@ tr(id=route.id, data-type=route.type, data-uri=route.uri, data-process=route.pro
         input(type='checkbox', name='active-checkbox', checked=route.active, onchange=`activeRoute(this, "${route.id}")`)
     if (editable)
         td(class={inactive: !route.active})
-            i.edit-icon.iconfont.icon-config(title="edit", onclick=`editRoute("${route.id}")`)
-            i.del-icon.iconfont.icon-delete(title="delete", onclick=`delRoute("${route.id}")`)
+            i.edit-icon.iconfont.icon-config(title="修改", onclick=`editRoute("${route.id}")`)
+            i.del-icon.iconfont.icon-delete(title="删除", onclick=`delRoute("${route.id}")`)

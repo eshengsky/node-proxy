@@ -1,3 +1,9 @@
+/*
+ * @Author: Sky.Sun 
+ * @Date: 2018-02-07 12:02:40 
+ * @Last Modified by: Sky.Sun
+ * @Last Modified time: 2018-03-15 17:46:17
+ */
 const express = require('express');
 const router = express.Router();
 const path = require('path');
@@ -17,10 +23,11 @@ const serverModel = require('../models/servers').serverModel;
 const userConfig = require('../config/auth.json').users;
 const canEdit = require('./auth').canEdit;
 const authMw = require('./auth').authMw;
+const common = require('../utilities/common');
 
 /**
- * get current login user
- * @param {object} req
+ * 获取当前操作人
+ * @param {object} req - 请求对象
  */
 const getCurrentUser = req => {
     return `${req.user} [${req.ip}]`;
@@ -28,13 +35,13 @@ const getCurrentUser = req => {
 
 passport.use(new Strategy(
     (username, password, cb) => {
-        // check if user is valid
+        // 判断用户是否有效
         if (userConfig[username] && userConfig[username] === password) {
-            // pass
+            // 验证通过
             return cb(null, username);
         }
 
-        // invalid
+        // 验证失败
         return cb(null, false);
     }));
 
@@ -46,15 +53,18 @@ passport.deserializeUser((username, cb) => {
     if (userConfig[username]) {
         return cb(null, username);
     }
-    return cb(new Error('User name or password is wrong!'));
+    return cb(new Error('用户名或密码错误！'));
 });
 
 /**
- * web static source
+ * 静态资源
  */
 router.use('/static', express.static(path.resolve(__dirname, '../node_modules/')));
 router.use('/static', express.static(path.resolve(__dirname, '../web/static')));
 
+/**
+ * 解析 urlencode 的请求到 req.body
+ */
 router.use(express.urlencoded({
     extended: true
 }));
@@ -71,47 +81,47 @@ router.use(passport.initialize());
 router.use(passport.session());
 
 /**
- * login page
+ * 登录页面
  */
 router.get('/login', (req, res) => {
     res.render('login');
 });
 
 /**
- * login post request
+ * 接收登录请求
  */
 router.post('/login', (req, res) => {
     passport.authenticate('local', (err, user) => {
         if (err) {
-            logger.error('User login failed!');
+            logger.error('用户登录失败！', err);
             res.json({
-                valid: false,
-                message: 'Internal Server Error!'
+                code: -1,
+                message: '服务器错误！'
             });
         } else if (!user) {
-            logger.error('User login failed! User name or password is wrong：', req.body);
+            logger.error('用户登录失败！用户名或密码错误：', req.body);
             res.json({
-                valid: false,
-                message: 'User name or password is wrong!'
+                code: -1,
+                message: '用户名或密码错误！'
             });
         } else {
-            // go to login
+            // 登录操作
             req.logIn(user, err => {
                 let returnTo = '/nodeProxy/';
                 if (err) {
                     logger.error(err);
                     res.json({
-                        valid: false,
-                        message: 'Internal Server Error!'
+                        code: -1,
+                        message: '服务器错误！'
                     });
                 } else {
-                    // try to redirect to preview page
+                    // 尝试跳转之前的页面
                     if (req.session.returnTo) {
                         returnTo = req.session.returnTo;
                     }
                     res.json({
-                        valid: true,
-                        returnTo
+                        code: 1,
+                        data: returnTo
                     });
                 }
             });
@@ -120,7 +130,7 @@ router.post('/login', (req, res) => {
 });
 
 /**
- * logout
+ * 退出登录
  */
 router.post('/logout', (req, res) => {
     req.logout();
@@ -128,12 +138,12 @@ router.post('/logout', (req, res) => {
 });
 
 /**
- * the routes after this need to be logged in to access
+ * 这之后的路由需要登录后才允许访问
  */
 router.use(ensureLogin.ensureLoggedIn('/nodeProxy/login'));
 
 /**
- * homepage(route list page)
+ * 首页
  */
 router.get('/', (req, res) => {
     logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`);
@@ -147,18 +157,25 @@ router.get('/', (req, res) => {
     ]).then(values => {
         routeList = values[0];
         serverList = values[1];
-        res.render('route-list', { routeList, serverList, user, editable: canEdit(req) });
+        res.render('route-list', {
+            routeList,
+            serverList,
+            user,
+            editable: canEdit(req),
+            title: '路由处理',
+            path: req.path
+        });
     }, err => {
-        logger.error('get routes/servers error!', err);
+        logger.error('获取routes/servers出错！', err);
         res.status(500).send(err.message);
     }).catch(err => {
-        logger.error('get routes/servers error!', err);
+        logger.error('获取routes/servers出错！', err);
         res.status(500).send(err.message);
     });
 });
 
 /**
- * save new or modify
+ * 新增或修改保存
  */
 router.post('/save', authMw, (req, res) => {
     logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
@@ -169,20 +186,26 @@ router.post('/save', authMw, (req, res) => {
     const tryFile = req.body.tryFile;
     const remarks = req.body.remarks;
     if (!req.body.uid) {
-        // new
+        // 新增
         routeModel.findOne({
             type,
             uri,
             deleted: false
         }, (err, doc) => {
             if (err) {
-                logger.error('Add failed!', err);
-                res.status(500).send(err.message);
+                logger.error('新增失败！', err);
+                res.json({
+                    code: -1,
+                    message: err.message
+                });
                 return;
             }
             if (doc) {
-                logger.error('Add failed! The same matching path already exists!');
-                res.status(500).send('The same matching path already exists!');
+                logger.error('新增失败，已存在相同的匹配路径');
+                res.json({
+                    code: -1,
+                    message: '已存在相同的匹配路径！'
+                });
                 return;
             }
             routeModel.findOne({
@@ -190,8 +213,11 @@ router.post('/save', authMw, (req, res) => {
             }).sort('-sequence')
                 .exec((err, doc) => {
                     if (err) {
-                        logger.error('Get max sequence failed!', err);
-                        res.status(500).send(err.message);
+                        logger.error('获取最大sequence失败！', err);
+                        res.json({
+                            code: -1,
+                            message: err.message
+                        });
                         return;
                     }
                     let sequence = 1;
@@ -211,20 +237,26 @@ router.post('/save', authMw, (req, res) => {
                     });
                     route.save((err, item) => {
                         if (err) {
-                            logger.error('Add failed!', err);
-                            res.status(500).send(err.message);
+                            logger.error('新增失败！', err);
+                            res.json({
+                                code: -1,
+                                message: err.message
+                            });
                             return;
                         }
                         const template = routeCompiledFunc({
                             route: item,
                             editable: canEdit(req)
                         });
-                        res.send(template);
+                        res.json({
+                            code: 1,
+                            data: template
+                        });
                     });
                 });
         });
     } else {
-        // modify
+        // 修改
         routeModel.findOne({
             type,
             uri,
@@ -232,13 +264,19 @@ router.post('/save', authMw, (req, res) => {
             _id: { $ne: req.body.uid }
         }, (err, doc) => {
             if (err) {
-                logger.error('Modify failed!', err);
-                res.status(500).send(err.message);
+                logger.error('修改失败！', err);
+                res.json({
+                    code: -1,
+                    message: err.message
+                });
                 return;
             }
             if (doc) {
-                logger.error('Modify failed! The same matching path already exists!');
-                res.status(500).send('The same matching path already exists!');
+                logger.error('修改失败，已存在相同的匹配路径');
+                res.json({
+                    code: -1,
+                    message: '已存在相同的匹配路径！'
+                });
                 return;
             }
             routeModel.findByIdAndUpdate(req.body.uid, {
@@ -252,22 +290,28 @@ router.post('/save', authMw, (req, res) => {
                 modifyTime: new Date()
             }, { new: true }, (err, item) => {
                 if (err) {
-                    logger.error('Modify failed!', err);
-                    res.status(500).send(err.message);
+                    logger.error('修改失败！', err);
+                    res.json({
+                        code: -1,
+                        message: err.message
+                    });
                     return;
                 }
                 const template = routeCompiledFunc({
                     route: item,
                     editable: canEdit(req)
                 });
-                res.send(template);
+                res.json({
+                    code: 1,
+                    data: template
+                });
             });
         });
     }
 });
 
 /**
- * modify active status
+ * 修改启用
  */
 router.post('/active', authMw, (req, res) => {
     logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
@@ -278,16 +322,22 @@ router.post('/active', authMw, (req, res) => {
         modifyTime: new Date()
     }, { new: true }, (err, item) => {
         if (err) {
-            logger.error('Modify active failed!', err);
-            res.status(500).send(err.message);
+            logger.error('启用失败！', err);
+            res.json({
+                code: -1,
+                message: err.message
+            });
             return;
         }
-        res.json(item);
+        res.json({
+            code: 1,
+            data: item
+        });
     });
 });
 
 /**
- * soft delete
+ * 软删除
  */
 router.post('/del', authMw, (req, res) => {
     logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
@@ -297,16 +347,22 @@ router.post('/del', authMw, (req, res) => {
         modifyTime: new Date()
     }, { new: true }, (err, item) => {
         if (err) {
-            logger.error('Delete failed!', err);
-            res.status(500).send(err.message);
+            logger.error('删除失败！', err);
+            res.json({
+                code: -1,
+                message: err.message
+            });
             return;
         }
-        res.json(item);
+        res.json({
+            code: 1,
+            data: item
+        });
     });
 });
 
 /**
- * modify sequence
+ * 修改排序
  */
 router.post('/seq', authMw, (req, res) => {
     logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
@@ -321,18 +377,96 @@ router.post('/seq', authMw, (req, res) => {
         promiseArray.push(promise);
     });
     Promise.all(promiseArray).then(() => {
-        res.end();
+        res.json({
+            code: 1
+        });
     }, err => {
-        logger.error('Modify sequence failed!', err);
-        res.status(500).send(err.message);
+        logger.error('修改排序失败！', err);
+        res.json({
+            code: -1,
+            message: err.message
+        });
     }).catch(err => {
-        logger.error('Modify sequence failed!', err);
-        res.status(500).send(err.message);
+        logger.error('修改排序失败！', err);
+        res.json({
+            code: -1,
+            message: err.message
+        });
     });
 });
 
 /**
- * servers page
+ * 导出路由
+ */
+router.get('/exportRoutes', (req, res) => {
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
+    routeModel.find({ deleted: false }).exec((err, routes) => {
+        if (err) {
+            logger.error('导出routes出错！', err);
+            res.status(500).send(err.message);
+            return;
+        }
+        res.setHeader('Content-disposition', 'attachment; filename=node_proxy_routes.json');
+        res.setHeader('Content-type', 'application/json');
+        res.send(routes);
+    });
+});
+
+/**
+ * 导入路由
+ */
+router.post('/importRoutes', authMw, (req, res) => {
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
+    try {
+        const data = req.body.data;
+        const matches = data.match(/^data:(.*);base64,(.*)$/);
+        let result = matches[2];
+        result = JSON.parse(common.decodeBase64(result));
+        result.forEach(item => {
+            // 移除id，以防与库中已有数据重复
+            delete item._id;
+        });
+        routeModel.updateMany({
+            deleted: false
+        }, {
+            deleted: true,
+            modifyUser: getCurrentUser(req),
+            modifyTime: new Date()
+        }).exec(err => {
+            if (err) {
+                logger.error('导入routes出错！', err);
+                res.json({
+                    code: -1,
+                    message: err.message
+                });
+                return;
+            }
+            routeModel.insertMany(result, err => {
+                if (err) {
+                    logger.error('导入routes出错！', err);
+                    res.json({
+                        code: -1,
+                        message: err.message
+                    });
+                    return;
+                }
+                res.json({
+                    code: 1,
+                    data: result.length.toString()
+                });
+            });
+        });
+    } catch (err) {
+        logger.error('导入routes出错！', err);
+        res.json({
+            code: -1,
+            message: err.message
+        });
+    }
+});
+
+/**
+ * 服务器页面
  */
 router.get('/servers', (req, res) => {
     logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`);
@@ -341,129 +475,143 @@ router.get('/servers', (req, res) => {
     let serverList = [];
     serverModel.find({ deleted: false }).exec((err, servers) => {
         if (err) {
-            logger.error('Get servers error!', err);
+            logger.error('获取servers出错！', err);
             res.status(500).send(err.message);
             return;
         }
         if (servers) {
             serverList = servers;
         }
-        res.render('server-list', { serverList, user, editable: canEdit(req) });
+        res.render('server-list', {
+            serverList,
+            user,
+            editable: canEdit(req),
+            title: '服务器',
+            path: req.path
+        });
     });
 });
 
 /**
- * add or modify server
+ * 新增或修改服务器
  */
 router.post('/saveServer', authMw, (req, res) => {
     logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     const name = req.body.name;
-    const fallback = req.body.fallback;
     const hosts = req.body.hosts;
     const remarks = req.body.remarks;
 
-    function done() {
-        if (!req.body.uid) {
-            // new
-            serverModel.findOne({
-                name,
-                deleted: false
-            }, (err, doc) => {
-                if (err) {
-                    logger.error('Add failed!', err);
-                    res.status(500).send(err.message);
-                    return;
-                }
-                if (doc) {
-                    logger.error('Add failed! Duplicate name!');
-                    res.status(500).send(`Server name ${name} already exists!`);
-                    return;
-                }
-                const server = new serverModel({
-                    name,
-                    fallback,
-                    hosts,
-                    remarks,
-                    createUser: getCurrentUser(req),
-                    modifyUser: getCurrentUser(req)
-                });
-                server.save((err, item) => {
-                    if (err) {
-                        logger.error('Add failed!', err);
-                        res.status(500).send(err.message);
-                        return;
-                    }
-                    const template = serverCompiledFunc({
-                        server: item,
-                        editable: canEdit(req)
-                    });
-                    res.send(template);
-                });
-            });
-        } else {
-            // modify
-            serverModel.findOne({
-                name,
-                deleted: false,
-                _id: { $ne: req.body.uid }
-            }, (err, doc) => {
-                if (err) {
-                    logger.error('Modify failed!', err);
-                    res.status(500).send(err.message);
-                    return;
-                }
-                if (doc) {
-                    logger.error('Mdd failed! Duplicate name!');
-                    res.status(500).send(`Server name ${name} already exists!`);
-                    return;
-                }
-                serverModel.findByIdAndUpdate(req.body.uid, {
-                    name,
-                    fallback,
-                    hosts,
-                    remarks,
-                    modifyUser: getCurrentUser(req),
-                    modifyTime: new Date()
-                }, { new: true }, (err, item) => {
-                    if (err) {
-                        logger.error('modify failed!', err);
-                        res.status(500).send(err.message);
-                        return;
-                    }
-                    const template = serverCompiledFunc({
-                        server: item,
-                        editable: canEdit(req)
-                    });
-                    res.send(template);
-                });
-            });
-        }
-    }
-
-    // if fallback is true, change exists fallback server to false
-    if (fallback === 'Y') {
-        serverModel.findOneAndUpdate({ fallback: 'Y', deleted: false }, { fallback: 'N' }, err => {
+    if (!req.body.uid) {
+        // 新增
+        serverModel.findOne({
+            name,
+            deleted: false
+        }, (err, doc) => {
             if (err) {
-                logger.error('Operate failed!', err);
-                res.status(500).send(err.message);
+                logger.error('新增失败！', err);
+                res.json({
+                    code: -1,
+                    message: err.message
+                });
                 return;
             }
-            done();
+            if (doc) {
+                logger.error('新增失败，有名称重复项');
+                res.json({
+                    code: -1,
+                    message: `服务器名称 ${name} 已存在！`
+                });
+                return;
+            }
+            const server = new serverModel({
+                name,
+                hosts,
+                remarks,
+                createUser: getCurrentUser(req),
+                modifyUser: getCurrentUser(req)
+            });
+            server.save((err, item) => {
+                if (err) {
+                    logger.error('新增失败！', err);
+                    res.json({
+                        code: -1,
+                        message: err.message
+                    });
+                    return;
+                }
+                const template = serverCompiledFunc({
+                    server: item,
+                    editable: canEdit(req)
+                });
+                res.json({
+                    code: 1,
+                    data: template
+                });
+            });
         });
     } else {
-        done();
+        // 修改
+        serverModel.findOne({
+            name,
+            deleted: false,
+            _id: { $ne: req.body.uid }
+        }, (err, doc) => {
+            if (err) {
+                logger.error('修改失败！', err);
+                res.json({
+                    code: -1,
+                    message: err.message
+                });
+                return;
+            }
+            if (doc) {
+                logger.error('修改失败，有名称重复项');
+                res.json({
+                    code: -1,
+                    message: `服务器名称 ${name} 已存在！`
+                });
+                return;
+            }
+            serverModel.findByIdAndUpdate(req.body.uid, {
+                name,
+                hosts,
+                remarks,
+                modifyUser: getCurrentUser(req),
+                modifyTime: new Date()
+            }, { new: true }, (err, item) => {
+                if (err) {
+                    logger.error('修改失败！', err);
+                    res.json({
+                        code: -1,
+                        message: err.message
+                    });
+                    return;
+                }
+                const template = serverCompiledFunc({
+                    server: item,
+                    editable: canEdit(req)
+                });
+                res.json({
+                    code: 1,
+                    data: template
+                });
+            });
+        });
     }
 });
 
 /**
- * soft delete server
+ * 软删除服务器
  */
 router.post('/delServer', authMw, (req, res) => {
     logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     serverModel.findById(req.body.uid, (err, doc) => {
         if (err) {
-            logger.error('Delete failed!', err);
-            res.status(500).send(err.message);
+            logger.error('删除失败！', err);
+            res.json({
+                code: -1,
+                message: err.message
+            });
             return;
         }
         const name = doc.name;
@@ -473,13 +621,19 @@ router.post('/delServer', authMw, (req, res) => {
             deleted: false
         }, (err, docs) => {
             if (err) {
-                logger.error('Delete failed!', err);
-                res.status(500).send(err.message);
+                logger.error('删除失败！', err);
+                res.json({
+                    code: -1,
+                    message: err.message
+                });
                 return;
             }
             if (docs.length > 0) {
-                logger.error('Delete failed! There are routing rules in use for this server!');
-                res.status(500).send('There are routing rules in use for this server, please delete the related route rules!');
+                logger.error('删除失败！有路由规则正在使用该服务器！');
+                res.json({
+                    code: -1,
+                    message: '有路由规则正在使用该服务器，请先删除相关路由配置！'
+                });
                 return;
             }
             serverModel.findByIdAndUpdate(req.body.uid, {
@@ -488,40 +642,91 @@ router.post('/delServer', authMw, (req, res) => {
                 modifyTime: new Date()
             }, { new: true }, (err, item) => {
                 if (err) {
-                    logger.error('Delete failed!', err);
-                    res.status(500).send(err.message);
+                    logger.error('删除失败！', err);
+                    res.json({
+                        code: -1,
+                        message: err.message
+                    });
                     return;
                 }
 
-                // if deleted server is fallback, auto set another server to fallback
-                if (item.fallback === 'Y') {
-                    serverModel.findOneAndUpdate({ deleted: false }, { fallback: 'Y' }, { new: true }, (err, doc) => {
-                        if (err) {
-                            logger.error('Auto fallback error!', err);
-                            res.status(500).send(err.message);
-                            return;
-                        }
-
-                        if (doc) {
-                            const template = serverCompiledFunc({
-                                server: doc,
-                                editable: canEdit(req)
-                            });
-                            res.json({
-                                _id: item.id,
-                                updateId: doc.id,
-                                template
-                            });
-                        } else {
-                            res.json(item);
-                        }
-                    });
-                } else {
-                    res.json(item);
-                }
+                res.json({
+                    code: 1,
+                    data: item
+                });
             });
         });
     });
+});
+
+/**
+ * 导出服务器
+ */
+router.get('/exportServers', (req, res) => {
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
+    serverModel.find({ deleted: false }).exec((err, servers) => {
+        if (err) {
+            logger.error('导出servers出错！', err);
+            res.status(500).send(err.message);
+            return;
+        }
+        res.setHeader('Content-disposition', 'attachment; filename=node_proxy_servers.json');
+        res.setHeader('Content-type', 'application/json');
+        res.send(servers);
+    });
+});
+
+/**
+ * 导入服务器
+ */
+router.post('/importServers', authMw, (req, res) => {
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
+    try {
+        const data = req.body.data;
+        const matches = data.match(/^data:(.*);base64,(.*)$/);
+        let result = matches[2];
+        result = JSON.parse(common.decodeBase64(result));
+        result.forEach(item => {
+            // 移除id，以防与库中已有数据重复
+            delete item._id;
+        });
+        serverModel.updateMany({
+            deleted: false
+        }, {
+            deleted: true,
+            modifyUser: getCurrentUser(req),
+            modifyTime: new Date()
+        }).exec(err => {
+            if (err) {
+                logger.error('导入servers出错！', err);
+                res.json({
+                    code: -1,
+                    message: err.message
+                });
+                return;
+            }
+            serverModel.insertMany(result, err => {
+                if (err) {
+                    logger.error('导入servers出错！', err);
+                    res.json({
+                        code: -1,
+                        message: err.message
+                    });
+                    return;
+                }
+                res.json({
+                    code: 1,
+                    data: result.length.toString()
+                });
+            });
+        });
+    } catch (err) {
+        logger.error('导入servers出错！', err);
+        res.json({
+            code: -1,
+            message: err.message
+        });
+    }
 });
 
 module.exports = router;

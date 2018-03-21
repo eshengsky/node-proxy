@@ -1,13 +1,19 @@
+/*
+ * @Author: Sky.Sun 
+ * @Date: 2018-02-13 09:46:39 
+ * @Last Modified by: Sky.Sun
+ * @Last Modified time: 2018-02-27 18:08:22
+ */
 const editableUsers = require('../config/auth.json').editableUsers;
 
 /**
- * check current user has auth to edit
- * @param {object} req
+ * 检查当前用户是否有编辑权限
+ * @param {object} req - 请求对象
  */
 const canEdit = req => {
     const user = req.user;
 
-    // '*': all users can editable
+    // 如果配置项包含了*，则所有用户可编辑
     if (editableUsers.includes('*')) {
         return true;
     }
@@ -21,5 +27,5 @@ module.exports.authMw = (req, res, next) => {
         next();
         return;
     }
-    res.status(403).send('You have no authority to do this!');
+    res.status(403).send('你没有权限进行此操作！');
 };

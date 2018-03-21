@@ -834,7 +834,8 @@ SendStream.prototype.stream = function stream(path) {
     const htmlType = 'text/html';
     const customHeader = 'X-Static-Source';
 
-    logger.info(`发送文件：${path}`, res.req);
+    // 成功发送文件，记录拼接后的日志
+    logger.info(`${this.options.logMsg} --> 发送文件：${path}`);
     
     /**
      * 只有开启了服务端缓存功能，且文件是 HTML 类型的，才走缓存

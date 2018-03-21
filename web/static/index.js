@@ -1,3 +1,6 @@
+/**
+ * 当前用户是否有编辑权限
+ */
 const editable = $('#editable').val() === 'true';
 
 function switcherInit(el) {
@@ -37,6 +40,7 @@ function draggerInit() {
                 return;
             }
 
+            // 需要重新排序的列表
             const seqList = [];
             for (let i = start - 1; i < end; i++) {
                 const tr = $(`.results tr:eq(${i})`);
@@ -47,18 +51,30 @@ function draggerInit() {
             }
             $.post('/nodeProxy/seq', {
                 seqList
-            }).done(() => {
-                seqList.forEach(item => {
-                    $(`#${item.uid}`).data('sequence', item.seq);
-                    $(`#${item.uid}`).attr('data-sequence', item.seq);
-                });
+            }).done(data => {
+                if (data.code === 1) {
+                    seqList.forEach(item => {
+                        $(`#${item.uid}`).data('sequence', item.seq);
+                        $(`#${item.uid}`).attr('data-sequence', item.seq);
+                    });
+                } else {
+                    swal({
+                        title: '保存失败',
+                        text: data.message,
+                        icon: 'error',
+                        button: {
+                            text: '关闭',
+                            className: 'btn btn-primary'
+                        }
+                    });
+                }
             }).fail(resp => {
                 swal({
-                    title: 'Save failed',
+                    title: '保存失败',
                     text: resp.responseText,
                     icon: 'error',
                     button: {
-                        text: 'Close',
+                        text: '关闭',
                         className: 'btn btn-primary'
                     }
                 });
@@ -75,12 +91,14 @@ const searcher = new QuickSearch({
     inputSelector: '[type=search]',
     findSelector: '.results tr',
     input: ({ text, find }) => {
+        // 显示查找到了多少个结果
         let num = '';
         if (text) {
             num = `${find}个`;
         }
         $('.search-count').text(num);
 
+        // 无数据时显示表足
         const empty = find === 0;
         if (empty) {
             setTimeout(() => {
@@ -90,6 +108,7 @@ const searcher = new QuickSearch({
             $('tfoot').css('display', 'none');
         }
 
+        // 当查找到的结果数!==总条数，禁用排序功能
         const dragIcons = document.querySelectorAll('.drag-icon');
         if (find !== document.querySelectorAll('.results tr').length) {
             dragIcons.forEach(item => {
@@ -103,57 +122,63 @@ const searcher = new QuickSearch({
     }
 });
 
+// uri 文本框变化
 $('#input-uri').on('input', () => {
     $('#input-uri').removeClass('is-invalid');
 });
 
+// 切换类型
 $('#select-type').on('change', () => {
     const type = $('#select-type').val();
     $('#input-uri').removeClass('is-invalid');
     switch (type) {
         case 'regexp':
-            $('#input-uri').attr('placeholder', 'Match regular expression');
+            $('#input-uri').attr('placeholder', '正则匹配');
             $('#group-uri').addClass('group-regexp');
             break;
         case 'exact':
-            $('#input-uri').attr('placeholder', 'Match exact full uri');
+            $('#input-uri').attr('placeholder', '完全匹配');
             $('#group-uri').removeClass('group-regexp');
             break;
         default:
-            $('#input-uri').attr('placeholder', 'Match start of uri');
+            $('#input-uri').attr('placeholder', '匹配开头');
             $('#group-uri').removeClass('group-regexp');
     }
 });
 
+// 处理内容 文本框变化
 $('#input-content').on('input', () => {
     $('#input-content').removeClass('is-invalid');
 });
 
+// 转发服务器 选择项变化
 $('#select-content').on('change', () => {
     $('#select-content').removeClass('is-invalid');
 });
 
+// 切换处理方式
 $('#select-process').on('change', () => {
     const process = $('#select-process').val();
     $('#input-content').removeClass('is-invalid');
     $('#select-content').removeClass('is-invalid');
     if (process === 'forward') {
-        $('#input-content-addon').html('Server:&nbsp;');
+        $('#input-content-addon').text('服务器：');
         $('#input-content').hide();
         $('#group-tryFile').hide();
         $('#select-content').show();
 
+        // 没有服务器则显示alert
         if ($('#select-content option').length === 1) {
             $('#alert-server').show();
         }
     } else {
         if (process === 'static') {
-            $('#input-content-addon').html('directory:&nbsp;');
-            $('#input-content').attr('placeholder', 'directory path');
+            $('#input-content-addon').text('目录：/data/nfsroot/client/static/');
+            $('#input-content').attr('placeholder', '剩余路径');
             $('#group-tryFile').show();
         } else {
-            $('#input-content-addon').html('URI:&nbsp;');
-            $('#input-content').attr('placeholder', 'can ignore domain');
+            $('#input-content-addon').text('地址：');
+            $('#input-content').attr('placeholder', '可以不加域名');
             $('#group-tryFile').hide();
         }
         $('#select-content').hide();
@@ -167,53 +192,121 @@ $('#input-content-addon').on('click', () => {
     $('#input-content').focus();
 });
 
+// 点击新增按钮
 $('#btn-new-route').on('click', () => {
     $('#uid').val('');
-    $('.modal-title').text('New');
+    $('.modal-title').text('新增');
     $('#route-modal').modal();
 });
 
+// 点击导出
+$('#btn-export').on('click', () => {
+    window.location.href = '/nodeProxy/exportRoutes';
+});
+
+// 点击导入
+$('#btn-import').on('change', () => {
+    const file = $('#btn-import')[0].files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+        $.post('/nodeProxy/importRoutes', {
+            data: reader.result
+        }).done(data => {
+            if (data.code === 1) {
+                swal({
+                    title: '导入成功',
+                    text: `共导入 ${data.data} 条数据`,
+                    icon: 'success',
+                    closeOnClickOutside: false,
+                    button: {
+                        text: '刷新',
+                        className: 'btn btn-primary'
+                    }
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                swal({
+                    title: '导入失败',
+                    text: data.message,
+                    icon: 'error',
+                    button: {
+                        text: '关闭',
+                        className: 'btn btn-primary'
+                    }
+                });
+            }
+        }).fail(resp => {
+            swal({
+                title: '导入失败',
+                text: resp.responseText,
+                icon: 'error',
+                button: {
+                    text: '关闭',
+                    className: 'btn btn-primary'
+                }
+            });
+        });
+    };
+    reader.readAsDataURL(file);
+});
+
+// 点击修改按钮
 window.editRoute = uid => {
     $('#uid').val(uid);
-    $('.modal-title').text('Modify');
+    $('.modal-title').text('修改');
     $('#route-modal').modal();
 };
 
+// 点击切换启用
 window.activeRoute = (el, uid) => {
     const active = el.checked;
     $.post('/nodeProxy/active', {
         uid,
         active
-    }).done(item => {
-        if (item.active) {
-            $(`#${uid} td`).removeClass('inactive');
+    }).done(data => {
+        if (data.code === 1) {
+            if (data.data.active) {
+                $(`#${uid} td`).removeClass('inactive');
+            } else {
+                $(`#${uid} td`).addClass('inactive');
+            }
         } else {
-            $(`#${uid} td`).addClass('inactive');
+            swal({
+                title: '保存失败',
+                text: data.message,
+                icon: 'error',
+                button: {
+                    text: '关闭',
+                    className: 'btn btn-primary'
+                }
+            });
         }
     }).fail(resp => {
         swal({
-            title: 'Save failed',
+            title: '保存失败',
             text: resp.responseText,
             icon: 'error',
             button: {
-                text: 'Close',
+                text: '关闭',
                 className: 'btn btn-primary'
             }
         });
     });
 };
 
+// 点击删除
 window.delRoute = uid => {
     swal({
-        title: 'Are you sure you want to delete?',
+        title: '确定要删除吗？',
         icon: 'warning',
         buttons: {
             btnCancel: {
-                text: 'Cancel',
+                text: '取消',
                 className: 'btn btn-default'
             },
             btnConfirm: {
-                text: 'Confirm delete',
+                text: '确认删除',
                 className: 'btn btn-danger'
             }
         },
@@ -222,25 +315,39 @@ window.delRoute = uid => {
         if (value === 'btnConfirm') {
             $.post('/nodeProxy/del', {
                 uid
-            }).done(item => {
-                swal({
-                    text: 'Delete successfully!',
-                    icon: 'success',
-                    buttons: false,
-                    timer: 1000
-                });
-                $(`#${item._id}`).remove();
-                if ($('.results tr').length === 0) {
-                    $('tfoot').css('display', 'table-row-group');
+            }).done(data => {
+                if (data.code === 1) {
+                    swal({
+                        text: '删除成功',
+                        icon: 'success',
+                        buttons: false,
+                        timer: 1000
+                    });
+                    $(`#${data.data._id}`).remove();
+                    if ($('.results tr').length === 0) {
+                        $('tfoot').css('display', 'table-row-group');
+                    }
+    
+                    // 重新触发一次搜索
+                    searcher.triggerSearch();
+                } else {
+                    swal({
+                        title: '删除失败',
+                        text: data.message,
+                        icon: 'error',
+                        button: {
+                            text: '关闭',
+                            className: 'btn btn-primary'
+                        }
+                    });
                 }
-                searcher.triggerSearch();
             }).fail(resp => {
                 swal({
-                    title: 'Delete failed',
+                    title: '删除失败',
                     text: resp.responseText,
                     icon: 'error',
                     button: {
-                        text: 'Close',
+                        text: '关闭',
                         className: 'btn btn-primary'
                     }
                 });
@@ -249,6 +356,7 @@ window.delRoute = uid => {
     });
 };
 
+// 点击保存按钮
 $('#btn-save').on('click', () => {
     const inputUri = $('#input-uri');
     const uri = inputUri.val().trim();
@@ -262,13 +370,13 @@ $('#btn-save').on('click', () => {
     const inputContent = $('#input-content');
     const selectContent = $('#select-content');
     let content = inputContent.val().trim();
-    if (process !== 'forward') {
+    if (process === 'rewrite') {
         if (!content) {
             inputContent.addClass('is-invalid');
             inputContent.focus();
             return;
         }
-    } else {
+    } else if (process === 'forward') {
         content = $('#select-content').val();
         if (!content) {
             selectContent.addClass('is-invalid');
@@ -287,36 +395,51 @@ $('#btn-save').on('click', () => {
         content,
         tryFile: tryFile ? 'Y' : 'N',
         remarks: $('#input-remarks').val()
-    }).done(template => {
-        let updatedItem;
-        if (!uid) {
-            $('.results').append(template);
-            updatedItem = $('.results tr:last');
-            $('tfoot').css('display', 'none');
+    }).done(data => {
+        if (data.code === 1) {
+            let updatedItem;
+            if (!uid) {
+                // 新增
+                $('.results').append(data.data);
+                updatedItem = $('.results tr:last');
+                $('tfoot').css('display', 'none');
+            } else {
+                // 修改
+                $(`#${uid}`).replaceWith(data.data);
+                updatedItem = $(`#${uid}`);
+            }
+
+            // 重新触发一次搜索
+            searcher.triggerSearch();
+
+            switcherInit(updatedItem.find('[name="active-checkbox"]')[0]);
+            updatedItem.find('[data-toggle="popover"]').popover(popoverOptions);
+            draggerInit();
+            $('#route-modal').modal('hide');
+            swal({
+                text: '保存成功',
+                icon: 'success',
+                buttons: false,
+                timer: 1000
+            });
         } else {
-            $(`#${uid}`).replaceWith(template);
-            updatedItem = $(`#${uid}`);
+            swal({
+                title: '保存失败',
+                text: data.message,
+                icon: 'error',
+                button: {
+                    text: '关闭',
+                    className: 'btn btn-primary'
+                }
+            });
         }
-
-        searcher.triggerSearch();
-
-        switcherInit(updatedItem.find('[name="active-checkbox"]')[0]);
-        updatedItem.find('[data-toggle="popover"]').popover(popoverOptions);
-        draggerInit();
-        $('#route-modal').modal('hide');
-        swal({
-            text: 'Save successfully!',
-            icon: 'success',
-            buttons: false,
-            timer: 1000
-        });
     }).fail(resp => {
         swal({
-            title: 'Save failed',
+            title: '保存失败',
             text: resp.responseText,
             icon: 'error',
             button: {
-                text: 'Close',
+                text: '关闭',
                 className: 'btn btn-primary'
             }
         });
@@ -325,9 +448,11 @@ $('#btn-save').on('click', () => {
     });
 });
 
+// 模态框显示之前填充数据
 $('#route-modal').on('show.bs.modal', () => {
     const uid = $('#uid').val();
     if (!uid) {
+        // 新增
         $('#select-type').val('start').change();
         $('#input-uri').val('');
         $('#input-uri').removeClass('is-invalid');
@@ -339,6 +464,7 @@ $('#route-modal').on('show.bs.modal', () => {
         $('#select-content').removeClass('is-invalid');
         $('#input-remarks').val('');
     } else {
+        // 修改
         const data = $(`#${uid}`).data();
         $('#select-type').val(data.type).change();
         $('#input-uri').val(data.uri);
@@ -356,6 +482,7 @@ $('#route-modal').on('show.bs.modal', () => {
     }
 });
 
+// 模态框显示之后聚焦
 $('#route-modal').on('shown.bs.modal', () => {
     $('#input-uri').focus();
 });

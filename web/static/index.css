@@ -2,29 +2,20 @@ html, body {
     height: 100%;
 }
 
+body {
+    color: #777;
+}
+
 body.login {
-    background-color: #505459;
-}
-
-body.login .navbar {
-    background-color: #505459;
-}
-
-body.login .navbar-brand {
-    color: #aaa;
-}
-
-body.login .login-footer {
-    color: #fff;
+    background-color: #f9f9f9;
 }
 
 body.login .btn, body.login .form-control {
     border-radius: 5px;
 }
 
-body.login h5 {
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-    color: #fff;
+body.login .logo {
+    font-size: 60px;
 }
 
 .main-content {
@@ -37,12 +28,25 @@ body.login h5 {
     color: #fff;
 }
 
+input::-webkit-input-placeholder {
+    color: #999 !important;
+}
+
 .dropdown-menu {
     min-width: 7rem;
 }
 
 .dropdown-item:hover, .dropdown-item:focus {
     background-color: #78C2AD;
+}
+
+.navbar-brand {
+    font-family: Montserrat;
+}
+
+.navbar-brand i {
+    font-size: 22px;
+    line-height: 20px;
 }
 
 .table {
@@ -194,7 +198,7 @@ tfoot {
 .group-regexp::before {
     content: "/";
     position: absolute;
-    left: 103px;
+    left: 85px;
     top: 7px;
     z-index: 999;
     color: #aaa;
@@ -256,7 +260,7 @@ footer {
 }
 
 .servers:empty:after {
-    content: "no data";
+    content: "无数据";
     display: block;
     width: 100%;
     text-align: center;
@@ -293,7 +297,7 @@ footer {
     opacity: 0.8;
 }
 
-.custom-checkbox {
+.modal-body .custom-checkbox {
     margin-top: -7px;
     margin-bottom: 1rem;
 }
@@ -312,13 +316,14 @@ footer {
 .login-container {
     position: relative;
     top: 50%;
-    margin-top: -150px;
+    margin-top: -230px;
 }
 
 .login-footer {
     position: absolute;
     bottom: 0;
     width: 100%;
+    color: #666;
 }
 
 .dropdown-item {
@@ -356,7 +361,13 @@ footer {
 }
 
 .custom-checkbox .custom-control-label::before {
-    border-radius: 50%;
+    border-radius: 0.2rem;
+    background: #fff;
+    border: 1px solid #ddd;
+}
+
+.custom-checkbox .custom-control-input:checked ~ .custom-control-label::before {
+    border: 0;
 }
 
 /**
@@ -397,18 +408,24 @@ input:-webkit-autofill {
     opacity: 0.8;
 }
 
-.btn-exclude {
+.btn-new-exc {
     border-radius: 50% !important;
     height: 24px;
     width: 24px;
-    margin-top: 6px;
+    margin-top: 0;
     margin-left: 6px;
     padding: 0px 0px 0px 1px;
     line-height: 23px;
 }
 
-#btn-new-exclude {
-    margin-top: 0;
+.btn-remove-exc {
+    border-radius: 50% !important;
+    height: 24px;
+    width: 24px;
+    margin-top: 6px;
+    margin-left: 6px;
+    padding: 1px 0px 0px 0px;
+    line-height: 23px;
 }
 
 .input-group.exclude-group>.form-control:not(:last-child), .input-group>.custom-select:not(:last-child) {
@@ -427,4 +444,33 @@ input:-webkit-autofill {
 
 .exclude-body ul li {
     margin-bottom: 10px;
+}
+
+.btn-upload {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.btn-upload i {
+    position: absolute;
+    top: 6px;
+}
+
+.btn-upload span {
+    margin-left: 21px;
+    margin-top: 1px;
+    display: inline-block;
+}
+
+.btn-upload input {
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    right: 0;
+    margin: 0;
+    font-size: 200px !important;
+    direction: ltr;
+    cursor: pointer;
+    display: block;
 }

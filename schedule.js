@@ -1,3 +1,9 @@
+/*
+ * @Author: Sky.Sun 
+ * @Date: 2018-02-07 16:09:43 
+ * @Last Modified by: Sky.Sun
+ * @Last Modified time: 2018-03-15 15:44:30
+ */
 const schedule = require('node-schedule');
 const job = require('./config/job');
 const routeModel = require('./models/routes').routeModel;
@@ -12,32 +18,33 @@ const getDataFromMongo = (routeList, serverList) => {
         const routes = values[0];
         const servers = values[1];
         
-        if (Array.isArray(routes) && routes.length > 0) {
+        if (Array.isArray(routes)) {
             if (JSON.stringify(routeList) === JSON.stringify(routes)) {
-                logger.info('The obtained routes does not change, do not do the update!');
+                logger.info('获取到的routes无变化，不做更新操作！');
             } else {
                 routeList.length = 0;
                 routeList.push(...routes);
-                logger.info('Get and update routes successfully!');
+                logger.info('成功获取并更新routes！');
             }
         } else {
-            logger.warn('The obtained routes may not be correct, do not do the update!', routes);
+            logger.warn('获取到的routes数据异常，不做更新操作！', routes);
         }
 
-        if (Array.isArray(servers) && servers.length > 0) {
+        if (Array.isArray(servers)) {
+            // 将server的hosts转换为数组
             servers.forEach(server => server.hostArray = server.hosts.split(','));
             if (JSON.stringify(serverList) === JSON.stringify(servers)) {
-                logger.info('The obtained servers does not change, do not do the update!');
+                logger.info('获取到的servers无变化，不做更新操作！');
             } else {
                 serverList.length = 0;
                 serverList.push(...servers);
-                logger.info('Get and update servers successfully!');
+                logger.info('成功获取并更新servers！');
             }
         } else {
-            logger.warn('The obtained servers may not be correct, do not do the update!', servers);
+            logger.warn('获取到的servers数据异常，不做更新操作！', servers);
         }
     }).catch(err => {
-        logger.error('Error when getting routes/servers!', err);
+        logger.error('获取routes/servers出错！', err);
     });
 };
 const getLatest = (routeList, serverList) => {

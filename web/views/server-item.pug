@@ -1,9 +1,7 @@
-.col-md-4.mt-4(id=server.id, data-name=server.name, data-fallback=server.fallback, data-hosts=server.hosts, data-remarks=server.remarks)
+.col-md-4.mt-4(id=server.id, data-name=server.name, data-hosts=server.hosts, data-remarks=server.remarks)
     .card
         .card-header
-            if (server.fallback === 'Y') 
-                span.badge.badge-primary.badge-fallback(title="forward to this server if no matched route rule") fallback
-            =` ${server.name}`
+            =server.name
             if server.remarks
                 i.server-remarks-icon.iconfont.icon-icon_remarks.float-right(data-toggle="popover" data-content=server.remarks)
         ul.list-group.list-group-flush
@@ -11,5 +9,5 @@
                 li.list-group-item=ip
             if (editable)
                 li.list-group-item.text-right
-                    i.server-edit-icon.iconfont.icon-config(title="edit", onclick=`editServer("${server.id}")`)
-                    i.server-del-icon.iconfont.icon-delete(title="delete", onclick=`delServer("${server.id}")`)
+                    i.server-edit-icon.iconfont.icon-config(title="修改", onclick=`editServer("${server.id}")`)
+                    i.server-del-icon.iconfont.icon-delete(title="删除", onclick=`delServer("${server.id}")`)
