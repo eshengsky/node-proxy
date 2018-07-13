@@ -1,0 +1,14 @@
+extends layout.pug
+
+block styles
+    link(rel='stylesheet', href='/noginx/static/css/index.css')
+
+block content
+    .main-content
+        .col.btn-line
+            a(href="/noginx/help/") 帮助
+        .help-content
+            !=html
+    script(src='/noginx/static/jquery/dist/jquery.min.js')
+    script(src='/noginx/static/bootstrap/dist/js/bootstrap.min.js')
+    

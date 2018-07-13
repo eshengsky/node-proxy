@@ -3,11 +3,11 @@ html(lang='en')
     head
         meta(charset='utf-8')
         meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
-        link(rel='shortcut icon' href='/nodeProxy/static/nodeProxy.ico')
-        link(rel='stylesheet', href='/nodeProxy/static/bootswatch/dist/minty/bootstrap.min.css')
-        link(rel='stylesheet', href='/nodeProxy/static/iconfont.css')
-        link(rel='stylesheet', href='/nodeProxy/static/index.css')
-        title Node Proxy - 用户登录
+        link(rel='shortcut icon' href='/noginx/static/img/noginx.ico')
+        link(rel='stylesheet', href='/noginx/static/bootswatch/dist/minty/bootstrap.min.css')
+        link(rel='stylesheet', href='/noginx/static/css/iconfont.css')
+        link(rel='stylesheet', href='/noginx/static/css/index.css')
+        title Noginx - 用户登录
     body.login
         .container.login-container
             .row.justify-content-center
@@ -15,17 +15,16 @@ html(lang='en')
                     .form-group.text-center
                         i.iconfont.icon-shujufangwendaili.logo
                     .form-group
-                        h5.text-center.mb-4 登录到 Node Proxy
+                        h5.text-center.mb-4 登录到 Noginx
                     .form-group
                         input.form-control.form-control-lg#input-username(name="username", placeholder="用户名")
                     .form-group
                         input.form-control.form-control-lg#input-password(type="password", name="password", placeholder="密码")
-                    button.btn.btn-primary.btn-block.btn-lg#btn-login 登 录
+                    button.btn.btn-info.btn-block.btn-lg#btn-login 登 录
         footer.login-footer
                     -const year = new Date().getFullYear();
-                    |&copy; #{year} 
-                    a(href="https://github.com/eshengsky/node-proxy", target="_blank") Node Proxy 
-        script(src='/nodeProxy/static/jquery/dist/jquery.min.js')
-        script(src='/nodeProxy/static/sweetalert/dist/sweetalert.min.js')
-        script(src='/nodeProxy/static/blueimp-md5/js/md5.min.js')
-        script(src='/nodeProxy/static/login.js')
+                    |&copy; #{year} Sky.Sun
+        script(src='/noginx/static/jquery/dist/jquery.min.js')
+        script(src='/noginx/static/sweetalert/dist/sweetalert.min.js')
+        script(src='/noginx/static/blueimp-md5/js/md5.min.js')
+        script(src='/noginx/static/js/login.js')

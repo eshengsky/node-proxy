@@ -2,7 +2,7 @@
  * @Author: Sky.Sun 
  * @Date: 2018-02-27 12:03:39 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2018-03-02 10:06:12
+ * @Last Modified time: 2018-05-31 17:03:07
  */
 module.exports = {
     /**
@@ -69,7 +69,7 @@ module.exports = {
         }
         return ret;
     },
-    
+
     /**
      * 获取完整的请求链接
      * @param {object} req - 请求
@@ -78,7 +78,7 @@ module.exports = {
     getFullUrl(req) {
         return `${req.protocol}://${req.get('Host')}${req.originalUrl}`;
     },
-    
+
     /**
      * 将utf8字符串编码为base64字符串
      * @param str - 待编码字符串
@@ -95,5 +95,75 @@ module.exports = {
      */
     decodeBase64(str) {
         return new Buffer(str, 'base64').toString('utf8');
+    },
+
+    deepCopy(src, /* INTERNAL */ _visited) {
+        if (src == null || typeof (src) !== 'object') {
+            return src;
+        }
+
+        // Initialize the visited objects array if needed
+        // This is used to detect cyclic references
+        if (_visited == undefined) {
+            _visited = [];
+        }
+        // Otherwise, ensure src has not already been visited
+        else {
+            const len = _visited.length;
+            for (let i = 0; i < len; i++) {
+                // If src was already visited, don't try to copy it, just return the reference
+                if (src === _visited[i]) {
+                    return src;
+                }
+            }
+        }
+
+        // Add this object to the visited array
+        _visited.push(src);
+
+        //Honor native/custom clone methods
+        if (typeof src.clone == 'function') {
+            return src.clone(true);
+        }
+
+        //Special cases:
+        //Array
+        if (Object.prototype.toString.call(src) == '[object Array]') {
+            //[].slice(0) would soft clone
+            ret = src.slice();
+            let j = ret.length;
+            while (j--) {
+                ret[j] = this.deepCopy(ret[j], _visited);
+            }
+            return ret;
+        }
+        //Date
+        if (src instanceof Date) {
+            return new Date(src.getTime());
+        }
+        //RegExp
+        if (src instanceof RegExp) {
+            return new RegExp(src);
+        }
+        //DOM Elements
+        if (src.nodeType && typeof src.cloneNode == 'function') {
+            return src.cloneNode(true);
+        }
+
+        //If we've reached here, we have a regular object, array, or function
+
+        //make sure the returned object has the same prototype as the original
+        let proto = (Object.getPrototypeOf ? Object.getPrototypeOf(src) : src.__proto__);
+        if (!proto) {
+            proto = src.constructor.prototype; //this line would probably only be reached by very old browsers
+        }
+        var ret = Object.create(proto);
+
+        for (const key in src) {
+            if (Object.prototype.hasOwnProperty.call(src, key)) {
+                ret[key] = this.deepCopy(src[key], _visited);
+            }
+        }
+        return ret;
     }
 }

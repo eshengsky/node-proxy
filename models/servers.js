@@ -1,5 +1,5 @@
 const mongoose = require('../db').mongoose;
-const serverSchema = mongoose.Schema({
+const serverSchemaObj = {
     // 服务器名称
     name: {
         type: String,
@@ -7,8 +7,8 @@ const serverSchema = mongoose.Schema({
     },
 
     // 服务器地址
-    hosts: {
-        type: String,
+    addresses: {
+        type: Array,
         required: true
     },
 
@@ -39,6 +39,8 @@ const serverSchema = mongoose.Schema({
 
     // 修改人
     modifyUser: String
-});
+};
+const serverSchema = mongoose.Schema(serverSchemaObj);
 
+exports.serverSchemaObj = serverSchemaObj;
 exports.serverModel = mongoose.model('servers', serverSchema); 

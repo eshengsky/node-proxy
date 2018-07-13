@@ -1,28 +1,28 @@
 extends layout.pug
 
 block styles
-    link(rel='stylesheet', href='/nodeProxy/static/index.css')
-
+    link(rel='stylesheet', href='/noginx/static/css/animate.min.css')
+    link(rel='stylesheet', href='/noginx/static/css/index.css')
 block content
-    .container.main-content
-        .row
-            .col
-                if (editable)
-                    button.btn.btn-primary.mr-2#btn-new-server 
-                        i.iconfont.icon-add1
-                        span  新增
-                    .btn.btn-primary.btn-upload.mr-2
-                        div
-                            i.iconfont.icon-import2
-                            span  导入
-                        input.btn.btn-primary.mr-2#btn-import(type="file", accept=".json")
-                button.btn.btn-primary.mr-2#btn-export
-                    i.iconfont.icon-export
-                    span  导出
+    .main-content
+        .col.btn-line
+            a(href="/noginx/servers/") 服务器
+            if (editable)
+                button.btn.btn-info.mr-2#btn-new-server 
+                    i.iconfont.icon-add1
+                    span  新增
+                .btn.btn-info.btn-upload.mr-2
+                    div
+                        i.iconfont.icon-import2
+                        span  导入
+                    input.btn.btn-info.mr-2#btn-import(type="file", accept=".json")
+            button.btn.btn-info.mr-2#btn-export
+                i.iconfont.icon-export
+                span  导出
         .row.servers
             each server in serverList
-                include server-item.pug
-    .modal.fade#server-modal
+                include ./partials/server-item.pug
+    .modal.animated.bounceInDown#server-modal(data-keyboard="false")
         .modal-dialog.modal-dialog-centered(role='document')
             .modal-content
                 .modal-header
@@ -34,17 +34,23 @@ block content
                         label(for='input-name') 服务器
                         input.form-control#input-name(placeholder="服务器名称", spellcheck="false")
                     .form-group
-                        label(for='input-hosts') 服务器地址
-                        textarea.form-control#input-hosts(rows='5', placeholder='请以http(s)开头，多个地址用换行隔开')
+                        label 权重&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;服务器地址
+                        button.btn.btn-sm.btn-info.float-right.btn-new-exc#btn-new-address(type="button", title="添加") 
+                            i.iconfont.icon-add
+                        #host-container
+                        small.form-text.text-muted 说明：如果添加了多台服务器，则会自动负载均衡，并支持按权重分配请求。示例：配置了3台服务器，由于第3台性能较强，设置权重分别为1,1,2，则命中这3台服务器的几率分别是25%，25%，50%。
                     .form-group
                         label(for='input-remarks') 备注
                         textarea.form-control#input-remarks(rows='3', placeholder='备注信息', spellcheck="false")
                 .modal-footer
+                    a.btn.btn-link.btn-howto.text-info(href="/noginx/help/#如何创建服务器？", target="_blank") 如何配置？
                     button.btn.btn-default(type='button' data-dismiss='modal') 取消
-                    button.btn.btn-primary#btn-save(type='button') 保存修改
+                    button.btn.btn-info#btn-save(type='button') 保存修改
     input#uid(type="hidden")
-    script(src='/nodeProxy/static/jquery/dist/jquery.min.js')
-    script(src='/nodeProxy/static/popper.js/dist/umd/popper.min.js')
-    script(src='/nodeProxy/static/bootstrap/dist/js/bootstrap.min.js')
-    script(src='/nodeProxy/static/sweetalert/dist/sweetalert.min.js')
-    script(src='/nodeProxy/static/servers.js')
+    script(src='/noginx/static/jquery/dist/jquery.min.js')
+    script(src='/noginx/static/popper.js/dist/umd/popper.min.js')
+    script(src='/noginx/static/bootstrap/dist/js/bootstrap.min.js')
+    script(src='/noginx/static/sweetalert/dist/sweetalert.min.js')
+    script(src='/noginx/static/echarts/dist/echarts.min.js')
+    script(src='/noginx/static/js/search.js')
+    script(src='/noginx/static/js/servers.js')

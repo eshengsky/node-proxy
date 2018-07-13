@@ -1,0 +1,72 @@
+extends layout.pug
+
+block styles
+    link(rel='stylesheet', href='/noginx/static/switchery/dist/switchery.min.css')
+    link(rel='stylesheet', href='/noginx/static/css/animate.min.css')
+    link(rel='stylesheet', href='/noginx/static/css/index.css')
+    if (!editable) 
+        style(type='text/css').
+            .results tr:hover .seq {
+                display: block !important;
+            }
+
+            .results tr:hover .drag-icon {
+                display: none !important;
+            }
+block content
+    .main-content
+        .col.btn-line
+            a(href="/noginx/domains/") 域名
+            if (editable)
+                button.btn.btn-info.mr-2#btn-new-domain 
+                    i.iconfont.icon-add1
+                    span  新增
+                .btn.btn-info.btn-upload.mr-2
+                    div
+                        i.iconfont.icon-import2
+                        span  导入
+                    input.btn.btn-info.mr-2#btn-import(type="file", accept=".json")
+            button.btn.btn-info.mr-2#btn-export
+                i.iconfont.icon-export
+                span  导出
+        .table-responsive.mt-4.tb-wrap
+            table.table
+                thead
+                    tr
+                        th.text-left 域名
+                        th.th-remarks 备注
+                        if (editable)
+                            th.th-action 操作
+                tbody.results
+                    each domain in domainList
+                        include ./partials/domain-tr.pug
+                tfoot(style={display: domainList.length === 0 ? 'table-row-group' : 'none'})
+                    tr
+                        td(colspan=6) 
+                            p.no-data 无数据
+    .modal.animated.bounceInDown#domain-modal(data-keyboard="false")
+        .modal-dialog.modal-dialog-centered(role='document')
+            .modal-content
+                .modal-header
+                    h5.modal-title 新增
+                    button.close(type='button' data-dismiss='modal' aria-label='Close')
+                        span(aria-hidden='true') &times;
+                .modal-body
+                    .form-group
+                        label(for='input-domainPath') 域名
+                        input.form-control#input-domainPath(placeholder="不要带http", spellcheck="false")
+                    .form-group
+                        label(for='input-remarks') 备注
+                        textarea.form-control#input-remarks(rows='3', placeholder='备注信息', spellcheck="false")
+                .modal-footer
+                    a.btn.btn-link.btn-howto.text-info(href="/noginx/help/#如何创建域名？") 如何配置？
+                    button.btn.btn-default(type='button' data-dismiss='modal') 取消
+                    button.btn.btn-info#btn-save(type='button') 保存修改
+    input#uid(type="hidden")
+    input#editable(type="hidden", value=editable.toString())
+    script(src='/noginx/static/jquery/dist/jquery.min.js')
+    script(src='/noginx/static/popper.js/dist/umd/popper.min.js')
+    script(src='/noginx/static/bootstrap/dist/js/bootstrap.min.js')
+    script(src='/noginx/static/js/search.js')
+    script(src='/noginx/static/sweetalert/dist/sweetalert.min.js')
+    script(src='/noginx/static/js/domain.js')

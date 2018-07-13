@@ -2,44 +2,113 @@ doctype html
 html(lang='en')
     head
         meta(charset='utf-8')
-        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
-        link(rel='shortcut icon' href='/nodeProxy/static/nodeProxy.ico')
-        link(rel='stylesheet', href='/nodeProxy/static/bootswatch/dist/minty/bootstrap.min.css')
-        link(rel='stylesheet', href='/nodeProxy/static/iconfont.css')
+        link(rel='shortcut icon' href='/noginx/static/img/noginx.ico')
+        link(rel='stylesheet', href='/noginx/static/bootswatch/dist/minty/bootstrap.min.css')
+        link(rel='stylesheet', href='/noginx/static/css/iconfont.css')
         block styles
-        title Node Proxy - #{title}
+        title Noginx - #{title}
     body
-        nav.navbar.navbar-expand-lg.navbar-dark.bg-primary.fixed-top
-            .container
-                a.navbar-brand(href='/nodeProxy/') 
+        //- 顶部导航
+        nav.navbar.navbar-expand.fixed-top
+            .container-fluid
+                a.navbar-brand(href='/noginx/', title='高性能 HTTP 及反向代理服务器') 
                     i.iconfont.icon-shujufangwendaili 
-                    |Node Proxy
-                button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarColor01', aria-controls='navbarColor01', aria-expanded='false', aria-label='Toggle navigation', style='')
-                    span.navbar-toggler-icon
-                #navbarColor01.collapse.navbar-collapse
-                    ul.navbar-nav.mr-auto
-                        li.nav-item(class={ active: path === '/' })
-                            a.nav-link(href='/nodeProxy/') 路由处理
-                        li.nav-item(class={ active: path === '/servers/' })
-                            a.nav-link(href='/nodeProxy/servers/') 服务器
-                    if (path !== '/servers/')
-                        .form-inline.my-2.my-lg-0.mr-2
-                            .input-group
-                                .input-group-prepend
-                                    span.search-icon.input-group-text
-                                        i.iconfont.icon-search1187938easyiconnet
-                                input.form-control(type='search', placeholder='快速搜索')
-                                .input-group-append
-                                    span.search-count.input-group-text
-                    .dropdown
-                        button.btn.btn-primary.dropdown-toggle#btn-logout-group(type="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false")=user
-                        .dropdown-menu(aria-labelledby="btn-logout-group")
-                            form(action="/nodeProxy/logout", method="Post")
-                                button.dropdown-item(type="submit") 退出登录
-        block content
-        .container
-            footer
+                    |Noginx
+                ul.navbar-nav
+                    li.nav-item
+                        a.nav-link.text-muted(href='/noginx/help/')
+                            i.iconfont.icon-question 
+                            | 帮助
+                    li.nav-item
+                        a.nav-link.text-muted(href='https://github.com/eshengsky/noginx', target='_blank')
+                            i.iconfont.icon-github(style='font-size: 17px;') 
+                            | 源码
+                .form-inline.my-2.my-lg-0.mr-2.search-wrap
+                    .input-group
+                        .input-group-prepend
+                            span.search-icon.input-group-text
+                                i.iconfont.icon-search1187938easyiconnet
+                        input.form-control(type='search', placeholder='快速搜索')
+                        .input-group-append
+                            span.search-count.input-group-text(title='清除搜索', onclick='clearSearch();', onmouseover='searchOver();', onmouseout='searchOut();')
+                                span
+                                i.icon-x ×
+                .user-info
+                    span=user
+                    form(action="/noginx/logout", method="Post")
+                        button(type="submit", title="退出登录")
+                            i.iconfont.icon-log_out
+        //- 左侧导航
+        .sub-core
+            .navigation-core
+                a.item-1(class={ current: path === '/' }, href='/noginx/')
+                    .title
+                        h3 路由
+                    .corner
+                        i.icon-layout1.iconfont.icon-direction
+                a.item-2(class={ current: path === '/servers/' }, href='/noginx/servers/')
+                    .title
+                        h3 服务器
+                    .corner
+                        i.icon-layout2.iconfont.icon-server
+                a.item-3(class={ current: path === '/caches/' }, href='/noginx/caches/')
+                    .title
+                        h3 缓存设置
+                        .desc
+                            p
+                                | 当前总计
+                                span.key-count
+                                | 条缓存
+                    .corner
+                        i.icon-layout3.iconfont.icon-redis
+                a.item-4(class={ current: path === '/domains/' }, href='/noginx/domains/')
+                    .title
+                        h3 域名
+                    .corner
+                        i.icon-layout4.iconfont.icon-global
+                a.item-5(class={ current: path === '/info/' }, href='/noginx/info/')
+                    .title
+                        h3 信息
+                    .corner
+                        i.icon-layout5.iconfont.icon-info
+                a.item-6(class={ current: path === '/permissions/' }, href='/noginx/permissions/')
+                    .title
+                        h3 
+                            |身份
+                            br
+                            |验证
+                    .corner
+                        i.icon-layout6.iconfont.icon-icon-auth
+            #js-copyright_core.copyright-core
                 -const year = new Date().getFullYear();
-                |&copy; #{year} 
-                a(href="https://github.com/eshengsky/node-proxy", target="_blank") Node Proxy 
-        
+                |&copy; #{year} Sky.Sun
+
+        //- 右侧主体内容
+        .right-content
+            block content
+        script.
+            document.querySelector('.search-wrap .input-group-prepend').onclick = () => document.querySelector('.search-wrap input').focus();
+            document.querySelector('.search-wrap .input-group-append').onclick = () => document.querySelector('.search-wrap input').focus();
+            $.get('/noginx/getCacheKeyLen').done(data => {
+                document.querySelector('.key-count').textContent = data.data || 0;
+            });
+            window.clearSearch = () => {
+                if (searcher) {
+                    $('input[type=search]').val('');
+                    searcher.triggerSearch();
+                }
+            };
+            window.searchOver = () => {
+                if ($('input[type=search]').val()) {
+                    $('.search-count').css('opacity', '0.8');
+                } else {
+                    $('.search-count').css('opacity', '0');
+                }
+            }
+            window.searchOut = () => {
+                if ($('input[type=search]').val()) {
+                    $('.search-count').css('opacity', '1');
+                } else {
+                    $('.search-count').css('opacity', '0');
+                }
+            };

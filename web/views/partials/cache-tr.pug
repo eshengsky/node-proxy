@@ -1,0 +1,44 @@
+tr(id=cache.id, data-type=cache.type, data-uri=cache.uri, data-method=cache.method, data-domainid=cache.domainId, data-keytype=cache.keyType, data-keycontent=cache.keyContent, data-expired=cache.expired)
+    td(class={inactive: !cache.active})
+        -
+            let domainName;
+            let domainShort;
+            if (cache.domainId) {
+                domainName = domainList.find(t => t.id === cache.domainId) ? domainList.find(t => t.id === cache.domainId).domainPath : '';
+                domainShort = domainName.substr(0, domainName.indexOf('.')).toUpperCase();
+            } else {
+                domainName = domainShort = '不限';
+            }
+        span.badge.badge-primary(title=domainName)=domainShort
+        .d-none=domainName
+    td.text-left(class={inactive: !cache.active})
+        h6
+            - const showMethod = cache.method ? cache.method.toUpperCase() : 'ALL';
+            - const methodTitle = cache.method ? `请求方式${cache.method.toUpperCase()}` : '请求方式不限';
+            span.item-method(class=showMethod, title=methodTitle)=showMethod
+            if cache.type === 'regexp'
+                -const showUri = new RegExp(cache.uri);
+                span #{showUri} 
+                span.badge.badge-custom(title="正则匹配") 正则
+            else if cache.type === 'exact'
+                span #{cache.uri} 
+                span.badge.badge-custom(title="精确匹配") 精确
+            else
+                if cache.uri === '/'
+                    span #{cache.uri} 
+                    span.badge.badge-custom(title="匹配任意请求") 兜底
+                else
+                    =cache.uri
+        -let key = cache.keyType === 'Custom' ? (cacheKeyPrefix + cache.keyContent): `${cacheKeyPrefix}{{url}}`;
+        small(title='缓存key')
+            i.icon-key.iconfont 
+            =key
+        .d-none=cache.id
+    td(class={inactive: !cache.active})
+        span #{cache.expired}秒
+    td(class={inactive: !cache.active})
+        input(type='checkbox', name='active-checkbox', checked=cache.active, onchange=`activeCache(this, "${cache.id}")`)
+    if (editable)
+        td(class={inactive: !cache.active})
+            i.edit-icon.iconfont.icon-config(title="修改", onclick=`editCache("${cache.id}")`)
+            i.del-icon.iconfont.icon-delete(title="删除", onclick=`delCache("${cache.id}")`)

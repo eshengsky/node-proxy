@@ -1,0 +1,48 @@
+tr(id=permission.id, data-auth=permission.auth, data-type=permission.type, data-uri=permission.uri, data-method=permission.method, data-domainid=permission.domainId, data-excludes=permission.excludes)
+    td
+        -
+            let authName = 'NONE';
+            const result = pms.find(t => t.file === permission.auth);
+            if (result) {
+                authName = result.title;
+            }
+        i.icon-list-auth.iconfont.icon-icon-auth(title=authName)
+        .d-none=permission.id
+    td
+        -
+            let domainName;
+            let domainShort;
+            if (permission.domainId) {
+                domainName = domainList.find(t => t.id === permission.domainId) ? domainList.find(t => t.id === permission.domainId).domainPath : '';
+                domainShort = domainName.substr(0, domainName.indexOf('.')).toUpperCase();
+            } else {
+                domainName = domainShort = '不限';
+            }
+        span.badge.badge-primary(title=domainName)=domainShort
+        .d-none=domainName
+    td.text-left
+        span.h6
+            - const showMethod = permission.method ? permission.method.toUpperCase() : 'ALL';
+            - const methodTitle = permission.method ? `请求方式${permission.method.toUpperCase()}` : '请求方式不限';
+            span.item-method(class=showMethod, title=methodTitle)=showMethod
+            if permission.type === 'regexp'
+                -const showUri = new RegExp(permission.uri);
+                span #{showUri} 
+                span.badge.badge-custom(title="正则匹配") 正则
+            else if permission.type === 'exact'
+                span #{permission.uri} 
+                span.badge.badge-custom(title="精确匹配") 精确
+            else
+                if permission.uri === '/'
+                    span #{permission.uri} 
+                    span.badge.badge-custom(title="匹配任意请求") 兜底
+                else
+                    =permission.uri
+    td
+        if permission.excludes.length > 0
+            i.excludes-icon.iconfont.icon-order_remark(title="查看排除项", onclick=`openExcludes("${permission.id}")`)
+            .d-none=JSON.stringify(permission.excludes)
+    if (editable)
+        td
+            i.edit-icon.iconfont.icon-config(title="修改", onclick=`editPermission("${permission.id}")`)
+            i.del-icon.iconfont.icon-delete(title="删除", onclick=`delPermission("${permission.id}")`)

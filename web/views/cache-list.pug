@@ -1,0 +1,133 @@
+extends layout.pug
+
+block styles
+    link(rel='stylesheet', href='/noginx/static/switchery/dist/switchery.min.css')
+    link(rel='stylesheet', href='/noginx/static/css/animate.min.css')
+    link(rel='stylesheet', href='/noginx/static/css/index.css')
+    if (!editable) 
+        style(type='text/css').
+            .results tr:hover .seq {
+                display: block !important;
+            }
+
+            .results tr:hover .drag-icon {
+                display: none !important;
+            }
+block content
+    .main-content
+        .col.btn-line
+            a(href="/noginx/caches/") 缓存设置
+            if (editable)
+                button.btn.btn-info.mr-2#btn-new-cache 
+                    i.iconfont.icon-add1
+                    span  新增
+                .btn.btn-info.btn-upload.mr-2
+                    div
+                        i.iconfont.icon-import2
+                        span  导入
+                    input.btn.btn-info.mr-2#btn-import(type="file", accept=".json")
+            button.btn.btn-info.mr-2#btn-export
+                i.iconfont.icon-export
+                span  导出
+            if (editable)
+                button.btn.btn-secondary.mr-2#btn-clear-cache 
+                    i.iconfont.icon-clearup
+                    span  清除缓存
+        .table-responsive.mt-4.tb-wrap
+            table.table
+                thead
+                    tr
+                        th.th-domain 域名
+                        th.text-left 路由/缓存key
+                        th.th-expired 过期时间
+                        th.th-active 启用
+                        if (editable)
+                            th.th-action 操作
+                tbody.results
+                    each cache in cacheList
+                        include ./partials/cache-tr.pug
+                tfoot(style={display: cacheList.length === 0 ? 'table-row-group' : 'none'})
+                    tr
+                        td(colspan=5) 
+                            p.no-data 无数据
+    .modal.animated.bounceInDown#cache-modal(data-keyboard="false")
+        .modal-dialog.modal-dialog-centered(role='document')
+            .modal-content
+                .modal-header
+                    h5.modal-title 新增
+                    button.close(type='button' data-dismiss='modal' aria-label='Close')
+                        span(aria-hidden='true') &times;
+                .modal-body
+                    .form-group
+                        label(for='') 请求方式
+                        select.custom-select.form-control#select-method
+                            option(value="") --不限--
+                            each method in methods
+                                option(value=method)=method
+                    .form-group
+                        label(for='') 匹配域名
+                        .input-group
+                            select.custom-select.form-control#select-domain
+                                option(value="") --不限--
+                                each domain in domainList
+                                    option(value=domain.id)=domain.domainPath
+                            .input-group-append
+                                span.my-input-group-text.my-input-group-text2
+                                    a(href="/noginx/domains/")
+                                        i.iconfont.icon-global(title="配置域名")
+                    .form-group
+                        label(for='input-uri') 匹配路径
+                        .input-group#group-uri
+                            .input-group-prepend
+                                select.custom-select.form-control.prepend-select#select-type
+                                    option(value='start') 开头
+                                    option(value='exact') 精确
+                                    option(value='regexp') 正则
+                            input.form-control#input-uri(placeholder="匹配开头", spellcheck="false")
+                    .form-group
+                        label(for='') 缓存key
+                        .custom-control.custom-radio
+                            input.custom-control-input(type="radio", id="radio-url", name="radioKey", checked)
+                            label.custom-control-label(for="radio-url") 请求的完整URL {{url}}
+                        .custom-control.custom-radio
+                            input.custom-control-input(type="radio", id="radio-custom", name="radioKey")
+                            label.custom-control-label(for="radio-custom") 自定义key
+                        #custom-key-block
+                            small.form-text.text-muted 内置变量：{{url}} 请求的完整URL，{{body.foo}} 请求的body，{{cookie.bar}} 请求的cookie
+                            input.form-control#input-keyContent(placeholder="输入自定义key", spellcheck="false")
+                    .form-group
+                        label(for='input-expired') 过期时间
+                        .input-group(style="width: 130px;")
+                            input.form-control.text-right#input-expired(type="number", placeholder="", spellcheck="false", value="3600")
+                            .input-group-append
+                                span.input-group-text 秒
+                .modal-footer
+                    a.btn.btn-link.btn-howto.text-info(href="/noginx/help/#如何配置缓存？", target="_blank") 如何配置？
+                    button.btn.btn-default(type='button' data-dismiss='modal') 取消
+                    button.btn.btn-info#btn-save(type='button') 保存修改
+    .modal#clear-modal
+        .modal-dialog.modal-dialog-centered(role='document')
+            .modal-content
+                .modal-header
+                    h5.modal-title 清除缓存
+                    button.close(type='button' data-dismiss='modal' aria-label='Close')
+                        span(aria-hidden='true') &times;
+                .modal-body
+                    .form-group
+                        label(for='input-clear-key') 缓存key
+                        .input-group
+                            .input-group-prepend
+                                span.input-group-text=cacheKeyPrefix
+                            input.form-control#input-clear-key(placeholder="", spellcheck="false", value="*")
+                .modal-footer
+                    a.btn.btn-link.btn-howto.text-info(href="/noginx/help/#如何清除缓存？", target="_blank") 如何配置？
+                    button.btn.btn-default(type='button' data-dismiss='modal') 取消
+                    button.btn.btn-secondary#btn-confirm-clear(type='button') 确认清除
+    input#uid(type="hidden")
+    input#editable(type="hidden", value=editable.toString())
+    script(src='/noginx/static/jquery/dist/jquery.min.js')
+    script(src='/noginx/static/bootstrap/dist/js/bootstrap.min.js')
+    script(src='/noginx/static/switchery/dist/switchery.min.js')
+    script(src='/noginx/static/js/search.js')
+    script(src='/noginx/static/sweetalert/dist/sweetalert.min.js')
+    script(src='/noginx/static/js/caches.js')

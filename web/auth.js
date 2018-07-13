@@ -2,9 +2,11 @@
  * @Author: Sky.Sun 
  * @Date: 2018-02-13 09:46:39 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2018-02-27 18:08:22
+ * @Last Modified time: 2018-07-12 15:27:38
  */
-const editableUsers = require('../config/auth.json').editableUsers;
+const configPath = require('../getConfigPath')();
+const config = require(configPath);
+const editableUsers = config.auth.editableUsers;
 
 /**
  * 检查当前用户是否有编辑权限

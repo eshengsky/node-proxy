@@ -1,0 +1,54 @@
+extends layout.pug
+
+block styles
+    link(rel='stylesheet', href='/noginx/static/css/index.css')
+
+block content
+    .main-content
+        .col.btn-line
+            a(href="/noginx/info/") 环境信息
+        .table-responsive
+            table.table.server-info
+                tbody
+                    tr
+                        td Node.js 版本
+                        td=info.nodeVersion
+                    tr
+                        td NODE_ENV 环境变量
+                        td=info.nodeEnv
+                    tr
+                        td Noginx 版本
+                        td=`v${info.proxyVersion}`
+                    tr
+                        td MongoDB 连接字符串
+                        td=info.mongoUrl
+                    tr
+                        td Redis 键前缀
+                        td=info.cacheKeyPrefix
+                    tr
+                        td Redis 连接信息
+                        td=info.cacheConnect
+                    tr
+                        td 是否开启服务器静态资源缓存
+                        td=info.staticCacheSettings.enable
+                    tr
+                        td 服务器静态资源缓存总大小
+                        td=info.staticCacheSettings.max
+                    tr
+                        td 服务器静态资源缓存过期时间（毫秒）
+                        td=info.staticCacheSettings.maxAge
+                    tr
+                        td 静态文件根目录
+                        td=info.config.staticDirPath
+                    tr
+                        td 反向代理超时时长（毫秒）
+                        td=info.config.proxyTimeout
+                    tr
+                        td 反向代理 keep-alive（毫秒）
+                        td=info.config.keepAlive
+                    tr
+                        td 配置热更新调度规则
+                        td=info.config.job
+    script(src='/noginx/static/jquery/dist/jquery.min.js')
+    script(src='/noginx/static/bootstrap/dist/js/bootstrap.min.js')
+    

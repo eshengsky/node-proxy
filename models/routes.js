@@ -2,14 +2,19 @@
  * @Author: Sky.Sun 
  * @Date: 2018-02-07 11:42:27 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2018-03-13 15:47:15
+ * @Last Modified time: 2018-07-11 12:10:22
  */
 const mongoose = require('../db').mongoose;
-const routeSchema = mongoose.Schema({
+const routeSchemaObj = {
     // uri类型，start - 匹配开头，exact - 精确匹配，regexp - 正则匹配
     type: {
         type: String,
         required: true
+    },
+
+    // 请求方式
+    method: {
+        type: String
     },
 
     // 要匹配的路由
@@ -18,7 +23,12 @@ const routeSchema = mongoose.Schema({
         required: true
     },
 
-    // 处理方式，static（处理静态文件）、rewrite（URL重写）或forward（转发）
+    // 要匹配的域名ID
+    domainId: {
+        type: String
+    },
+
+    // 处理方式，static（处理静态文件）、rewrite（URL重写）、forward（转发）或custom（自定义响应）
     process: {
         type: String,
         required: true
@@ -29,6 +39,7 @@ const routeSchema = mongoose.Schema({
      * 如果处理方式是static，则这里表示文件路径
      * 如果处理方式是rewrite，则表示重定向后的地址
      * 如果处理方式是forward，则表示要转发到的服务器名
+     * 如果处理方式是custom，则为空
      */
     content: {
         type: String
@@ -38,6 +49,26 @@ const routeSchema = mongoose.Schema({
     tryFile: {
         type: String,
         required: true
+    },
+
+    // 自定义响应的状态码
+    customStatus: {
+        type: String
+    },
+
+    // 自定义响应的类型
+    customContentType: {
+        type: String
+    },
+
+    // 自定义响应的语言模式
+    customMode: {
+        type: String
+    },
+
+    // 自定义响应的响应体
+    customBody: {
+        type: String
     },
 
     // 备注信息
@@ -80,6 +111,8 @@ const routeSchema = mongoose.Schema({
 
     // 修改人
     modifyUser: String
-});
+};
+const routeSchema = mongoose.Schema(routeSchemaObj);
 
+exports.routeSchemaObj = routeSchemaObj;
 exports.routeModel = mongoose.model('routes', routeSchema);

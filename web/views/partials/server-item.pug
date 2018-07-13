@@ -1,0 +1,11 @@
+.col-md-4.mt-4.server-item(id=server.id, data-name=server.name, data-addresses=server.addresses, data-remarks=server.remarks)
+    .card
+        .card-header
+            =server.name
+            .float-right
+                if server.remarks
+                    i.server-remarks-icon.iconfont.icon-icon_remarks(data-toggle="popover" data-content=server.remarks)
+                if (editable)
+                    i.server-edit-icon.iconfont.icon-config(title="修改", onclick=`editServer("${server.id}")`)
+                    i.server-del-icon.iconfont.icon-delete(title="删除", onclick=`delServer("${server.id}")`)
+        .chart(style="width: 100%;")

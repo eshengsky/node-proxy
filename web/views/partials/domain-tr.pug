@@ -1,0 +1,12 @@
+tr(id=domain.id, data-domainpath=domain.domainPath, data-remarks=domain.remarks)
+    td.text-left
+        h6=domain.domainPath
+        .d-none=domain.id
+    td
+        if domain.remarks
+            i.remarks-icon.iconfont.icon-icon_remarks(data-toggle="popover" data-content=domain.remarks)
+            .d-none=domain.remarks
+    if (editable)
+        td
+            i.edit-icon.iconfont.icon-config(title="修改", onclick=`editDomain("${domain.id}")`)
+            i.del-icon.iconfont.icon-delete(title="删除", onclick=`delDomain("${domain.id}")`)

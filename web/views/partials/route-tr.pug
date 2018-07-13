@@ -1,0 +1,74 @@
+tr(id=route.id, data-type=route.type, data-uri=route.uri, data-method=route.method, data-domainid=route.domainId, data-process=route.process, data-content=route.content, data-tryfile=route.tryFile, data-customstatus=route.customStatus, data-customcontenttype=route.customContentType, data-custommode=route.customMode, data-remarks=route.remarks, data-sequence=route.sequence)
+    td(class={inactive: !route.active})
+        span.seq=route.sequence
+        i.drag-icon.iconfont.icon-drag(title='拖动排序')
+    td(class={inactive: !route.active})
+        -
+            let domainName;
+            let domainShort;
+            if (route.domainId) {
+                domainName = domainList.find(t => t.id === route.domainId) ? domainList.find(t => t.id === route.domainId).domainPath : '';
+                domainShort = (domainName.substr(0, domainName.indexOf('.')) || domainName).toUpperCase();
+                domainShort = domainShort.substr(0, 5);
+            } else {
+                domainName = domainShort = '不限';
+            }
+        span.badge.badge-primary(title=domainName)=domainShort
+        .d-none=domainName
+        pre.d-none=route.customBody
+    td.text-left(class={inactive: !route.active})
+        h6
+            - const showMethod = route.method ? route.method.toUpperCase() : 'ALL';
+            - const methodTitle = route.method ? `请求方式${route.method.toUpperCase()}` : '请求方式不限';
+            span.item-method(class=showMethod, title=methodTitle)=showMethod
+            if route.type === 'regexp'
+                -const showUri = new RegExp(route.uri);
+                span #{showUri} 
+                span.badge.badge-custom(title="正则匹配") 正则
+            else if route.type === 'exact'
+                span #{route.uri} 
+                span.badge.badge-custom(title="精确匹配") 精确
+            else
+                if route.uri === '/'
+                    span #{route.uri} 
+                    span.badge.badge-custom(title="匹配任意请求") 兜底
+                else
+                    =route.uri
+        case route.process
+            when 'static'
+                -
+                    let fullPath = staticDirPath;
+                    if (route.content) {
+                        fullPath = `${staticDirPath}/${route.content}`;
+                    }
+                if route.tryFile === 'Y'
+                    small 静态文件(启用try_file) #{fullPath}
+                else
+                    small 静态文件 #{fullPath}
+            when 'rewrite'
+                small 重定向到 #{route.content}
+            when 'custom'
+                small
+                    |自定义响应 
+                    a.text-info(href='javascript:void(0);', onclick=`viewCustomRes('${route.id}');`) 查看
+            when 'forward'
+                small
+                    -
+                        let serverName = 'NULL';
+                        const server = serverList.find(t => t.id === route.content);
+                        if (server) {
+                            serverName = server.name;
+                        }
+                    |转发至 
+                    a.text-info(href='/noginx/servers/') #{serverName}
+        .d-none=route.id
+    td(class={inactive: !route.active})
+        if route.remarks
+            i.remarks-icon.iconfont.icon-icon_remarks(data-toggle="popover" data-content=route.remarks)
+            .d-none=route.remarks
+    td(class={inactive: !route.active})
+        input(type='checkbox', name='active-checkbox', checked=route.active, onchange=`activeRoute(this, "${route.id}")`)
+    if (editable)
+        td(class={inactive: !route.active})
+            i.edit-icon.iconfont.icon-config(title="修改", onclick=`editRoute("${route.id}")`)
+            i.del-icon.iconfont.icon-delete(title="删除", onclick=`delRoute("${route.id}")`)
