@@ -101,5 +101,14 @@ module.exports = {
          * Redis 连接信息，如果配置为一个数组则视为集群
          */
         redisConnect: 'redis://127.0.0.1:6379'
+    },
+
+    /**
+     * 日志配置
+     */
+    log4js: {
+        appenders: [{
+            type: 'stdout'
+        }]
     }
 };

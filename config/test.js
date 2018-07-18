@@ -119,5 +119,14 @@ module.exports = {
             port: 6879,
             host: '192.168.0.62'
         }]
+    },
+
+    /**
+     * 日志配置
+     */
+    log4js: {
+        appenders: [{
+            type: 'stdout'
+        }]
     }
 };

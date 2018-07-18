@@ -47,13 +47,6 @@ proxy.on('error', (err, req, res) => {
 });
 
 /**
- * 代理转发之前先将请求 id 加入请求头中
- */
-proxy.on('proxyReq', (proxyReq, req) => {
-    proxyReq.setHeader('X-Request-Id', req.__id);
-});
-
-/**
  * 接收到转发服务器响应的后续处理
  */
 proxy.on('proxyRes', (proxyRes, req, res) => {
@@ -240,7 +233,7 @@ function proxyWeb({ req, res, serverId, serverName, logMsg }) {
                 res.sendStatus(500);
                 return;
             }
-
+            
             // proxy 参数
             const option = {
                 target: proxyAddress
@@ -251,11 +244,13 @@ function proxyWeb({ req, res, serverId, serverName, logMsg }) {
                 option.selfHandleResponse = true;
             }
 
+            logMsg += ` (host: ${proxyAddress})`;
+            setImmediate(() => {
+                logger.info(logMsg, req);
+            })
+
             // 进行转发
             proxy.web(req, res, option);
-
-            logMsg += ` (host: ${proxyAddress})`;
-            logger.info(logMsg, req);
         } else {
             logMsg += ` --> 错误：服务器${serverName}配置异常！servers: ${JSON.stringify(servers)}`;
             logger.error(logMsg, req);

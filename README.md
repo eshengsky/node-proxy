@@ -154,6 +154,9 @@ String 类型，Redis 键前缀
 #### db.redisConnect
 String 或 Array 类型，Redis 连接信息，如果配置为一个数组则视为集群
 
+#### log4js
+Object 类型，[log4js](https://github.com/log4js-node/log4js-node/tree/v1.1.1) 模块配置参数
+
 * 规则配置
 
 规则配置是指与请求相关联的路由、服务器、缓存等配置信息，通过访问 [http://localhost:9000/noginx/](http://localhost:9000/noginx/) 进行修改，系统会定时自动更新配置，故修改后无需重启服务器。
@@ -190,3 +193,6 @@ $ NODE_ENV=production pm2 start server.js -i 0
 ### 使用帮助
 
 登录后访问 http://localhost:9000/noginx/help/ 查看帮助。
+
+### 性能测试
+见 [benchmark](https://github.com/eshengsky/noginx/tree/master/benchmark) 目录。

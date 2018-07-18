@@ -496,7 +496,7 @@ router.get('/exportRoutes', (req, res) => {
             res.status(500).send(err.message);
             return;
         }
-        res.setHeader('Content-disposition', 'attachment; filename=node_proxy_routes.json');
+        res.setHeader('Content-disposition', 'attachment; filename=noginx_routes.json');
         res.setHeader('Content-type', 'application/json');
         res.send(routes);
     });
@@ -760,7 +760,7 @@ router.get('/exportServers', (req, res) => {
             res.status(500).send(err.message);
             return;
         }
-        res.setHeader('Content-disposition', 'attachment; filename=node_proxy_servers.json');
+        res.setHeader('Content-disposition', 'attachment; filename=noginx_servers.json');
         res.setHeader('Content-type', 'application/json');
         res.send(servers);
     });
@@ -1032,7 +1032,7 @@ router.get('/exportPermissions', (req, res) => {
             res.status(500).send(err.message);
             return;
         }
-        res.setHeader('Content-disposition', 'attachment; filename=node_proxy_permissions.json');
+        res.setHeader('Content-disposition', 'attachment; filename=noginx_permissions.json');
         res.setHeader('Content-type', 'application/json');
         res.send(permissions);
     });
@@ -1333,7 +1333,7 @@ router.get('/exportCaches', (req, res) => {
             res.status(500).send(err.message);
             return;
         }
-        res.setHeader('Content-disposition', 'attachment; filename=node_proxy_caches.json');
+        res.setHeader('Content-disposition', 'attachment; filename=noginx_caches.json');
         res.setHeader('Content-type', 'application/json');
         res.send(caches);
     });
@@ -1705,7 +1705,7 @@ router.get('/exportDomains', (req, res) => {
             res.status(500).send(err.message);
             return;
         }
-        res.setHeader('Content-disposition', 'attachment; filename=node_proxy_domains.json');
+        res.setHeader('Content-disposition', 'attachment; filename=noginx_domains.json');
         res.setHeader('Content-type', 'application/json');
         res.send(domains);
     });

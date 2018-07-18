@@ -11,16 +11,13 @@ app.set('views', './web/views');
 const favicon = require('serve-favicon');
 const path = require('path');
 const fs = require('fs');
+const version = require('./package.json').version;
 const configPath = require('./getConfigPath')();
 const config = require(configPath);
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 const log4js = require('./lib/log4js');
-log4js.configure({
-    appenders: [{
-        type: 'console'
-    }]
-});
+log4js.configure(config.log4js);
 const logger = log4js.getLogger('noginx');
 const webRoute = require('./web/route');
 const schedule = require('./schedule');
@@ -148,20 +145,12 @@ function routeFilter(req) {
 }
 
 /**
- * 给每次请求添加唯一id，方便根据该id查询对应日志
- * 响应头添加server
+ * 避免点击劫持 (clickjacking)
+ * 添加Server头
  */
 app.use((req, res, next) => {
-    req.__id = req.headers['X-Request-Id'] || req.headers['x-request-id'] || req.query.__id || uuid.v1();
-    logger.info(`Noginx 接收到请求 ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req);
-    res.setHeader('X-Request-Id', req.__id);
-    res.setHeader('Server', 'Noginx');
-    next();
-});
-
-// 避免点击劫持 (clickjacking)
-app.use((req, res, next) => {
-    res.header('X-Frame-Options', 'SAMEORIGIN');
+    res.header('server', `noginx v${version}`);
+    res.header('x-frame-options', 'SAMEORIGIN');
     next();
 });
 
