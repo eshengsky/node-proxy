@@ -2,7 +2,7 @@
  * @Author: Sky.Sun 
  * @Date: 2018-01-17 16:07:30 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2018-07-13 11:08:06
+ * @Last Modified time: 2018-07-18 15:28:41
  */
 const express = require('express');
 const app = express();
@@ -457,6 +457,25 @@ app.use((err, req, res) => {
 });
 
 app.set('port', process.env.PORT || defaultPort);
-const server = app.listen(app.get('port'), () => {
+
+let server;
+if (config.ssl.enable) {
+    const https = require('https');
+    try {
+        const privateKey  = fs.readFileSync(config.ssl.key, 'utf8');
+        const certificate = fs.readFileSync(config.ssl.cert, 'utf8');
+        server = https.createServer({
+            key: privateKey,
+            cert: certificate
+        }, app);
+    } catch (err) {
+        logger.error('未能成功读取SSL私钥或证书文件！Error:', err);
+        process.exit(1);
+    }
+} else {
+    const http = require('http');
+    server = http.createServer(app);
+}
+server.listen(app.get('port'), () => {
     logger.info('Noginx listening on port', server.address().port, 'with pid', process.pid);
 });

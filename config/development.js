@@ -2,9 +2,29 @@
  * @Author: Sky.Sun 
  * @Date: 2018-07-09 16:23:41 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2018-07-12 16:27:11
+ * @Last Modified time: 2018-07-18 15:30:01
  */
 module.exports = {
+    /**
+     * SSL 设置
+     */
+    ssl: {
+        /**
+         * 是否开启 HTTPS
+         */
+        enable: false,
+
+        /**
+         * 私钥文件路径
+         */
+        key: '/ssl/website.key',
+
+        /**
+         * 证书文件路径
+         */
+        cert: '/ssl/website.crt'
+    },
+
     /**
      * 反向代理的超时时长，单位毫秒
      */

@@ -100,6 +100,18 @@ $ NODE_ENV=production node server.js
 
 #### 配置项说明
 
+##### ssl
+Object 类型，SSL 相关设置
+
+##### ssl.enable
+Boolean 类型，是否创建 HTTPS 服务器
+
+##### ssl.key
+String 类型，私钥文件路径，必须是绝对路径
+
+##### ssl.cert
+String 类型，证书文件路径，必须是绝对路径
+
 ##### proxyTimeout
 Number 类型，反向代理的超时时长，单位毫秒
 
