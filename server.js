@@ -15,7 +15,7 @@ const version = require('./package.json').version;
 const configPath = require('./getConfigPath')();
 const config = require(configPath);
 const cookieParser = require('cookie-parser');
-app.use(cookieParser());
+const helmet = require('helmet');
 const log4js = require('./lib/log4js');
 log4js.configure(config.log4js);
 const logger = log4js.getLogger('noginx');
@@ -145,12 +145,20 @@ function routeFilter(req) {
 }
 
 /**
- * 避免点击劫持 (clickjacking)
+ * Cookie Parser
+ */
+app.use(cookieParser());
+
+/**
+ * 安全性
+ */
+app.use(helmet());
+
+/**
  * 添加Server头
  */
 app.use((req, res, next) => {
-    res.header('server', `noginx v${version}`);
-    res.header('x-frame-options', 'SAMEORIGIN');
+    res.header('Server', `noginx v${version}`);
     next();
 });
 
