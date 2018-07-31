@@ -2,7 +2,7 @@
  * @Author: Sky.Sun 
  * @Date: 2018-02-07 12:02:40 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2018-07-13 10:47:42
+ * @Last Modified time: 2018-07-31 16:48:25
  */
 const express = require('express');
 const router = express.Router();
@@ -1823,7 +1823,6 @@ router.get('/getFiles', (req, res) => {
     const prePath = req.query.path;
     const readDir = (dirPath, selected) => {
         fs.readdir(dirPath, (err, files) => {
-            console.log(files)
             if (err) {
                 logger.error('获取文件出错！', err.message, req);
                 res.json({
