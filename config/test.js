@@ -2,8 +2,13 @@
  * @Author: Sky.Sun 
  * @Date: 2018-07-09 16:23:41 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2018-07-18 15:30:10
+ * @Last Modified time: 2018-07-31 14:31:13
  */
+
+/**
+ * 测试用配置
+ */
+const path = require('path');
 module.exports = {
     /**
      * SSL 设置
@@ -36,15 +41,15 @@ module.exports = {
     keepAlive: 5000,
 
     /**
-     * 调度规则，测试环境设置为每整分钟触发
+     * 调度规则，测试环境设置为每秒触发
      * 格式：https://github.com/node-schedule/node-schedule#cron-style-scheduling
      */
-    job: '*/1 * * * *',
+    job: '*/1 * * * * *',
 
     /**
      * 文件选择器中的静态文件根目录
      */
-    staticDirPath: '/data/nfsroot/client/static',
+    staticDirPath: path.resolve(__dirname, '../test/staticTest'),
 
     /**
      * 调试模式的参数名
@@ -80,7 +85,7 @@ module.exports = {
         /**
          * 拥有编辑权限的用户，如：['user1', 'user2']，配置为 ['*'] 则所有用户都有编辑权限
          */
-        editableUsers: ['admin']
+        editableUsers: ['*']
     },
 
     /**
@@ -110,35 +115,17 @@ module.exports = {
         /**
          * MongoDB 连接字符串，支持集群
          */
-        mongodb: 'mongodb://127.0.0.1:27017/noginx?replicaSet=testrs',
+        mongodb: 'mongodb://127.0.0.1:27017/noginxtest',
 
         /**
          * Redis 键前缀
          */
-        redisKeyPrefix: 'Noginx:',
+        redisKeyPrefix: 'Noginxtest:',
 
         /**
          * Redis 连接信息，如果配置为一个数组则视为集群
          */
-        redisConnect: [{
-            port: 6379,
-            host: '192.168.0.62'
-        }, {
-            port: 6479,
-            host: '192.168.0.62'
-        }, {
-            port: 6579,
-            host: '192.168.0.62'
-        }, {
-            port: 6679,
-            host: '192.168.0.62'
-        }, {
-            port: 6779,
-            host: '192.168.0.62'
-        }, {
-            port: 6879,
-            host: '192.168.0.62'
-        }]
+        redisConnect: 'redis://127.0.0.1:6379'
     },
 
     /**

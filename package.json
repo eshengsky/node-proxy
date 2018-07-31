@@ -4,7 +4,8 @@
   "description": "High performance HTTP and reverse proxy server based on Node.js.",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "mocha"
   },
   "author": "eshengsky@163.com",
   "repository": {
@@ -45,5 +46,11 @@
     "sweetalert": "^2.1.0",
     "switchery": "git+https://github.com/abpetkov/switchery.git",
     "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "request": "^2.87.0",
+    "request-promise-native": "^1.0.5"
   }
 }

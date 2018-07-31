@@ -206,5 +206,12 @@ $ NODE_ENV=production pm2 start server.js -i 0
 
 登录后访问 http://localhost:9000/noginx/help/ 查看帮助。
 
-### 性能测试
+### 测试
+
+##### 功能测试
+```bash
+$ npm test
+```
+
+##### 性能测试
 见 [benchmark](https://github.com/eshengsky/noginx/tree/master/benchmark) 目录。
