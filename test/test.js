@@ -222,4 +222,93 @@ describe('noginx test', function () {
             done(new Error('save routes failed'));
         })
     });
+
+    it('should handle properly when request method allows all', done => {
+        const route = new routeModel({
+            type: 'start',
+            uri: '/methodAll',
+            process: 'static',
+            content: 'index.html',
+            tryFile: 'N',
+            sequence: 1
+        });
+        route.save(err => {
+            if (err) {
+                return done(err);
+            }
+
+            // job receive config data each 1 second
+            setTimeout(() => {
+                Promise.all([
+                    rp({
+                        method: 'GET',
+                        url: `http://127.0.0.1:${port}/methodAll`,
+                        simple: false,
+                        resolveWithFullResponse: true
+                    }),
+                    rp({
+                        method: 'POST',
+                        url: `http://127.0.0.1:${port}/methodAll`,
+                        simple: false,
+                        resolveWithFullResponse: true
+                    })
+                ]).then(results => {
+                    results[0].statusCode.should.eq(200);
+                    results[0].body.should.eq('<h3>hello noginx</h3>');
+                    results[1].statusCode.should.eq(200);
+                    results[1].body.should.eq('<h3>hello noginx</h3>');
+                    done();
+                }).catch(err => {
+                    done(err);
+                });
+            }, 1000);
+        }, () => {
+            done(new Error('save routes failed'));
+        })
+    });
+
+    it('should handle properly when request method only allows post', done => {
+        const route = new routeModel({
+            method: 'post',
+            type: 'start',
+            uri: '/methodPost',
+            process: 'static',
+            content: 'index.html',
+            tryFile: 'N',
+            sequence: 1
+        });
+        route.save(err => {
+            if (err) {
+                return done(err);
+            }
+
+            // job receive config data each 1 second
+            setTimeout(() => {
+                Promise.all([
+                    rp({
+                        method: 'GET',
+                        url: `http://127.0.0.1:${port}/methodPost`,
+                        simple: false,
+                        resolveWithFullResponse: true
+                    }),
+                    rp({
+                        method: 'POST',
+                        url: `http://127.0.0.1:${port}/methodPost`,
+                        simple: false,
+                        resolveWithFullResponse: true
+                    })
+                ]).then(results => {
+                    results[0].statusCode.should.eq(404);
+                    results[0].body.should.eq('Not Found');
+                    results[1].statusCode.should.eq(200);
+                    results[1].body.should.eq('<h3>hello noginx</h3>');
+                    done();
+                }).catch(err => {
+                    done(err);
+                });
+            }, 1000);
+        }, () => {
+            done(new Error('save routes failed'));
+        })
+    });
 });

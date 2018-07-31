@@ -208,10 +208,10 @@ $ NODE_ENV=production pm2 start server.js -i 0
 
 ### 测试
 
-##### 功能测试
+#### 功能测试
 ```bash
 $ npm test
 ```
 
-##### 性能测试
+#### 性能测试
 见 [benchmark](https://github.com/eshengsky/noginx/tree/master/benchmark) 目录。

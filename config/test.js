@@ -2,7 +2,7 @@
  * @Author: Sky.Sun 
  * @Date: 2018-07-09 16:23:41 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2018-07-31 14:31:13
+ * @Last Modified time: 2018-07-31 16:43:34
  */
 
 /**
@@ -49,7 +49,7 @@ module.exports = {
     /**
      * 文件选择器中的静态文件根目录
      */
-    staticDirPath: path.resolve(__dirname, '../test/staticTest'),
+    staticDirPath: 'E:/Github/noginx/test/staticTest',
 
     /**
      * 调试模式的参数名
