@@ -4,6 +4,8 @@
 
 基于 Node.js 的高性能 HTTP 及反向代理服务器，类似于 [Nginx](http://nginx.org/)。
 
+[![Build Status](https://travis-ci.org/eshengsky/noginx.svg?branch=master)](https://travis-ci.org/eshengsky/noginx)
+
 ### Noginx的含义
 
 Noginx 不是 No nginx（否定 nginx），而是 Node.js based nginx（基于 Node.js 的 nginx），更是 Not only nginx（不仅仅是 nginx）。
