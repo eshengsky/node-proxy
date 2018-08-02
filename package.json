@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "mocha"
+    "test": "mocha ./test/test.js"
   },
   "author": "eshengsky@163.com",
   "repository": {
