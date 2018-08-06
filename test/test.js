@@ -1,7 +1,8 @@
-const { expect, should } = require('chai');
-const { exec } = require('child_process');
+const { should } = require('chai');
+const { spawn } = require('child_process');
 const path = require('path');
 const rp = require('request-promise-native');
+const mongoose = require('../db').mongoose;
 const routeModel = require('../models/routes').routeModel;
 const domainModel = require('../models/domains').domainModel;
 const serverModel = require('../models/servers').serverModel;
@@ -11,9 +12,17 @@ should();
 describe('noginx test', function () {
     this.timeout(5000);
     let stdout = '';
+    let child;
 
     before(done => {
-        let child = exec(`set NODE_ENV=development&&set config=test&&set PORT=${port}&&node server.js`);
+        const scriptPath = path.join(__dirname, '../server.js');
+        child = spawn('node', [scriptPath], {
+            env: {
+                NODE_ENV: 'production',
+                config: 'test',
+                PORT: port
+            }
+        });
         child.stderr.on('data', err => console.error(err.toString()));
         child.stdout.on('data', data => {
             stdout += data;
@@ -32,6 +41,13 @@ describe('noginx test', function () {
                 done(err);
             });
         }, 3000);
+    });
+
+    after(done => {
+        child.kill();
+        mongoose.disconnect(err => {
+            done();
+        });
     });
 
     describe('base', () => {
@@ -973,9 +989,10 @@ describe('noginx test', function () {
 
     describe('process type: forward', () => {
         let serverId;
+        let child;
         before(done => {
             const scriptPath = path.join(__dirname, './reverseServer.js');
-            let child = exec(`node ${scriptPath}`);
+            child = spawn('node', [scriptPath]);
             child.stderr.on('data', err => console.error(err.toString()));
             child.stdout.on('data', data => {
                 stdout += data;
@@ -999,6 +1016,10 @@ describe('noginx test', function () {
                 }, 3000);
                 
             });
+        });
+
+        after(() => {
+            child.kill();
         });
 
         it('should return 200 when forward request', done => {
