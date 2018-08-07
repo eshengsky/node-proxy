@@ -1,5 +1,5 @@
 const { should } = require('chai');
-const { spawn } = require('child_process');
+const { fork } = require('child_process');
 const path = require('path');
 const rp = require('request-promise-native');
 const mongoose = require('../db').mongoose;
@@ -16,13 +16,15 @@ describe('noginx test', function () {
 
     before(done => {
         const scriptPath = path.join(__dirname, '../server.js');
-        child = spawn('node', [scriptPath], {
+        child = fork(scriptPath, {
             env: {
                 NODE_ENV: 'production',
                 config: 'test',
                 PORT: port
-            }
+            },
+            stdio: 'pipe'
         });
+        child.on('error', err => console.log(err));
         child.stderr.on('data', err => console.error(err.toString()));
         child.stdout.on('data', data => {
             stdout += data;
@@ -31,6 +33,9 @@ describe('noginx test', function () {
 
         // set timeout to wait for db/redis ready
         setTimeout(() => {
+            if (mongoose.connection.readyState !== 1) {
+                return done(new Error('MongoDB connect failed!'));
+            }
             Promise.all([
                 routeModel.remove().exec(),
                 domainModel.remove().exec(),
@@ -992,7 +997,9 @@ describe('noginx test', function () {
         let child;
         before(done => {
             const scriptPath = path.join(__dirname, './reverseServer.js');
-            child = spawn('node', [scriptPath]);
+            child = fork(scriptPath, {
+                stdio: 'pipe'
+            });
             child.stderr.on('data', err => console.error(err.toString()));
             child.stdout.on('data', data => {
                 stdout += data;
