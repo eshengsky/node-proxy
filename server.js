@@ -2,7 +2,7 @@
  * @Author: Sky.Sun 
  * @Date: 2018-01-17 16:07:30 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2018-07-18 15:28:41
+ * @Last Modified time: 2018-08-17 10:39:07
  */
 const express = require('express');
 const app = express();
@@ -24,7 +24,6 @@ const schedule = require('./schedule');
 const common = require('./utilities/common');
 const url = require('url');
 const querystring = require('querystring');
-const uuid = require('uuid');
 const debugMode = require('./debugMode');
 const cacheClient = require('./cache').cacheClient;
 const cacheKeyPrefix = config.db.redisKeyPrefix;
@@ -196,10 +195,6 @@ app.use((req, res, next) => {
             } else if (Number(cacheConf.expired) <= 0) {
                 // 过期时间配置为非正数，不走缓存
                 logMsg += '不走缓存 (过期时间为非正数) --> ';
-                routeHandler();
-            } else if (cacheConf.station === 'Y' && !req.cookies['H5_CITY']) {
-                // 客户端包没有站点信息，服务端需要ip定位，不走缓存
-                logMsg += '不走缓存 (与站点关联但客户端无站点信息) --> ';
                 routeHandler();
             } else {
                 // 走缓存

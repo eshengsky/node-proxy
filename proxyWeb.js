@@ -2,9 +2,8 @@
  * @Author: Sky.Sun 
  * @Date: 2018-07-11 15:09:50 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2018-07-12 15:26:50
+ * @Last Modified time: 2019-02-28 18:11:20
  */
-const http = require('http');
 const httpProxy = require('http-proxy');
 const cacheClient = require('./cache').cacheClient;
 const configPath = require('./getConfigPath')();
@@ -14,15 +13,7 @@ const debugMode = require('./debugMode');
 const log4js = require('./lib/log4js');
 const logger = log4js.getLogger('noginx-webui');
 
-/**
- * 创建一个 keep-alive 代理，这样 httpProxy 内部调用 http.request 时就无需每次都新建 TCP 连接
- */
-const keepAliveAgent = new http.Agent({
-    keepAlive: true,
-    keepAliveMsecs: config.keepAlive
-});
 const proxy = httpProxy.createProxyServer({
-    agent: keepAliveAgent,
     xfwd: true,
     secure: false,
     preserveHeaderKeyCase: true,
