@@ -2,7 +2,7 @@
  * @Author: Sky.Sun 
  * @Date: 2018-02-07 16:09:43 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2018-07-12 15:27:13
+ * @Last Modified time: 2019-05-14 10:34:25
  */
 const schedule = require('node-schedule');
 const configPath = require('./getConfigPath')();
@@ -13,8 +13,8 @@ const serverModel = require('./models/servers').serverModel;
 const permissionModel = require('./models/permissions').permissionModel;
 const cacheModel = require('./models/caches').cacheModel;
 const domainModel = require('./models/domains').domainModel;
-const log4js = require('./lib/log4js');
-const logger = log4js.getLogger('proxy-schedule');
+const serverlog = require('serverlog-node');
+const logger = serverlog.getLogger('proxy-schedule');
 const common = require('./utilities/common');
 const settings = require('./settings');
 

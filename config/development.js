@@ -2,7 +2,7 @@
  * @Author: Sky.Sun 
  * @Date: 2018-07-09 16:23:41 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2018-07-18 15:30:01
+ * @Last Modified time: 2019-05-14 10:31:54
  */
 module.exports = {
     /**
@@ -126,9 +126,16 @@ module.exports = {
     /**
      * 日志配置
      */
-    log4js: {
-        appenders: [{
-            type: 'stdout'
-        }]
+    serverlog: {
+        console: {
+            colors: true,
+            depth: null,
+            appendUrl: true,
+            forceSingleLine: false
+        },
+        extension: {
+            enable: true,
+            key: 'noginx_secret_key'
+        }
     }
 };

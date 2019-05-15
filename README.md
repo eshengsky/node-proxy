@@ -27,23 +27,27 @@ Noginx 不是 No nginx（否定 nginx），而是 Node.js based nginx（基于 N
 ### 功能与特色
 
 * 静态文件处理
-    * 支持目录或指定文件
-    * 酷炫的文件选择器
+    * 支持目录或指定单独文件
+    * 方便的文件选择器
+    * 支持服务端文件预览
 * URL 重写
 * 反向代理
     * 基于 [node-http-proxy](https://github.com/nodejitsu/node-http-proxy)
     * 支持负载均衡
-    * 支持按服务器性能配置权重
+    * 支持按服务器性能自定义分配权重
 * 自定义响应
     * 可以无需发布直接配置页面
-    * 网页版 Visual Studio Code 体验
+    * 网页版 [VSCode](https://code.visualstudio.com/) 体验
 * 服务端缓存
+    * 立即从缓存中返回响应内容，极速用户体验
     * 支持自定义缓存 key
 * 身份验证控制
+    * 无需开发人员自己判断登录、跳转登录
 * WebUI 配置界面
-    * 配置站点支持权限管理
-* 修改规则配置后无需重启
-* 集成日志查看神器 [chrome-extension-server-log](https://github.com/eshengsky/chrome-extension-server-log)
+    * 美观、优雅、现代的 UI 设计
+    * 支持权限管理 (只读、可写)
+* 修改规则配置后无需重启服务器
+* 集成日志查看神器 [chrome-extension-server-log](https://github.com/eshengsky/ServerLog/tree/master/chrome-extension-server-log)
 * Noginx 处理的网页都支持 [调试模式](#调试模式)
 
 ### 与 Nginx 的比较
@@ -77,6 +81,8 @@ $ node server.js
 ```
 
 访问 [http://localhost:9000/noginx/](http://localhost:9000/noginx/)，默认用户名/密码：dev/123456.
+
+如果你使用了 [chrome-extension-server-log](https://github.com/eshengsky/ServerLog/tree/master/chrome-extension-server-log)，默认 secret key 请填写：`noginx_secret_key`.
 
 ### 配置说明
 
@@ -168,8 +174,8 @@ String 类型，Redis 键前缀
 #### db.redisConnect
 String 或 Array 类型，Redis 连接信息，如果配置为一个数组则视为集群
 
-#### log4js
-Object 类型，[log4js](https://github.com/log4js-node/log4js-node/tree/v1.1.1) 模块配置参数
+#### serverlog
+Object 类型，[ServerLog](https://github.com/eshengsky/ServerLog/blob/master/README_zh.md#configoptions) 模块配置参数
 
 * 规则配置
 
@@ -196,7 +202,7 @@ $ NODE_ENV=production pm2 start server.js -i 0
 
 * 本地开发环境，直接在终端中查看日志
 * 部署到环境上后，使用 `pm2 logs` 查看日志
-* 使用 [chrome-extension-server-log](https://github.com/eshengsky/chrome-extension-server-log) 在浏览器 F12 中查看日志
+* 使用 Chrome 扩展程序 [chrome-extension-server-log](https://github.com/eshengsky/ServerLog/tree/master/chrome-extension-server-log) 在开发者工具 (F12) 中查看日志
 
 ### 调试模式
 

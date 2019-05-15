@@ -2,7 +2,7 @@
  * @Author: Sky.Sun 
  * @Date: 2018-07-11 15:09:50 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2019-02-28 18:11:20
+ * @Last Modified time: 2019-05-14 10:55:01
  */
 const httpProxy = require('http-proxy');
 const cacheClient = require('./cache').cacheClient;
@@ -10,8 +10,8 @@ const configPath = require('./getConfigPath')();
 const config = require(configPath);
 const settings = require('./settings');
 const debugMode = require('./debugMode');
-const log4js = require('./lib/log4js');
-const logger = log4js.getLogger('noginx-webui');
+const serverlog = require('serverlog-node');
+const logger = serverlog.getLogger('noginx-webui');
 
 const proxy = httpProxy.createProxyServer({
     xfwd: true,
@@ -25,7 +25,7 @@ const proxy = httpProxy.createProxyServer({
  */
 proxy.on('error', (err, req, res) => {
     if (req) {
-        logger.error(`Proxy Server Error! URL: ${req.protocol}://${req.get('Host')}${req.originalUrl} Error: ${err.message}`, req);
+        logger.error(`Proxy Server Error! URL: ${req.protocol}://${req.get('Host')}${req.originalUrl} Error: ${err.message}`);
         if (req.query[debugMode.debugParam] === 'true') {
             const html = debugMode.getDebugHtml('Internal Server Error', debugMode.getLogArray(res));
             res.send(html);
@@ -215,12 +215,12 @@ function proxyWeb({ req, res, serverId, serverName, logMsg }) {
         if (addresses && Array.isArray(addresses) && addresses.length > 0) {
             const list = addresses.map(t => t.address);
             const weight = addresses.map(t => Number(t.weight));
-            const proxyAddress = getRandomItem(list, weight, req);
+            const proxyAddress = getRandomItem(list, weight);
 
             // 如果没有获取到随机服务器，说明配置异常
             if (!proxyAddress) {
                 logMsg += ` --> 错误：list或weight数据格式不正确！list: ${JSON.stringify(list)} weight: ${JSON.stringify(weight)}`
-                logger.error(logMsg, req);
+                logger.error(logMsg);
                 res.sendStatus(500);
                 return;
             }
@@ -237,19 +237,19 @@ function proxyWeb({ req, res, serverId, serverName, logMsg }) {
 
             logMsg += ` (host: ${proxyAddress})`;
             setImmediate(() => {
-                logger.info(logMsg, req);
+                logger.info(logMsg);
             })
 
             // 进行转发
             proxy.web(req, res, option);
         } else {
             logMsg += ` --> 错误：服务器${serverName}配置异常！servers: ${JSON.stringify(servers)}`;
-            logger.error(logMsg, req);
+            logger.error(logMsg);
             res.sendStatus(500);
         }
     } else {
         logMsg += `错误：未找到服务器！serverId: ${serverId}, serverName: ${serverName}, servers: ${JSON.stringify(servers)}`;
-        logger.error(logMsg, req);
+        logger.error(logMsg);
         res.sendStatus(500);
     }
 }

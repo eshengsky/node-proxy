@@ -2,7 +2,7 @@
  * @Author: Sky.Sun 
  * @Date: 2018-02-07 12:02:40 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2018-07-31 16:48:25
+ * @Last Modified time: 2019-05-14 14:24:32
  */
 const express = require('express');
 const router = express.Router();
@@ -12,8 +12,8 @@ const MongoStore = require('connect-mongo')(session);
 const passport = require('passport');
 const Strategy = require('passport-local').Strategy;
 const ensureLogin = require('connect-ensure-login');
-const log4js = require('../lib/log4js');
-const logger = log4js.getLogger('noginx-webui');
+const serverlog = require('serverlog-node');
+const logger = serverlog.getLogger('noginx-webui');
 const pug = require('pug');
 const routeCompiledFunc = pug.compileFile('./web/views/partials/route-tr.pug');
 const serverCompiledFunc = pug.compileFile('./web/views/partials/server-item.pug');
@@ -121,13 +121,13 @@ router.get('/login', (req, res) => {
 router.post('/login', (req, res) => {
     passport.authenticate('local', (err, user) => {
         if (err) {
-            logger.error('用户登录失败！', err, req);
+            logger.error('用户登录失败！', err);
             res.json({
                 code: -1,
                 message: '服务器错误！'
             });
         } else if (!user) {
-            logger.error('用户登录失败！用户名或密码错误：', req.body, req);
+            logger.error('用户登录失败！用户名或密码错误：', req.body);
             res.json({
                 code: -1,
                 message: '用户名或密码错误！'
@@ -137,7 +137,7 @@ router.post('/login', (req, res) => {
             req.logIn(user, err => {
                 let returnTo = '/noginx/';
                 if (err) {
-                    logger.error(err, req);
+                    logger.error(err);
                     res.json({
                         code: -1,
                         message: '服务器错误！'
@@ -174,7 +174,7 @@ router.use(ensureLogin.ensureLoggedIn('/noginx/login'));
  * 首页
  */
 router.get('/', (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`);
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     const user = req.user;
     let routeList = [];
@@ -199,10 +199,10 @@ router.get('/', (req, res) => {
             path: req.path
         });
     }, err => {
-        logger.error('获取routes/servers/domains出错！', err, req);
+        logger.error('获取routes/servers/domains出错！', err);
         res.status(500).send(err.message);
     }).catch(err => {
-        logger.error('获取routes/servers/domains出错！', err, req);
+        logger.error('获取routes/servers/domains出错！', err);
         res.status(500).send(err.message);
     });
 });
@@ -211,7 +211,7 @@ router.get('/', (req, res) => {
  * 新增或修改保存
  */
 router.post('/save', authMw, (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     const type = req.body.type;
     const uri = req.body.uri;
     const method = req.body.method;
@@ -231,7 +231,7 @@ router.post('/save', authMw, (req, res) => {
         const domainList = values[0];
         const serverList = values[1];
         if (domainId && !domainList.find(t => t.id === domainId)) {
-            logger.error('操作失败，域名配置异常！', req);
+            logger.error('操作失败，域名配置异常！');
             res.json({
                 code: -1,
                 message: '域名配置异常！'
@@ -239,7 +239,7 @@ router.post('/save', authMw, (req, res) => {
             return;
         }
         if (process === 'forward' && !serverList.find(t => t.id === content)) {
-            logger.error('操作失败，转发服务器配置异常！', req);
+            logger.error('操作失败，转发服务器配置异常！');
             res.json({
                 code: -1,
                 message: '转发服务器配置异常！'
@@ -256,7 +256,7 @@ router.post('/save', authMw, (req, res) => {
                 deleted: false
             }, (err, doc) => {
                 if (err) {
-                    logger.error('新增失败！', err, req);
+                    logger.error('新增失败！', err);
                     res.json({
                         code: -1,
                         message: err.message
@@ -264,7 +264,7 @@ router.post('/save', authMw, (req, res) => {
                     return;
                 }
                 if (doc) {
-                    logger.error('新增失败，已存在相同的匹配路径', req);
+                    logger.error('新增失败，已存在相同的匹配路径');
                     res.json({
                         code: -1,
                         message: '已存在相同的匹配路径！'
@@ -276,7 +276,7 @@ router.post('/save', authMw, (req, res) => {
                 }).sort('-sequence')
                     .exec((err, doc) => {
                         if (err) {
-                            logger.error('获取最大sequence失败！', err, req);
+                            logger.error('获取最大sequence失败！', err);
                             res.json({
                                 code: -1,
                                 message: err.message
@@ -306,7 +306,7 @@ router.post('/save', authMw, (req, res) => {
                         });
                         route.save((err, item) => {
                             if (err) {
-                                logger.error('新增失败！', err, req);
+                                logger.error('新增失败！', err);
                                 res.json({
                                     code: -1,
                                     message: err.message
@@ -338,7 +338,7 @@ router.post('/save', authMw, (req, res) => {
                 _id: { $ne: req.body.uid }
             }, (err, doc) => {
                 if (err) {
-                    logger.error('修改失败！', err, req);
+                    logger.error('修改失败！', err);
                     res.json({
                         code: -1,
                         message: err.message
@@ -346,7 +346,7 @@ router.post('/save', authMw, (req, res) => {
                     return;
                 }
                 if (doc) {
-                    logger.error('修改失败，已存在相同的匹配路径', req);
+                    logger.error('修改失败，已存在相同的匹配路径');
                     res.json({
                         code: -1,
                         message: '已存在相同的匹配路径！'
@@ -370,7 +370,7 @@ router.post('/save', authMw, (req, res) => {
                     modifyTime: new Date()
                 }, { new: true }, (err, item) => {
                     if (err) {
-                        logger.error('修改失败！', err, req);
+                        logger.error('修改失败！', err);
                         res.json({
                             code: -1,
                             message: err.message
@@ -392,7 +392,7 @@ router.post('/save', authMw, (req, res) => {
             });
         }
     }).catch(err => {
-        logger.error('操作失败！', err, req);
+        logger.error('操作失败！', err);
         res.json({
             code: -1,
             message: err.message
@@ -404,7 +404,7 @@ router.post('/save', authMw, (req, res) => {
  * 修改启用
  */
 router.post('/active', authMw, (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     const active = req.body.active;
     routeModel.findByIdAndUpdate(req.body.uid, {
         active,
@@ -412,7 +412,7 @@ router.post('/active', authMw, (req, res) => {
         modifyTime: new Date()
     }, { new: true }, (err, item) => {
         if (err) {
-            logger.error('启用失败！', err, req);
+            logger.error('启用失败！', err);
             res.json({
                 code: -1,
                 message: err.message
@@ -430,14 +430,14 @@ router.post('/active', authMw, (req, res) => {
  * 软删除
  */
 router.post('/del', authMw, (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     routeModel.findByIdAndUpdate(req.body.uid, {
         deleted: true,
         modifyUser: getCurrentUser(req),
         modifyTime: new Date()
     }, { new: true }, (err, item) => {
         if (err) {
-            logger.error('删除失败！', err, req);
+            logger.error('删除失败！', err);
             res.json({
                 code: -1,
                 message: err.message
@@ -455,7 +455,7 @@ router.post('/del', authMw, (req, res) => {
  * 修改排序
  */
 router.post('/seq', authMw, (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     const promiseArray = [];
     const seqList = req.body.seqList;
     seqList.forEach(item => {
@@ -471,13 +471,13 @@ router.post('/seq', authMw, (req, res) => {
             code: 1
         });
     }, err => {
-        logger.error('修改排序失败！', err, req);
+        logger.error('修改排序失败！', err);
         res.json({
             code: -1,
             message: err.message
         });
     }).catch(err => {
-        logger.error('修改排序失败！', err, req);
+        logger.error('修改排序失败！', err);
         res.json({
             code: -1,
             message: err.message
@@ -489,10 +489,10 @@ router.post('/seq', authMw, (req, res) => {
  * 导出路由
  */
 router.get('/exportRoutes', (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     routeModel.find({ deleted: false }).exec((err, routes) => {
         if (err) {
-            logger.error('导出routes出错！', err, req);
+            logger.error('导出routes出错！', err);
             res.status(500).send(err.message);
             return;
         }
@@ -506,7 +506,7 @@ router.get('/exportRoutes', (req, res) => {
  * 导入路由
  */
 router.post('/importRoutes', authMw, (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     try {
         const data = req.body.data;
         const matches = data.match(/^data:(.*);base64,(.*)$/);
@@ -524,7 +524,7 @@ router.post('/importRoutes', authMw, (req, res) => {
                 modifyTime: new Date()
             }).exec(err => {
                 if (err) {
-                    logger.error('导入routes出错！', err, req);
+                    logger.error('导入routes出错！', err);
                     res.json({
                         code: -1,
                         message: err.message
@@ -533,7 +533,7 @@ router.post('/importRoutes', authMw, (req, res) => {
                 }
                 routeModel.insertMany(result, err => {
                     if (err) {
-                        logger.error('导入routes出错！', err, req);
+                        logger.error('导入routes出错！', err);
                         res.json({
                             code: -1,
                             message: err.message
@@ -547,7 +547,7 @@ router.post('/importRoutes', authMw, (req, res) => {
                 });
             });
     } catch (err) {
-        logger.error('导入routes出错！', err, req);
+        logger.error('导入routes出错！', err);
         res.json({
             code: -1,
             message: err.message
@@ -559,13 +559,13 @@ router.post('/importRoutes', authMw, (req, res) => {
  * 服务器页面
  */
 router.get('/servers', (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`);
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     const user = req.user;
     let serverList = [];
     serverModel.find({ deleted: false }).exec((err, servers) => {
         if (err) {
-            logger.error('获取servers出错！', err, req);
+            logger.error('获取servers出错！', err);
             res.status(500).send(err.message);
             return;
         }
@@ -586,7 +586,7 @@ router.get('/servers', (req, res) => {
  * 新增或修改服务器
  */
 router.post('/saveServer', authMw, (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     const name = req.body.name;
     const reqAddresses = req.body.addresses;
     const remarks = req.body.remarks;
@@ -598,7 +598,7 @@ router.post('/saveServer', authMw, (req, res) => {
             deleted: false
         }, (err, doc) => {
             if (err) {
-                logger.error('新增失败！', err, req);
+                logger.error('新增失败！', err);
                 res.json({
                     code: -1,
                     message: err.message
@@ -606,7 +606,7 @@ router.post('/saveServer', authMw, (req, res) => {
                 return;
             }
             if (doc) {
-                logger.error('新增失败，有名称重复项', req);
+                logger.error('新增失败，有名称重复项');
                 res.json({
                     code: -1,
                     message: `服务器名称 ${name} 已存在！`
@@ -622,7 +622,7 @@ router.post('/saveServer', authMw, (req, res) => {
             });
             server.save((err, item) => {
                 if (err) {
-                    logger.error('新增失败！', err, req);
+                    logger.error('新增失败！', err);
                     res.json({
                         code: -1,
                         message: err.message
@@ -647,7 +647,7 @@ router.post('/saveServer', authMw, (req, res) => {
             _id: { $ne: req.body.uid }
         }, (err, doc) => {
             if (err) {
-                logger.error('修改失败！', err, req);
+                logger.error('修改失败！', err);
                 res.json({
                     code: -1,
                     message: err.message
@@ -655,7 +655,7 @@ router.post('/saveServer', authMw, (req, res) => {
                 return;
             }
             if (doc) {
-                logger.error('修改失败，有名称重复项', req);
+                logger.error('修改失败，有名称重复项');
                 res.json({
                     code: -1,
                     message: `服务器名称 ${name} 已存在！`
@@ -670,7 +670,7 @@ router.post('/saveServer', authMw, (req, res) => {
                 modifyTime: new Date()
             }, { new: true }, (err, item) => {
                 if (err) {
-                    logger.error('修改失败！', err, req);
+                    logger.error('修改失败！', err);
                     res.json({
                         code: -1,
                         message: err.message
@@ -694,10 +694,10 @@ router.post('/saveServer', authMw, (req, res) => {
  * 软删除服务器
  */
 router.post('/delServer', authMw, (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     serverModel.findById(req.body.uid, (err, doc) => {
         if (err) {
-            logger.error('删除失败！', err, req);
+            logger.error('删除失败！', err);
             res.json({
                 code: -1,
                 message: err.message
@@ -711,7 +711,7 @@ router.post('/delServer', authMw, (req, res) => {
             deleted: false
         }, (err, docs) => {
             if (err) {
-                logger.error('删除失败！', err, req);
+                logger.error('删除失败！', err);
                 res.json({
                     code: -1,
                     message: err.message
@@ -719,7 +719,7 @@ router.post('/delServer', authMw, (req, res) => {
                 return;
             }
             if (docs.length > 0) {
-                logger.error('删除失败！有路由规则正在使用该服务器！', req);
+                logger.error('删除失败！有路由规则正在使用该服务器！');
                 res.json({
                     code: -1,
                     message: '有路由规则正在使用该服务器，请先修改或删除相关路由配置！'
@@ -732,7 +732,7 @@ router.post('/delServer', authMw, (req, res) => {
                 modifyTime: new Date()
             }, { new: true }, (err, item) => {
                 if (err) {
-                    logger.error('删除失败！', err, req);
+                    logger.error('删除失败！', err);
                     res.json({
                         code: -1,
                         message: err.message
@@ -753,10 +753,10 @@ router.post('/delServer', authMw, (req, res) => {
  * 导出服务器
  */
 router.get('/exportServers', (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     serverModel.find({ deleted: false }).exec((err, servers) => {
         if (err) {
-            logger.error('导出servers出错！', err, req);
+            logger.error('导出servers出错！', err);
             res.status(500).send(err.message);
             return;
         }
@@ -770,7 +770,7 @@ router.get('/exportServers', (req, res) => {
  * 导入服务器
  */
 router.post('/importServers', authMw, (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     try {
         const data = req.body.data;
         const matches = data.match(/^data:(.*);base64,(.*)$/);
@@ -788,7 +788,7 @@ router.post('/importServers', authMw, (req, res) => {
                 modifyTime: new Date()
             }).exec(err => {
                 if (err) {
-                    logger.error('导入servers出错！', err, req);
+                    logger.error('导入servers出错！', err);
                     res.json({
                         code: -1,
                         message: err.message
@@ -797,7 +797,7 @@ router.post('/importServers', authMw, (req, res) => {
                 }
                 serverModel.insertMany(result, err => {
                     if (err) {
-                        logger.error('导入servers出错！', err, req);
+                        logger.error('导入servers出错！', err);
                         res.json({
                             code: -1,
                             message: err.message
@@ -811,7 +811,7 @@ router.post('/importServers', authMw, (req, res) => {
                 });
             });
     } catch (err) {
-        logger.error('导入servers出错！', err, req);
+        logger.error('导入servers出错！', err);
         res.json({
             code: -1,
             message: err.message
@@ -823,7 +823,7 @@ router.post('/importServers', authMw, (req, res) => {
  * 身份验证页面
  */
 router.get('/permissions', (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`);
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     const user = req.user;
     let permissionList = [];
@@ -844,10 +844,10 @@ router.get('/permissions', (req, res) => {
             path: req.path
         });
     }, err => {
-        logger.error('获取permissions/domains出错！', err, req);
+        logger.error('获取permissions/domains出错！', err);
         res.status(500).send(err.message);
     }).catch(err => {
-        logger.error('获取permissions/domains出错！', err, req);
+        logger.error('获取permissions/domains出错！', err);
         res.status(500).send(err.message);
     });
 });
@@ -856,7 +856,7 @@ router.get('/permissions', (req, res) => {
  * 新增或修改保存身份验证
  */
 router.post('/savePermission', authMw, (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     const auth = req.body.auth;
     const type = req.body.type;
     const uri = req.body.uri;
@@ -865,7 +865,7 @@ router.post('/savePermission', authMw, (req, res) => {
     const excludes = JSON.parse(req.body.excludes);
     domainModel.find({ deleted: false }, (err, domainList) => {
         if (err) {
-            logger.error('操作失败！', err, req);
+            logger.error('操作失败！', err);
             res.json({
                 code: -1,
                 message: err.message
@@ -873,7 +873,7 @@ router.post('/savePermission', authMw, (req, res) => {
             return;
         }
         if (domainId && !domainList.find(t => t.id === domainId)) {
-            logger.error('操作失败，域名配置异常！', req);
+            logger.error('操作失败，域名配置异常！');
             res.json({
                 code: -1,
                 message: '域名配置异常！'
@@ -890,7 +890,7 @@ router.post('/savePermission', authMw, (req, res) => {
                 deleted: false
             }, (err, doc) => {
                 if (err) {
-                    logger.error('新增失败！', err, req);
+                    logger.error('新增失败！', err);
                     res.json({
                         code: -1,
                         message: err.message
@@ -898,7 +898,7 @@ router.post('/savePermission', authMw, (req, res) => {
                     return;
                 }
                 if (doc) {
-                    logger.error('新增失败，已存在相同的匹配路径', req);
+                    logger.error('新增失败，已存在相同的匹配路径');
                     res.json({
                         code: -1,
                         message: '已存在相同的匹配路径！'
@@ -918,7 +918,7 @@ router.post('/savePermission', authMw, (req, res) => {
                 });
                 permission.save((err, item) => {
                     if (err) {
-                        logger.error('新增失败！', err, req);
+                        logger.error('新增失败！', err);
                         res.json({
                             code: -1,
                             message: err.message
@@ -947,7 +947,7 @@ router.post('/savePermission', authMw, (req, res) => {
                 _id: { $ne: req.body.uid }
             }, (err, doc) => {
                 if (err) {
-                    logger.error('修改失败！', err, req);
+                    logger.error('修改失败！', err);
                     res.json({
                         code: -1,
                         message: err.message
@@ -955,7 +955,7 @@ router.post('/savePermission', authMw, (req, res) => {
                     return;
                 }
                 if (doc) {
-                    logger.error('修改失败，已存在相同的匹配路径', req);
+                    logger.error('修改失败，已存在相同的匹配路径');
                     res.json({
                         code: -1,
                         message: '已存在相同的匹配路径！'
@@ -974,7 +974,7 @@ router.post('/savePermission', authMw, (req, res) => {
                     modifyTime: new Date()
                 }, { new: true }, (err, item) => {
                     if (err) {
-                        logger.error('修改失败！', err, req);
+                        logger.error('修改失败！', err);
                         res.json({
                             code: -1,
                             message: err.message
@@ -1000,14 +1000,14 @@ router.post('/savePermission', authMw, (req, res) => {
  * 软删除身份验证
  */
 router.post('/delPermission', authMw, (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     permissionModel.findByIdAndUpdate(req.body.uid, {
         deleted: true,
         modifyUser: getCurrentUser(req),
         modifyTime: new Date()
     }, { new: true }, (err, item) => {
         if (err) {
-            logger.error('删除失败！', err, req);
+            logger.error('删除失败！', err);
             res.json({
                 code: -1,
                 message: err.message
@@ -1025,10 +1025,10 @@ router.post('/delPermission', authMw, (req, res) => {
  * 导出身份验证
  */
 router.get('/exportPermissions', (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     permissionModel.find({ deleted: false }).exec((err, permissions) => {
         if (err) {
-            logger.error('导出permissions出错！', err, req);
+            logger.error('导出permissions出错！', err);
             res.status(500).send(err.message);
             return;
         }
@@ -1042,7 +1042,7 @@ router.get('/exportPermissions', (req, res) => {
  * 导入身份验证
  */
 router.post('/importPermissions', authMw, (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     try {
         const data = req.body.data;
         const matches = data.match(/^data:(.*);base64,(.*)$/);
@@ -1060,7 +1060,7 @@ router.post('/importPermissions', authMw, (req, res) => {
                 modifyTime: new Date()
             }).exec(err => {
                 if (err) {
-                    logger.error('导入permissions出错！', err, req);
+                    logger.error('导入permissions出错！', err);
                     res.json({
                         code: -1,
                         message: err.message
@@ -1069,7 +1069,7 @@ router.post('/importPermissions', authMw, (req, res) => {
                 }
                 permissionModel.insertMany(result, err => {
                     if (err) {
-                        logger.error('导入permissions出错！', err, req);
+                        logger.error('导入permissions出错！', err);
                         res.json({
                             code: -1,
                             message: err.message
@@ -1083,7 +1083,7 @@ router.post('/importPermissions', authMw, (req, res) => {
                 });
             });
     } catch (err) {
-        logger.error('导入permissions出错！', err, req);
+        logger.error('导入permissions出错！', err);
         res.json({
             code: -1,
             message: err.message
@@ -1095,7 +1095,7 @@ router.post('/importPermissions', authMw, (req, res) => {
  * 缓存配置
  */
 router.get('/caches', (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`);
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     const user = req.user;
     let cacheList = [];
@@ -1116,10 +1116,10 @@ router.get('/caches', (req, res) => {
             path: req.path
         });
     }, err => {
-        logger.error('获取caches/domains出错！', err, req);
+        logger.error('获取caches/domains出错！', err);
         res.status(500).send(err.message);
     }).catch(err => {
-        logger.error('获取caches/domains出错！', err, req);
+        logger.error('获取caches/domains出错！', err);
         res.status(500).send(err.message);
     });
 });
@@ -1128,7 +1128,7 @@ router.get('/caches', (req, res) => {
  * 新增或修改保存缓存配置
  */
 router.post('/saveCache', authMw, (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     const type = req.body.type;
     const uri = req.body.uri;
     const method = req.body.method;
@@ -1138,7 +1138,7 @@ router.post('/saveCache', authMw, (req, res) => {
     const expired = req.body.expired;
     domainModel.find({ deleted: false }, (err, domainList) => {
         if (err) {
-            logger.error('操作失败！', err, req);
+            logger.error('操作失败！', err);
             res.json({
                 code: -1,
                 message: err.message
@@ -1146,7 +1146,7 @@ router.post('/saveCache', authMw, (req, res) => {
             return;
         }
         if (domainId && !domainList.find(t => t.id === domainId)) {
-            logger.error('操作失败，域名配置异常！', req);
+            logger.error('操作失败，域名配置异常！');
             res.json({
                 code: -1,
                 message: '域名配置异常！'
@@ -1163,7 +1163,7 @@ router.post('/saveCache', authMw, (req, res) => {
                 deleted: false
             }, (err, doc) => {
                 if (err) {
-                    logger.error('新增失败！', err, req);
+                    logger.error('新增失败！', err);
                     res.json({
                         code: -1,
                         message: err.message
@@ -1171,7 +1171,7 @@ router.post('/saveCache', authMw, (req, res) => {
                     return;
                 }
                 if (doc) {
-                    logger.error('新增失败，已存在相同的匹配路径', req);
+                    logger.error('新增失败，已存在相同的匹配路径');
                     res.json({
                         code: -1,
                         message: '已存在相同的匹配路径！'
@@ -1191,7 +1191,7 @@ router.post('/saveCache', authMw, (req, res) => {
                 });
                 cache.save((err, item) => {
                     if (err) {
-                        logger.error('新增失败！', err, req);
+                        logger.error('新增失败！', err);
                         res.json({
                             code: -1,
                             message: err.message
@@ -1221,7 +1221,7 @@ router.post('/saveCache', authMw, (req, res) => {
                 _id: { $ne: req.body.uid }
             }, (err, doc) => {
                 if (err) {
-                    logger.error('修改失败！', err, req);
+                    logger.error('修改失败！', err);
                     res.json({
                         code: -1,
                         message: err.message
@@ -1229,7 +1229,7 @@ router.post('/saveCache', authMw, (req, res) => {
                     return;
                 }
                 if (doc) {
-                    logger.error('修改失败，已存在相同的匹配路径', req);
+                    logger.error('修改失败，已存在相同的匹配路径');
                     res.json({
                         code: -1,
                         message: '已存在相同的匹配路径！'
@@ -1248,7 +1248,7 @@ router.post('/saveCache', authMw, (req, res) => {
                     modifyTime: new Date()
                 }, { new: true }, (err, item) => {
                     if (err) {
-                        logger.error('修改失败！', err, req);
+                        logger.error('修改失败！', err);
                         res.json({
                             code: -1,
                             message: err.message
@@ -1275,7 +1275,7 @@ router.post('/saveCache', authMw, (req, res) => {
  * 修改启用
  */
 router.post('/activeCache', authMw, (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     const active = req.body.active;
     cacheModel.findByIdAndUpdate(req.body.uid, {
         active,
@@ -1283,7 +1283,7 @@ router.post('/activeCache', authMw, (req, res) => {
         modifyTime: new Date()
     }, { new: true }, (err, item) => {
         if (err) {
-            logger.error('启用失败！', err, req);
+            logger.error('启用失败！', err);
             res.json({
                 code: -1,
                 message: err.message
@@ -1301,14 +1301,14 @@ router.post('/activeCache', authMw, (req, res) => {
  * 软删除缓存配置
  */
 router.post('/delCache', authMw, (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     cacheModel.findByIdAndUpdate(req.body.uid, {
         deleted: true,
         modifyUser: getCurrentUser(req),
         modifyTime: new Date()
     }, { new: true }, (err, item) => {
         if (err) {
-            logger.error('删除失败！', err, req);
+            logger.error('删除失败！', err);
             res.json({
                 code: -1,
                 message: err.message
@@ -1326,10 +1326,10 @@ router.post('/delCache', authMw, (req, res) => {
  * 导出缓存配置
  */
 router.get('/exportCaches', (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     cacheModel.find({ deleted: false }).exec((err, caches) => {
         if (err) {
-            logger.error('导出caches出错！', err, req);
+            logger.error('导出caches出错！', err);
             res.status(500).send(err.message);
             return;
         }
@@ -1343,7 +1343,7 @@ router.get('/exportCaches', (req, res) => {
  * 导入缓存配置
  */
 router.post('/importCaches', authMw, (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     try {
         const data = req.body.data;
         const matches = data.match(/^data:(.*);base64,(.*)$/);
@@ -1361,7 +1361,7 @@ router.post('/importCaches', authMw, (req, res) => {
                 modifyTime: new Date()
             }).exec(err => {
                 if (err) {
-                    logger.error('导入caches出错！', err, req);
+                    logger.error('导入caches出错！', err);
                     res.json({
                         code: -1,
                         message: err.message
@@ -1370,7 +1370,7 @@ router.post('/importCaches', authMw, (req, res) => {
                 }
                 cacheModel.insertMany(result, err => {
                     if (err) {
-                        logger.error('导入caches出错！', err, req);
+                        logger.error('导入caches出错！', err);
                         res.json({
                             code: -1,
                             message: err.message
@@ -1384,7 +1384,7 @@ router.post('/importCaches', authMw, (req, res) => {
                 });
             });
     } catch (err) {
-        logger.error('导入caches出错！', err, req);
+        logger.error('导入caches出错！', err);
         res.json({
             code: -1,
             message: err.message
@@ -1396,7 +1396,7 @@ router.post('/importCaches', authMw, (req, res) => {
  * 获取缓存key的数量，无需写入权限
  */
 router.get('/getCacheKeyLen', (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`);
     if (Array.isArray(cacheConnect)) {
         // Cluster mode
         const nodes = cacheClient.nodes('master');
@@ -1412,7 +1412,7 @@ router.get('/getCacheKeyLen', (req, res) => {
                 data: allKeys.length
             });
         }).catch(err => {
-            logger.error(err, req);
+            logger.error(err);
             res.json({
                 code: -1
             });
@@ -1420,7 +1420,7 @@ router.get('/getCacheKeyLen', (req, res) => {
     } else {
         cacheClient.keys(cacheKeyPrefix + '*', (err, keys) => {
             if (err) {
-                logger.error(err, req);
+                logger.error(err);
                 res.json({
                     code: -1
                 });
@@ -1438,7 +1438,7 @@ router.get('/getCacheKeyLen', (req, res) => {
  * 清除缓存
  */
 router.post('/clearAllCache', authMw, (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     const delKeys = allKeys => {
         if (allKeys.length > 0) {
             Promise.all(allKeys.map(key => {
@@ -1459,7 +1459,7 @@ router.post('/clearAllCache', authMw, (req, res) => {
                     });
                 }
             }).catch(err => {
-                logger.error('清除缓存出错！', err, req);
+                logger.error('清除缓存出错！', err);
                 res.json({
                     code: -1,
                     message: err.message
@@ -1484,7 +1484,7 @@ router.post('/clearAllCache', authMw, (req, res) => {
             });
             delKeys(allKeys);
         }).catch(err => {
-            logger.error('清除缓存出错！', err, req);
+            logger.error('清除缓存出错！', err);
             res.json({
                 code: -1,
                 message: err.message
@@ -1495,7 +1495,7 @@ router.post('/clearAllCache', authMw, (req, res) => {
         cacheClient.keys(key).then(keys => {
             delKeys(keys);
         }).catch(err => {
-            logger.error('清除缓存出错！', err, req);
+            logger.error('清除缓存出错！', err);
             res.json({
                 code: -1,
                 message: err.message
@@ -1508,13 +1508,13 @@ router.post('/clearAllCache', authMw, (req, res) => {
  * 域名配置页面
  */
 router.get('/domains', (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`);
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     const user = req.user;
     let domainList = [];
     domainModel.find({ deleted: false }).exec((err, domains) => {
         if (err) {
-            logger.error('获取domains出错！', err, req);
+            logger.error('获取domains出错！', err);
             res.status(500).send(err.message);
             return;
         }
@@ -1535,7 +1535,7 @@ router.get('/domains', (req, res) => {
  * 新增或修改保存域名
  */
 router.post('/saveDomain', authMw, (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     const domainPath = req.body.domainPath;
     const remarks = req.body.remarks;
     if (!req.body.uid) {
@@ -1545,7 +1545,7 @@ router.post('/saveDomain', authMw, (req, res) => {
             deleted: false
         }, (err, doc) => {
             if (err) {
-                logger.error('新增失败！', err, req);
+                logger.error('新增失败！', err);
                 res.json({
                     code: -1,
                     message: err.message
@@ -1553,7 +1553,7 @@ router.post('/saveDomain', authMw, (req, res) => {
                 return;
             }
             if (doc) {
-                logger.error('新增失败，已存在相同的域名', req);
+                logger.error('新增失败，已存在相同的域名');
                 res.json({
                     code: -1,
                     message: '已存在相同的域名！'
@@ -1568,7 +1568,7 @@ router.post('/saveDomain', authMw, (req, res) => {
             });
             domain.save((err, item) => {
                 if (err) {
-                    logger.error('新增失败！', err, req);
+                    logger.error('新增失败！', err);
                     res.json({
                         code: -1,
                         message: err.message
@@ -1593,7 +1593,7 @@ router.post('/saveDomain', authMw, (req, res) => {
             _id: { $ne: req.body.uid }
         }, (err, doc) => {
             if (err) {
-                logger.error('修改失败！', err, req);
+                logger.error('修改失败！', err);
                 res.json({
                     code: -1,
                     message: err.message
@@ -1601,7 +1601,7 @@ router.post('/saveDomain', authMw, (req, res) => {
                 return;
             }
             if (doc) {
-                logger.error('修改失败，已存在相同的域名', req);
+                logger.error('修改失败，已存在相同的域名');
                 res.json({
                     code: -1,
                     message: '已存在相同的域名！'
@@ -1615,7 +1615,7 @@ router.post('/saveDomain', authMw, (req, res) => {
                 modifyTime: new Date()
             }, { new: true }, (err, item) => {
                 if (err) {
-                    logger.error('修改失败！', err, req);
+                    logger.error('修改失败！', err);
                     res.json({
                         code: -1,
                         message: err.message
@@ -1639,11 +1639,11 @@ router.post('/saveDomain', authMw, (req, res) => {
  * 软删除域名
  */
 router.post('/delDomain', authMw, (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     const domainId = req.body.uid;
     domainModel.findById(domainId, (err, doc) => {
         if (err) {
-            logger.error('删除失败！', err, req);
+            logger.error('删除失败！', err);
             res.json({
                 code: -1,
                 message: err.message
@@ -1658,7 +1658,7 @@ router.post('/delDomain', authMw, (req, res) => {
             const all = values.reduce((prev, next) => prev.concat(next));
             if (all.length > 0) {
                 // 说明路由、缓存、身份验证中使用到了该域名
-                logger.error('删除失败！有路由、缓存或身份验证规则正在使用该配置！', req);
+                logger.error('删除失败！有路由、缓存或身份验证规则正在使用该配置！');
                 res.json({
                     code: -1,
                     message: '有路由、缓存或身份验证规则正在使用该配置，请先修改或删除相关规则！'
@@ -1671,7 +1671,7 @@ router.post('/delDomain', authMw, (req, res) => {
                 modifyTime: new Date()
             }, { new: true }, (err, item) => {
                 if (err) {
-                    logger.error('删除失败！', err, req);
+                    logger.error('删除失败！', err);
                     res.json({
                         code: -1,
                         message: err.message
@@ -1685,7 +1685,7 @@ router.post('/delDomain', authMw, (req, res) => {
                 });
             });
         }).catch(err => {
-            logger.error('删除失败！', err, req);
+            logger.error('删除失败！', err);
             res.json({
                 code: -1,
                 message: err.message
@@ -1698,10 +1698,10 @@ router.post('/delDomain', authMw, (req, res) => {
  * 导出域名
  */
 router.get('/exportDomains', (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     domainModel.find({ deleted: false }).exec((err, domains) => {
         if (err) {
-            logger.error('导出domains出错！', err, req);
+            logger.error('导出domains出错！', err);
             res.status(500).send(err.message);
             return;
         }
@@ -1715,7 +1715,7 @@ router.get('/exportDomains', (req, res) => {
  * 导入域名
  */
 router.post('/importDomains', authMw, (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     try {
         const data = req.body.data;
         const matches = data.match(/^data:(.*);base64,(.*)$/);
@@ -1733,7 +1733,7 @@ router.post('/importDomains', authMw, (req, res) => {
                 modifyTime: new Date()
             }).exec(err => {
                 if (err) {
-                    logger.error('导入domains出错！', err, req);
+                    logger.error('导入domains出错！', err);
                     res.json({
                         code: -1,
                         message: err.message
@@ -1742,7 +1742,7 @@ router.post('/importDomains', authMw, (req, res) => {
                 }
                 domainModel.insertMany(result, err => {
                     if (err) {
-                        logger.error('导入domains出错！', err, req);
+                        logger.error('导入domains出错！', err);
                         res.json({
                             code: -1,
                             message: err.message
@@ -1756,7 +1756,7 @@ router.post('/importDomains', authMw, (req, res) => {
                 });
             });
     } catch (err) {
-        logger.error('导入domains出错！', err, req);
+        logger.error('导入domains出错！', err);
         res.json({
             code: -1,
             message: err.message
@@ -1768,7 +1768,7 @@ router.post('/importDomains', authMw, (req, res) => {
  * 环境信息
  */
 router.get('/info', (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`);
     const user = req.user;
     res.render('info', {
         info: {
@@ -1792,7 +1792,7 @@ router.get('/info', (req, res) => {
  * 帮助
  */
 router.get('/help', (req, res) => {
-    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req);
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`);
     const user = req.user;
     const converter = new showdown.Converter({
         extensions: ['headerlink'],
@@ -1800,7 +1800,7 @@ router.get('/help', (req, res) => {
     });
     fs.readFile(path.join(__dirname, '../help/help.md'), (err, buff) => {
         if (err) {
-            logger.error(err, req);
+            logger.error(err);
             res.sendStatus(500);
             return;
         }
@@ -1824,7 +1824,7 @@ router.get('/getFiles', (req, res) => {
     const readDir = (dirPath, selected) => {
         fs.readdir(dirPath, (err, files) => {
             if (err) {
-                logger.error('获取文件出错！', err.message, req);
+                logger.error('获取文件出错！', err.message);
                 res.json({
                     code: '-1',
                     message: err.message
@@ -1854,9 +1854,7 @@ router.get('/getFiles', (req, res) => {
                         extname,
                         selected: selected === file
                     });
-                } catch (err) {
-                    logger.error(err, req);
-                }
+                } catch (err) { }
             });
 
             res.json({
@@ -1870,7 +1868,7 @@ router.get('/getFiles', (req, res) => {
     };
     fs.stat(prePath, (err, stats) => {
         if (err) {
-            logger.error('获取文件出错！', err.message, req);
+            logger.error('获取文件出错！', err.message);
             res.json({
                 code: '-1',
                 message: err.message

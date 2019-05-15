@@ -2,10 +2,10 @@
  * @Author: Sky.Sun 
  * @Date: 2018-07-11 15:41:00 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2018-07-12 15:27:24
+ * @Last Modified time: 2019-05-14 10:28:42
  */
 
-const staticTransfer = require('./lib/staticTransfer');
+const staticTransfer = require('./staticTransfer');
 const configPath = require('./getConfigPath')();
 const config = require(configPath);
 const staticDirPath = config.staticDirPath;

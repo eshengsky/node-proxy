@@ -20,8 +20,8 @@ const resolve = require('path')
     .resolve;
 const send = require('./send');
 const url = require('url');
-const log4js = require('../log4js');
-const logger = log4js.getLogger('noginx');
+const serverlog = require('serverlog-node');
+const logger = serverlog.getLogger('noginx');
 
 /**
  * Module exports.
@@ -122,7 +122,7 @@ function serveStatic(root, options) {
                 return;
             }
 
-            logger.info(`${opts.logMsg} --> 未找到文件`, req);
+            logger.info(`${opts.logMsg} --> 未找到文件`);
             next();
         });
 

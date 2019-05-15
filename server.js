@@ -2,7 +2,7 @@
  * @Author: Sky.Sun 
  * @Date: 2018-01-17 16:07:30 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2018-08-17 10:39:07
+ * @Last Modified time: 2019-05-15 11:15:16
  */
 const express = require('express');
 const app = express();
@@ -16,9 +16,9 @@ const configPath = require('./getConfigPath')();
 const config = require(configPath);
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
-const log4js = require('./lib/log4js');
-log4js.configure(config.log4js);
-const logger = log4js.getLogger('noginx');
+const serverlog = require('serverlog-node');
+serverlog.config(config.serverlog);
+const logger = serverlog.getLogger('noginx');
 const webRoute = require('./web/route');
 const schedule = require('./schedule');
 const common = require('./utilities/common');
@@ -144,6 +144,11 @@ function routeFilter(req) {
 }
 
 /**
+ * 注册serverlog中间件
+ */
+app.use(serverlog.middleware());
+
+/**
  * Cookie Parser
  */
 app.use(cookieParser());
@@ -157,7 +162,7 @@ app.use(helmet());
  * 添加Server头
  */
 app.use((req, res, next) => {
-    res.header('Server', `noginx v${version}`);
+    res.setHeader('Server', `noginx v${version}`);
     next();
 });
 
@@ -240,7 +245,7 @@ app.use((req, res, next) => {
                     }
 
                     logMsg += '返回缓存数据';
-                    logger.info(logMsg, req);
+                    logger.info(logMsg);
                     res.setHeader('X-Redis-Cache', 'on');
                     res.setHeader('X-Redis-Key', cacheKey);
                     res.send(str);
@@ -276,7 +281,7 @@ app.use((req, res, next) => {
             } else {
                 // 服务器不存在
                 logMsg += `服务器${server}不存在`;
-                logger.info(logMsg, req);
+                logger.info(logMsg);
                 res.sendStatus(500);
                 return;
             }
@@ -288,7 +293,7 @@ app.use((req, res, next) => {
         // 找不到匹配的规则
         if (!route) {
             logMsg += '无匹配路由规则';
-            logger.info(logMsg, req);
+            logger.info(logMsg);
             next();
             return;
         }
@@ -330,13 +335,13 @@ app.use((req, res, next) => {
                     redirect = redirect.replace('$query', qs);
                 }
                 logMsg += `URL重写：${redirect}`;
-                logger.info(logMsg, req);
+                logger.info(logMsg);
                 res.redirect(301, redirect);
                 break;
 
             case 'custom':
                 logMsg += '自定义响应';
-                logger.info(logMsg, req);
+                logger.info(logMsg);
                 res.status(route.customStatus);
                 res.type(route.customContentType);
                 res.end(route.customBody);
@@ -350,18 +355,18 @@ app.use((req, res, next) => {
                 fs.stat(filePath, (err, stats) => {
                     if (err) {
                         logMsg += ` --> 服务器文件路径：${filePath} 不存在`;
-                        logger.error(logMsg, req);
+                        logger.error(logMsg);
                         next();
                         return;
                     }
                     if (stats.isFile()) {
                         // 配置了一个文件路径
                         logMsg += ` --> 尝试发送指定文件：${filePath}`;
-                        logger.info(logMsg, req);
+                        logger.info(logMsg);
                         if (req.query[debugMode.debugParam] === 'true') {
                             fs.readFile(filePath, (err, content) => {
                                 if (err) {
-                                    logger.error(`文件：${filePath} 发送失败！`, err.message, req);
+                                    logger.error(`文件：${filePath} 发送失败！`, err.message);
                                     next();
                                 } else {
                                     const html = debugMode.getDebugHtml(content, debugMode.getLogArray(res));
@@ -371,7 +376,7 @@ app.use((req, res, next) => {
                         } else {
                             res.sendFile(filePath, err => {
                                 if (err) {
-                                    logger.error(`文件：${filePath} 发送失败！`, err.message, req);
+                                    logger.error(`文件：${filePath} 发送失败！`, err.message);
                                     next();
                                 }
                             });
@@ -382,7 +387,7 @@ app.use((req, res, next) => {
                     } else {
                         // 既不是文件也不是目录
                         logMsg += ` --> 服务器路径：${filePath} 不是一个合法的文件或目录`;
-                        logger.error(logMsg, req);
+                        logger.error(logMsg);
                         next();
                     }
                 })
@@ -410,18 +415,18 @@ app.use((req, res, next) => {
                         cacheHandler();
                     }, () => {
                         logMsg += '准备跳转验证页面';
-                        logger.info(logMsg, req);
+                        logger.info(logMsg);
                     });
                 } else {
-                    logger.error(`验证规则 ${permission.auth} 未返回 Promise`, req);
+                    logger.error(`验证规则 ${permission.auth} 未返回 Promise`);
                     logMsg += `验证规则 ${permission.auth} 未返回 Promise，显示 403`;
-                    logger.info(logMsg, req);
+                    logger.info(logMsg);
                     res.sendStatus(403);
                 }
             } else {
-                logger.error(`验证规则 ${permission.auth} 异常`, req);
+                logger.error(`验证规则 ${permission.auth} 异常`);
                 logMsg += `验证规则 ${permission.auth} 异常，显示 403`;
-                logger.info(logMsg, req);
+                logger.info(logMsg);
                 res.sendStatus(403);
             }
             return;
@@ -437,7 +442,7 @@ app.use((req, res, next) => {
  * 未配置兜底规则（以 '/' 开头的路由规则），或者静态文件处理时未找到文件
  */
 app.use((req, res) => {
-    logger.warn(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl} 404 Not Found!`, req);
+    logger.warn(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl} 404 Not Found!`);
     if (req.query[debugMode.debugParam] === 'true') {
         const html = debugMode.getDebugHtml('Not Found', debugMode.getLogArray(res));
         res.send(html);
@@ -450,7 +455,7 @@ app.use((req, res) => {
  * 错误处理
  */
 app.use((err, req, res) => {
-    logger.error(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl} Internal Server Error! Error: ${err.message}`, req);
+    logger.error(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl} Internal Server Error! Error: ${err.message}`);
     if (req.query[debugMode.debugParam] === 'true') {
         const html = debugMode.getDebugHtml('Internal Server Error', debugMode.getLogArray(res));
         res.send(html);

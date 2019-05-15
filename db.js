@@ -2,14 +2,14 @@
  * @Author: Sky.Sun
  * @Date: 2018-02-07 10:45:41
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2018-07-12 15:26:06
+ * @Last Modified time: 2019-05-14 10:34:08
  */
 const mongoose = require('mongoose');
 const configPath = require('./getConfigPath')();
 const config = require(configPath);
 const dbPath = config.db.mongodb;
-const log4js = require('./lib/log4js');
-const logger = log4js.getLogger('noginx');
+const serverlog = require('serverlog-node');
+const logger = serverlog.getLogger('noginx');
 
 // mongoose.set('bufferCommands', false);
 mongoose.connect(dbPath, {

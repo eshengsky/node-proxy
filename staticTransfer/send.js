@@ -29,8 +29,8 @@ const path = require('path');
 const statuses = require('statuses');
 const Stream = require('stream');
 const util = require('util');
-const log4js = require('../log4js');
-const logger = log4js.getLogger('noginx');
+const serverlog = require('serverlog-node');
+const logger = serverlog.getLogger('noginx');
 
 /**
  * Path function references.
@@ -821,7 +821,7 @@ SendStream.prototype.sendIndex = function sendIndex(path) {
  * @api private
  */
 const LRU = require('lru-cache');
-const configPath = require('../../getConfigPath')();
+const configPath = require('../getConfigPath')();
 const config = require(configPath);
 const cacheConfig = config.serverFileCache;
 const options = {
@@ -830,7 +830,7 @@ const options = {
     maxAge: cacheConfig.maxAge
 };
 const cache = LRU(options);
-const debugMode = require('../../debugMode');
+const debugMode = require('../debugMode');
 SendStream.prototype.stream = function stream(path) {
     const res = this.res;
     const type = mime.lookup(path);
@@ -838,7 +838,7 @@ SendStream.prototype.stream = function stream(path) {
     const customHeader = 'X-Static-Source';
 
     // 成功发送文件，记录拼接后的日志
-    logger.info(`${this.options.logMsg} --> 发送文件：${path}`, res.req);
+    logger.info(`${this.options.logMsg} --> 发送文件：${path}`);
     
     /**
      * 只有开启了服务端缓存功能，且文件是 HTML 类型的，才走缓存
