@@ -1,4 +1,4 @@
-tr(id=route.id, data-type=route.type, data-uri=route.uri, data-method=route.method, data-domainid=route.domainId, data-process=route.process, data-content=route.content, data-tryfile=route.tryFile, data-customstatus=route.customStatus, data-customcontenttype=route.customContentType, data-custommode=route.customMode, data-remarks=route.remarks, data-sequence=route.sequence)
+tr(id=route.id, data-type=route.type, data-uri=route.uri, data-params=route.params, data-method=route.method, data-domainid=route.domainId, data-process=route.process, data-content=route.content, data-forwardurl=route.forwardUrl, data-tryfile=route.tryFile, data-customstatus=route.customStatus, data-customcontenttype=route.customContentType, data-custommode=route.customMode, data-remarks=route.remarks, data-sequence=route.sequence)
     td(class={inactive: !route.active})
         span.seq=route.sequence
         i.drag-icon.iconfont.icon-drag(title='拖动排序')
@@ -51,16 +51,19 @@ tr(id=route.id, data-type=route.type, data-uri=route.uri, data-method=route.meth
                 small
                     |自定义响应 
                     a.text-info(href='javascript:void(0);', onclick=`viewCustomRes('${route.id}');`) 查看
-            when 'forward'
+            default
                 small
-                    -
-                        let serverName = 'NULL';
-                        const server = serverList.find(t => t.id === route.content);
-                        if (server) {
-                            serverName = server.name;
-                        }
                     |转发至 
-                    a.text-info(href='/noginx/servers/') #{serverName}
+                    if route.content === 'url'
+                        span #{route.forwardUrl}
+                    else
+                        -
+                            let serverName = 'NULL';
+                            const server = serverList.find(t => t.id === route.content);
+                            if (server) {
+                                serverName = server.name;
+                            }
+                        a.text-info(href='/noginx/servers/') #{serverName}
         .d-none=route.id
     td(class={inactive: !route.active})
         if route.remarks

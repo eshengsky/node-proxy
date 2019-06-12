@@ -2,7 +2,7 @@
  * @Author: Sky.Sun 
  * @Date: 2018-02-07 12:02:40 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2019-05-14 14:24:32
+ * @Last Modified time: 2019-06-12 16:27:32
  */
 const express = require('express');
 const router = express.Router();
@@ -187,6 +187,9 @@ router.get('/', (req, res) => {
         routeList = values[0];
         serverList = values[1];
         domainList = values[2];
+        logger.infoE('route list:', routeList);
+        logger.infoE('server list:', serverList);
+        logger.infoE('domain list:', domainList);
         res.render('route-list', {
             routeList,
             serverList,
@@ -214,10 +217,12 @@ router.post('/save', authMw, (req, res) => {
     logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     const type = req.body.type;
     const uri = req.body.uri;
+    const params = req.body.params;
     const method = req.body.method;
     const domainId = req.body.domainId;
     const process = req.body.process;
     const content = req.body.content;
+    const forwardUrl = req.body.forwardUrl;
     const tryFile = req.body.tryFile;
     const customStatus = req.body.customStatus;
     const customContentType = req.body.customContentType;
@@ -252,6 +257,7 @@ router.post('/save', authMw, (req, res) => {
                 type,
                 method,
                 uri,
+                params,
                 domainId,
                 deleted: false
             }, (err, doc) => {
@@ -290,10 +296,12 @@ router.post('/save', authMw, (req, res) => {
                         const route = new routeModel({
                             type,
                             uri,
+                            params,
                             method,
                             domainId,
                             process,
                             content,
+                            forwardUrl,
                             tryFile,
                             customStatus,
                             customContentType,
@@ -333,6 +341,7 @@ router.post('/save', authMw, (req, res) => {
                 type,
                 method,
                 uri,
+                params,
                 domainId,
                 deleted: false,
                 _id: { $ne: req.body.uid }
@@ -356,10 +365,12 @@ router.post('/save', authMw, (req, res) => {
                 routeModel.findByIdAndUpdate(req.body.uid, {
                     type,
                     uri,
+                    params,
                     method,
                     domainId,
                     process,
                     content,
+                    forwardUrl,
                     tryFile,
                     customStatus,
                     customContentType,
@@ -704,7 +715,6 @@ router.post('/delServer', authMw, (req, res) => {
             });
             return;
         }
-        const name = doc.name;
         routeModel.find({
             process: 'forward',
             content: req.body.uid,
@@ -861,6 +871,7 @@ router.post('/savePermission', authMw, (req, res) => {
     const type = req.body.type;
     const uri = req.body.uri;
     const method = req.body.method;
+    const params = req.body.params;
     const domainId = req.body.domainId;
     const excludes = JSON.parse(req.body.excludes);
     domainModel.find({ deleted: false }, (err, domainList) => {
@@ -886,6 +897,7 @@ router.post('/savePermission', authMw, (req, res) => {
                 type,
                 method,
                 uri,
+                params,
                 domainId,
                 deleted: false
             }, (err, doc) => {
@@ -909,6 +921,7 @@ router.post('/savePermission', authMw, (req, res) => {
                     auth,
                     type,
                     uri,
+                    params,
                     method,
                     pms: config.permissions,
                     domainId,
@@ -941,6 +954,7 @@ router.post('/savePermission', authMw, (req, res) => {
             permissionModel.findOne({
                 type,
                 uri,
+                params,
                 method,
                 domainId,
                 deleted: false,
@@ -966,6 +980,7 @@ router.post('/savePermission', authMw, (req, res) => {
                     auth,
                     type,
                     uri,
+                    params,
                     method,
                     pms: config.permissions,
                     domainId,
@@ -1131,6 +1146,7 @@ router.post('/saveCache', authMw, (req, res) => {
     logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`, req.body);
     const type = req.body.type;
     const uri = req.body.uri;
+    const params = req.body.params;
     const method = req.body.method;
     const domainId = req.body.domainId;
     const keyType = req.body.keyType;
@@ -1159,6 +1175,7 @@ router.post('/saveCache', authMw, (req, res) => {
                 type,
                 method,
                 uri,
+                params,
                 domainId,
                 deleted: false
             }, (err, doc) => {
@@ -1181,6 +1198,7 @@ router.post('/saveCache', authMw, (req, res) => {
                 const cache = new cacheModel({
                     type,
                     uri,
+                    params,
                     method,
                     domainId,
                     keyType,
@@ -1216,6 +1234,7 @@ router.post('/saveCache', authMw, (req, res) => {
                 type,
                 method,
                 uri,
+                params,
                 domainId,
                 deleted: false,
                 _id: { $ne: req.body.uid }
@@ -1239,6 +1258,7 @@ router.post('/saveCache', authMw, (req, res) => {
                 cacheModel.findByIdAndUpdate(req.body.uid, {
                     type,
                     uri,
+                    params,
                     method,
                     domainId,
                     keyType,
@@ -1882,7 +1902,70 @@ router.get('/getFiles', (req, res) => {
             readDir(dirPath, prePath.substring(dirPath.length + 1));
         }
     })
+});
 
+router.get('/filePreview', (req, res) => {
+    logger.info(`${req.method.toUpperCase()}: ${req.protocol}://${req.get('Host')}${req.originalUrl}`);
+    const fileName = decodeURIComponent(req.query.path);
+    if (!fileName) {
+        return res.sendStatus(400);
+    }
+
+    let extname = path.extname(fileName);
+    let cls = '';
+    if (extname) {
+        extname = extname.substring(1);
+        cls = `file-${extname}`;
+    }
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    fs.stat(fileName, (err, stats) => {
+        if (err) {
+            // 文件不存在
+            if (err.code === 'ENOENT') {
+                return res.render('file-preview', {
+                    errmsg: `文件 ${fileName} 不存在！`,
+                    fileName,
+                    cls
+                });
+            } else {
+                logger.error(err);
+                return res.sendStatus(500);
+            }
+        }
+        if (!stats.isFile()) {
+            return res.render('file-preview', {
+                errmsg: `${fileName} 不是合法文件！`,
+                fileName,
+                cls
+            });
+        }
+
+        // 图片的直接返回，让浏览器自己处理展示图片
+        if (['jpg', 'jpeg', 'gif', 'bmp', 'ico', 'tiff', 'png', 'svg'].includes(extname)) {
+            res.setHeader('Content-Type', mime.lookup(extname));
+            return fs.createReadStream(fileName).pipe(res);
+        }
+
+        // 大于 30m 的文件不允许预览
+        if (stats.size / (1024 * 1024) > 30) {
+            return res.render('file-preview', {
+                errmsg: '该文件太大了不支持预览！',
+                fileName,
+                cls
+            });
+        }
+
+
+        res.render('file-preview', {
+            fileName,
+            cls
+        });
+    })
+});
+
+router.get('/getFileContent', (req, res) => {
+    const filePath = req.query.path;
+    fs.createReadStream(filePath).pipe(res);
 });
 
 module.exports = router;

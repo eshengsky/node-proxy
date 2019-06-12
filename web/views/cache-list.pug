@@ -3,6 +3,8 @@ extends layout.pug
 block styles
     link(rel='stylesheet', href='/noginx/static/switchery/dist/switchery.min.css')
     link(rel='stylesheet', href='/noginx/static/css/animate.min.css')
+    link(rel='stylesheet', href='/noginx/static/select2/dist/css/select2.min.css')
+    link(rel='stylesheet', href='/noginx/static/tippy.js/themes/light-border.css')
     link(rel='stylesheet', href='/noginx/static/css/index.css')
     if (!editable) 
         style(type='text/css').
@@ -58,49 +60,61 @@ block content
                     button.close(type='button' data-dismiss='modal' aria-label='Close')
                         span(aria-hidden='true') &times;
                 .modal-body
-                    .form-group
-                        label(for='') 请求方式
-                        select.custom-select.form-control#select-method
-                            option(value="") --不限--
-                            each method in methods
-                                option(value=method)=method
-                    .form-group
-                        label(for='') 匹配域名
-                        .input-group
-                            select.custom-select.form-control#select-domain
-                                option(value="") --不限--
-                                each domain in domainList
-                                    option(value=domain.id)=domain.domainPath
-                            .input-group-append
-                                span.my-input-group-text.my-input-group-text2
-                                    a(href="/noginx/domains/")
-                                        i.iconfont.icon-global(title="配置域名")
-                    .form-group
-                        label(for='input-uri') 匹配路径
-                        .input-group#group-uri
-                            .input-group-prepend
-                                select.custom-select.form-control.prepend-select#select-type
-                                    option(value='start') 开头
-                                    option(value='exact') 精确
-                                    option(value='regexp') 正则
-                            input.form-control#input-uri(placeholder="匹配开头", spellcheck="false")
-                    .form-group
-                        label(for='') 缓存key
-                        .custom-control.custom-radio
-                            input.custom-control-input(type="radio", id="radio-url", name="radioKey", checked)
-                            label.custom-control-label(for="radio-url") 请求的完整URL {{url}}
-                        .custom-control.custom-radio
-                            input.custom-control-input(type="radio", id="radio-custom", name="radioKey")
-                            label.custom-control-label(for="radio-custom") 自定义key
-                        #custom-key-block
-                            small.form-text.text-muted 内置变量：{{url}} 请求的完整URL，{{body.foo}} 请求的body，{{cookie.bar}} 请求的cookie
-                            input.form-control#input-keyContent(placeholder="输入自定义key", spellcheck="false")
-                    .form-group
-                        label(for='input-expired') 过期时间
-                        .input-group(style="width: 130px;")
-                            input.form-control.text-right#input-expired(type="number", placeholder="", spellcheck="false", value="3600")
-                            .input-group-append
-                                span.input-group-text 秒
+                    .panel.req-panel
+                        p.split-title 匹配请求
+                        .panel-body
+                            .form-group
+                                label(for='') 请求方式
+                                select.custom-select.form-control#select-method
+                                    option(value="") --不限--
+                                    each method in methods
+                                        option(value=method)=method
+                            .form-group
+                                label(for='') 匹配域名
+                                .input-group
+                                    select.custom-select.form-control#select-domain
+                                        option(value="") --不限--
+                                        each domain in domainList
+                                            option(value=domain.id)=domain.domainPath
+                                    .input-group-append
+                                        span.my-input-group-text.my-input-group-text2
+                                            a(href="/noginx/domains/")
+                                                i.iconfont.icon-global(title="配置域名")
+                            .form-group
+                                label(for='input-uri') 匹配路径
+                                .input-group#group-uri
+                                    .input-group-prepend
+                                        select.custom-select.form-control.prepend-select#select-type
+                                            option(value='start') 开头
+                                            option(value='exact') 精确
+                                            option(value='regexp') 正则
+                                    input.form-control#input-uri(placeholder="匹配开头", spellcheck="false")
+                            .form-group
+                                label(for='input-params') 
+                                    span 匹配参数
+                                i.tip(data-tippy-content="示例：query.from === 'home' && cookies.H5_CITY <br>内置对象：query: 查询字符串，body: 请求体，cookies: 客户端Cookie") i
+                                input.form-control#input-params(placeholder="返回布尔类型的表达式", spellcheck="false")
+                    .panel.req-panel
+                        p.split-title 设置缓存
+                        .panel-body
+                            .form-group
+                                label(for='') 缓存key
+                                .custom-control.custom-radio
+                                    input.custom-control-input(type="radio", id="radio-url", name="radioKey", checked)
+                                    label.custom-control-label(for="radio-url") 请求的完整URL {{url}}
+                                .custom-control.custom-radio
+                                    input.custom-control-input(type="radio", id="radio-custom", name="radioKey")
+                                    label.custom-control-label(for="radio-custom") 
+                                        span 自定义key
+                                        i.tip(data-tippy-content="内置变量：{{url}} 请求的完整URL，{{body.foo}} 请求的body，{{cookie.bar}} 请求的cookie") i
+                                #custom-key-block
+                                    input.form-control#input-keyContent(placeholder="输入自定义key", spellcheck="false")
+                            .form-group
+                                label(for='input-expired') 过期时间
+                                .input-group(style="width: 130px;")
+                                    input.form-control.text-right#input-expired(type="number", placeholder="", spellcheck="false", value="300")
+                                    .input-group-append
+                                        span.input-group-text 秒
                 .modal-footer
                     a.btn.btn-link.btn-howto.text-info(href="/noginx/help/#如何配置缓存？", target="_blank") 如何配置？
                     button.btn.btn-default(type='button' data-dismiss='modal') 取消
@@ -126,8 +140,11 @@ block content
     input#uid(type="hidden")
     input#editable(type="hidden", value=editable.toString())
     script(src='/noginx/static/jquery/dist/jquery.min.js')
+    script(src='/noginx/static/popper.js/dist/umd/popper.min.js')
     script(src='/noginx/static/bootstrap/dist/js/bootstrap.min.js')
     script(src='/noginx/static/switchery/dist/switchery.min.js')
     script(src='/noginx/static/js/search.js')
     script(src='/noginx/static/sweetalert/dist/sweetalert.min.js')
+    script(src='/noginx/static/tippy.js/umd/index.all.min.js')
+    script(src='/noginx/static/select2/dist/js/select2.js')
     script(src='/noginx/static/js/caches.js')

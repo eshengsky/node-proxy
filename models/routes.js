@@ -2,7 +2,7 @@
  * @Author: Sky.Sun 
  * @Date: 2018-02-07 11:42:27 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2018-07-11 12:10:22
+ * @Last Modified time: 2019-05-15 14:17:39
  */
 const mongoose = require('../db').mongoose;
 const routeSchemaObj = {
@@ -21,6 +21,11 @@ const routeSchemaObj = {
     uri: {
         type: String,
         required: true
+    },
+
+    // 要匹配的请求参数
+    params: {
+        type: String
     },
 
     // 要匹配的域名ID
@@ -49,6 +54,11 @@ const routeSchemaObj = {
     tryFile: {
         type: String,
         required: true
+    },
+
+    // 当处理方式是forward，且content值为url时，此字段存储要转发到的地址
+    forwardUrl: {
+        type: String
     },
 
     // 自定义响应的状态码

@@ -3,6 +3,8 @@ extends layout.pug
 block styles
     link(rel='stylesheet', href='/noginx/static/switchery/dist/switchery.min.css')
     link(rel='stylesheet', href='/noginx/static/css/animate.min.css')
+    link(rel='stylesheet', href='/noginx/static/select2/dist/css/select2.min.css')
+    link(rel='stylesheet', href='/noginx/static/tippy.js/themes/light-border.css')
     link(rel='stylesheet', href='/noginx/static/css/index.css')
 
 block content
@@ -78,6 +80,11 @@ block content
                                     option(value='exact') 精确
                                     option(value='regexp') 正则
                             input.form-control#input-uri(placeholder="匹配开头", spellcheck="false")
+                    .form-group
+                        label(for='input-params') 
+                            span 匹配参数
+                        i.tip(data-tippy-content="示例：query.from === 'home' && cookies.H5_CITY <br>内置对象：query: 查询字符串，body: 请求体，cookies: 客户端Cookie") i
+                        input.form-control#input-params(placeholder="返回布尔类型的表达式", spellcheck="false")
                     .form-group#exclude-container
                         label(for='') 排除项
                         button.btn.btn-sm.btn-info.float-right.btn-new-exc#btn-new-exclude(type="button", title="添加") 
@@ -103,4 +110,6 @@ block content
     script(src='/noginx/static/bootstrap/dist/js/bootstrap.min.js')
     script(src='/noginx/static/js/search.js')
     script(src='/noginx/static/sweetalert/dist/sweetalert.min.js')
+    script(src='/noginx/static/tippy.js/umd/index.all.min.js')
+    script(src='/noginx/static/select2/dist/js/select2.js')
     script(src='/noginx/static/js/permissions.js')

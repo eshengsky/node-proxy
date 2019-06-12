@@ -60,6 +60,10 @@ $('#input-password').on('input', () => {
     $('#input-password').removeClass('is-invalid');
 });
 
+setTimeout(() => {
+    $('#input-username').focus();
+}, 100);
+
 // 回车登录
 $('body').on('keyup', event => {
     if(event.keyCode == '13') {

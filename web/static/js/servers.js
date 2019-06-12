@@ -296,7 +296,7 @@ function generateChart(chartEl) {
     option = {
         tooltip: {
             trigger: 'item',
-            formatter: "服务器 {b} <br/>命中 {d}%"
+            formatter: "服务器 {b} <br/>命中率 {d}%"
         },
         legend: {
             orient: 'vertical',
@@ -378,6 +378,11 @@ $('#server-modal').on('show.bs.modal', () => {
         }
         $('#input-remarks').val(data.remarks);
     }
+});
+
+tippy('.tip', {
+    arrow: true,
+    theme: 'light-border'
 });
 
 // 模态框显示之后聚焦

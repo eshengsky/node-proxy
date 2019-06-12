@@ -2,7 +2,7 @@
  * @Author: Sky.Sun 
  * @Date: 2018-03-01 11:31:49 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2018-07-11 14:27:57
+ * @Last Modified time: 2019-05-15 14:18:00
  */
 const mongoose = require('../db').mongoose;
 const permissionSchemaObj = {
@@ -27,6 +27,11 @@ const permissionSchemaObj = {
     uri: {
         type: String,
         required: true
+    },
+
+    // 要匹配的请求参数
+    params: {
+        type: String
     },
 
     // 要匹配的域名ID

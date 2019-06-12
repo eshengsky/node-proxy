@@ -24,6 +24,9 @@ const searcher = new QuickSearch({
     }
 });
 
+$.fn.select2.defaults.set('width', '100%');
+$.fn.select2.defaults.set('minimumResultsForSearch', Infinity);
+
 // uri 文本框变化
 $('#input-uri').on('input', () => {
     $('#input-uri').removeClass('is-invalid');
@@ -90,11 +93,11 @@ window.exChange = el => {
     $input.removeClass('is-invalid');
     switch (type) {
         case 'regexp':
-            $input.attr('placeholder', '正则匹配');
+            $input.attr('placeholder', '正则表达式匹配');
             $group.addClass('group-regexp');
             break;
         case 'exact':
-            $input.attr('placeholder', '完全匹配');
+            $input.attr('placeholder', '精确匹配');
             $group.removeClass('group-regexp');
             break;
         default:
@@ -120,7 +123,7 @@ window.openExcludes = uid => {
         excludes.forEach(exclude => {
             let badge = '';
             if (exclude.type === 'regexp') {
-                badge = '<span class="badge badge-secondary" title="正则匹配">正则</span>';
+                badge = '<span class="badge badge-secondary" title="正则表达式匹配">正则</span>';
             } else if (exclude.type === 'exact') {
                 badge = '<span class="badge badge-info" title="精确匹配">精确</span>';
             }
@@ -307,6 +310,7 @@ $('#btn-save').on('click', () => {
         auth,
         type: $('#select-type').val(),
         uri,
+        params: $('#input-params').val(),
         method: $('#select-method').val(),
         domainId: $('#select-domain').val(),
         excludes: JSON.stringify(excludes)
@@ -363,20 +367,22 @@ $('#permission-modal').on('show.bs.modal', () => {
     $('.exclude-group').remove();
     if (!uid) {
         // 新增
-        $('#select-auth').val('');
-        $('#select-domain option:first').prop('selected', 'selected');
+        $('#select-auth').val('').change();
+        $('#select-domain').val('').change();
         $('#select-type').val('start').change();
-        $('#select-method').val('');
+        $('#select-method').val('').change();
         $('#input-uri').val('');
         $('#input-uri').removeClass('is-invalid');
+        $('#input-params').val('');
     } else {
         // 修改
         const data = $(`#${uid}`).data();
-        $('#select-domain').val(data.domainid);
-        $('#select-auth').val(data.auth);
+        $('#select-domain').val(data.domainid).change();
+        $('#select-auth').val(data.auth).change();
         $('#select-type').val(data.type).change();
-        $('#select-method').val(data.method);
+        $('#select-method').val(data.method).change();
         $('#input-uri').val(data.uri);
+        $('#input-params').val(data.params);
         const excludes = data.excludes;
         if (excludes.length > 0) {
             excludes.forEach(item => {
@@ -395,3 +401,20 @@ window.onpageshow = evt => {
         location.reload();
     }
 };
+
+$('#select-auth').select2();
+
+$('#select-method').select2();
+
+$('#select-domain').select2({
+    width: 'calc(100% - 38px)'
+});
+
+$('#select-type').select2({
+    width: '74px'
+});
+
+tippy('.tip', {
+    arrow: true,
+    theme: 'light-border'
+});

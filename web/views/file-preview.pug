@@ -1,0 +1,36 @@
+doctype html
+html(lang='en')
+    head
+        meta(charset='utf-8')
+        link(rel='shortcut icon' href='/noginx/static/img/noginx.ico')
+        link(rel='stylesheet', href='/noginx/static/bootswatch/dist/minty/bootstrap.min.css')
+        link(rel='stylesheet', href='/noginx/static/css/iconfont.css')
+        link(rel='stylesheet', data-name='vs/editor/editor.main', href='/noginx/static/monaco-editor/min/vs/editor/editor.main.css')
+        link(rel='stylesheet', href='/noginx/static/css/filePreview.css')
+        title Noginx - 文件预览
+    body
+        .file-name(class=cls)
+            p=fileName
+        if errmsg
+            .err=errmsg
+        else
+            #text-body
+            .lang-mode-wrap
+                button#line-info(title="转到行") 行 1，列 1
+                select.form-control.form-control-sm#select-theme(title="选择主题")
+                    option(value='vs-dark') 深色主题
+                    option(value='vs') 浅色主题
+                select.form-control.form-control-sm#select-mode(title="选择语言模式")
+                    option(value='css') CSS
+                    option(value='handlebars') Handlebars
+                    option(value='html') HTML
+                    option(value='javascript') JavaScript
+                    option(value='json') JSON
+                    option(value='markdown') Markdown
+                    option(value='jade') Pug
+                    option(value='html') Vue
+                    option(value='plaintext') 纯文本
+            script(src='/noginx/static/jquery/dist/jquery.min.js')
+            script(src='/noginx/static/monaco-editor/min/vs/loader.js')
+            script(src='/noginx/static/js/filePreview.js')
+        

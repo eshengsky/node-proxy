@@ -14,6 +14,9 @@ require.config({
     }
 });
 
+$.fn.select2.defaults.set('width', '100%');
+$.fn.select2.defaults.set('minimumResultsForSearch', Infinity);
+
 function switcherInit(el) {
     const switchery = new Switchery(el, {
         color: '#56CC9D',
@@ -135,20 +138,23 @@ $('#select-type').on('change', () => {
     $('#input-uri').removeClass('is-invalid');
     switch (type) {
         case 'regexp':
-            $('#input-uri').attr('placeholder', '正则匹配');
+            $('#input-uri').attr('placeholder', '正则表达式匹配');
             $('#group-uri').addClass('group-regexp');
             break;
         case 'exact':
-            $('#input-uri').attr('placeholder', '完全匹配');
+            $('#input-uri').attr('placeholder', '精确匹配');
             $('#group-uri').removeClass('group-regexp');
             break;
         default:
             $('#input-uri').attr('placeholder', '匹配开头');
             $('#group-uri').removeClass('group-regexp');
     }
+    setTimeout(() => {
+        $('#input-uri').focus();
+    }, 200);
 });
 
-$('#btn-show-file').on('click', () => {
+const showFileHandler = () => {
     checkIfStaticExists(() => {
         let path = $('#input-path').val();
         if (path.substring(path.length - 1) === '/') {
@@ -158,15 +164,19 @@ $('#btn-show-file').on('click', () => {
 
         // 计算模态框的高度
         const bodyHeight = $('#route-modal .modal-body').outerHeight();
-        const newHeight = bodyHeight - 35;
-        $('#file-modal .file-list').css('height', `${newHeight}px`);
+        const newHeight = bodyHeight - 18;
+        $('#file-modal .file-list').css('min-height', `${newHeight}px`);
 
         // 隐藏上一个模态框，形成翻转效果
         $('#route-modal').css('display', 'none');
         $('#route-modal').removeClass('bounceInDown').addClass('flipInY');
         $('#file-modal').modal('show');
     });
-});
+};
+
+// 点击弹出文件选择器
+$('#btn-show-file').on('click', showFileHandler);
+$('#input-path').on('click', showFileHandler);
 
 // 处理内容 文本框变化
 $('#input-content').on('input', () => {
@@ -175,7 +185,7 @@ $('#input-content').on('input', () => {
 
 // 转发服务器 选择项变化
 $('#select-content').on('change', () => {
-    $('#select-content').removeClass('is-invalid');
+    $('#select2-select-content-container').parent().removeClass('is-invalid');
 });
 
 // 切换处理方式
@@ -185,20 +195,38 @@ $('#select-process').on('change', () => {
     $('#select-content').val('');
     $('#input-path').removeClass('is-invalid');
     $('#input-rewrite').removeClass('is-invalid');
-    $('#select-content').removeClass('is-invalid');
+    $('#select2-select-process-container').parent().removeClass('is-invalid');
+    $('#select2-select-content-container').parent().removeClass('is-invalid');
     $('#static-wrap').hide();
     $('#rewrite-wrap').hide();
     $('#forward-wrap').hide();
     $('#custom-wrap').hide();
+    $('#input-forward').hide();
     if (process === 'forward') {
         $('#forward-wrap').show();
+        $('#select-content').val('').change();
     } else if (process === 'rewrite') {
         $('#rewrite-wrap').show();
-        $('#input-rewrite').focus();
+        setTimeout(() => {
+            $('#input-rewrite').focus();
+        }, 200);
     } else if (process === 'custom') {
         $('#custom-wrap').show();
-    } else {
+    } else if (process === 'static') {
         $('#static-wrap').show();
+    }
+});
+
+// 切换转发方式为URL
+$('#select-content').on('change', () => {
+    const type = $('#select-content').val();
+    if (type === 'url') {
+        $('#input-forward').show();
+        setTimeout(() => {
+            $('#input-forward').focus();
+        }, 200);
+    } else {
+        $('#input-forward').hide();
     }
 });
 
@@ -380,10 +408,17 @@ $('#btn-save').on('click', () => {
         return;
     }
 
-    const process = $('#select-process').val();
+    const processEl = $('#select-process');
+    const process = processEl.val();
+    if (!process) {
+        $('#select2-select-process-container').parent().addClass('is-invalid');
+        return;
+    }
+
     const inputPath = $('#input-path');
     const inputRewrite = $('#input-rewrite');
     const selectContent = $('#select-content');
+    const inputForward = $('#input-forward');
     let content = '';  
     if (process === 'rewrite') {
         content = inputRewrite.val().trim();
@@ -395,8 +430,20 @@ $('#btn-save').on('click', () => {
     } else if (process === 'forward') {
         content = $('#select-content').val();
         if (!content) {
-            selectContent.addClass('is-invalid');
+            $('#select2-select-content-container').parent().addClass('is-invalid');
             return;
+        }
+        if (content === 'url') {
+            if (!inputForward.val()) {
+                inputForward.addClass('is-invalid');
+                inputForward.focus();
+                return;
+            }
+            if (!/^https?:\/\//.test(inputForward.val())) {
+                inputForward.addClass('is-invalid');
+                inputForward.focus();
+                return;
+            }
         }
     } else if (process === 'static') {
         content = inputPath.val().trim();
@@ -410,10 +457,12 @@ $('#btn-save').on('click', () => {
         uid,
         type: $('#select-type').val(),
         uri,
+        params: $('#input-params').val(),
         method: $('#select-method').val(),
         domainId: $('#select-domain').val(),
         process,
         content,
+        forwardUrl: inputForward.val(),
         tryFile: tryFile ? 'Y' : 'N',
         customStatus: process === 'custom' ? $('#select-status').val() : '',
         customContentType: process === 'custom' ? $('#select-mime').val() : '',
@@ -441,24 +490,12 @@ $('#btn-save').on('click', () => {
             updatedItem.find('[data-toggle="popover"]').popover(popoverOptions);
             draggerInit();
             $('#route-modal').modal('hide');
-            if (!uid) {
-                swal({
-                    title: '保存成功',
-                    text: '如果存在以 / 开头的兜底规则 (匹配任意请求)，请将新增后的路由规则拖动到兜底规则之前！',
-                    icon: 'success',
-                    button: {
-                        text: '我知道了',
-                        className: 'btn btn-info'
-                    }
-                });
-            } else {
-                swal({
-                    text: '保存成功',
-                    icon: 'success',
-                    buttons: false,
-                    timer: 1000
-                });
-            }
+            swal({
+                text: '保存成功',
+                icon: 'success',
+                buttons: false,
+                timer: 1000
+            });
         } else {
             swal({
                 title: '保存失败',
@@ -685,9 +722,11 @@ $('#route-modal').on('show.bs.modal', () => {
     $('#input-path').val(topPath);
     $('#input-rewrite').val('');
     $('#select-content').val('');
+    $('#input-forward').val('');
     $('#input-path').removeClass('is-invalid');
     $('#input-rewrite').removeClass('is-invalid');
-    $('#select-content').removeClass('is-invalid');
+    $('#select2-select-content-container').parent().removeClass('is-invalid');
+    $('#input-forward').removeClass('is-invalid');
     $('#static-wrap').hide();
     $('#rewrite-wrap').hide();
     $('#forward-wrap').hide();
@@ -697,32 +736,34 @@ $('#route-modal').on('show.bs.modal', () => {
     initEditor('<h3>OK</h3>', 'html');
     if (!uid) {
         // 新增
-        $('#select-domain option:first').prop('selected', 'selected');
+        $('#select-domain').val('').change();
         $('#select-type').val('start').change();
-        $('#select-method').val('');
+        $('#select-method').val('').change();
         $('#input-uri').val('');
         $('#input-uri').removeClass('is-invalid');
-        $('#select-process').val('static').change();
+        $('#input-params').val('');
+        $('#select-process').val('').change();
         $('#check-tryFile').prop('checked', false);
         $('#input-remarks').val('');
-        $('#static-wrap').show();
     } else {
         // 修改
         const data = $(`#${uid}`).data();
-        $('#select-domain').val(data.domainid);
+        $('#select-domain').val(data.domainid).change();
         $('#select-type').val(data.type).change();
-        $('#select-method').val(data.method);
+        $('#select-method').val(data.method).change();
         $('#input-uri').val(data.uri);
+        $('#input-params').val(data.params);
+        $('#input-forward').val(data.forwardurl);
         const process = data.process;
         $('#select-process').val(process).change();
         if (process === 'forward') {
-            $('#select-content').val(data.content);
+            $('#select-content').val(data.content).change();
         } else if (process === 'rewrite') {
             $('#input-rewrite').val(data.content);
         } else if (process === 'custom') {
-            $('#select-status').val(data.customstatus);
-            $('#select-mime').val(data.customcontenttype);
-            $('#select-mode').val(data.custommode);
+            $('#select-status').val(data.customstatus).change();
+            $('#select-mime').val(data.customcontenttype).change();
+            $('#select-mode').val(data.custommode).change();
             initEditor($(`#${uid} pre`).text(), data.custommode);
         } else {
             let path = `${topPath}`
@@ -734,6 +775,7 @@ $('#route-modal').on('show.bs.modal', () => {
         $('#check-tryFile').prop('checked', data.tryfile === 'Y');
         $('#input-remarks').val(data.remarks);
     }
+    $('#input-path').attr('title', $('#input-path').val());
 });
 
 // 模态框显示之后聚焦
@@ -787,8 +829,17 @@ function showFileList(path = topPath) {
                 if (item.selected) {
                     className += ' active';
                 }
+
+                // 文件路径
                 const newPath = `${currentDirPath}/${item.name}`;
-                return `<li class="${className}" title="${newPath}" data-path="${newPath}" onclick="fileActive(this${item.isDir ? ', true' : ''});"><p>${item.name}</p></li>`;
+
+                // 支持文件预览功能
+                let previewBtn = '';
+                if (item.isFile) {
+                    previewBtn = `<a class="file-preview-btn" title="文件预览" href="/noginx/filePreview?path=${encodeURIComponent(newPath)}" target="_blank">文件预览</a>`;
+                }
+
+                return `<li class="${className}" title="${newPath}" data-path="${newPath}" onclick="fileActive(this${item.isDir ? ', true' : ''});"><p>${item.name}${previewBtn}</p></li>`;
             });
             if (currentDirPath !== topPath) {
                 let className = 'back-type iconfont';
@@ -836,6 +887,8 @@ function fileActive(obj, isDir) {
             if (isDir) {
                 showFileList($(obj).data('path'));
                 $('#btn-confirm-path').html('确认选择');
+            } else {
+                confirmPath($(obj).data('path'));
             }
         }
     }
@@ -852,6 +905,7 @@ $('#file-modal').on('hidden.bs.modal', () => {
 function confirmPath(fullPath) {
     $('#file-modal').modal('hide');
     $('#input-path').val(fullPath);
+    $('#input-path').attr('title', $('#input-path').val());
 }
 
 $('#btn-confirm-path').on('click', () => {
@@ -868,6 +922,91 @@ $('#btn-confirm-path').on('click', () => {
     } else {
         confirmPath($('.current-path').html());
     }
+});
+
+$('#select-process').select2({
+    templateResult: state => {
+        if (!state.id) {
+            return state.text;
+        }
+        let desc = '';
+        switch (state.id) {
+            case 'static':
+                desc = '返回服务器磁盘上的静态文件'; 
+                break;
+            case 'rewrite':
+                desc = '301重定向到一个新的URL';
+                break;
+            case 'forward':
+                desc = '将请求转发到其它服务器';
+                break;
+            case 'custom':
+                desc = '直接返回指定响应头和响应内容';
+                break;
+            default:
+                desc = '';
+        }
+        return $(`<p>${state.text}</p><small>${desc}</small>`);
+    }
+});
+
+$('#select-content').select2({
+    width: 'calc(100% - 38px)',
+    templateResult: state => {
+        if (!state.id) {
+            return state.text;
+        }
+        if (state.id === '$new') {
+            return $(`<i class="iconfont icon-add1" style="font-size: 15px; margin-right: 3px"></i><span>新增</span>`);
+        } else if (state.id === 'url') {
+            return $(`<p>${state.text}</p><small>转发到指定的域名或IP，并支持改变URL</small>`);
+        } else {
+            return $(`<p>${state.text}</p><small>转发到${state.text}服务器，URL保持不变</small>`);
+        }
+    }
+});
+
+$('#select-method').select2();
+
+$('#select-domain').select2({
+    width: 'calc(100% - 38px)'
+});
+
+$('#select-type').select2({
+    width: '74px'
+});
+
+$('#select-status').select2({
+    templateResult: state => {
+        let desc = '';
+        switch (state.id) {
+            case '200':
+                desc = 'OK 请求成功'; 
+                break;
+            case '400':
+                desc = 'Bad Request 请求参数有误';
+                break;
+            case '403':
+                desc = 'Forbidden 服务器拒绝访问';
+                break;
+            case '404':
+                desc = 'Not Found 服务器找不到该资源';
+                break;
+            case '500':
+                desc = 'Internal Server Error 内部服务器错误';
+                break;
+            default:
+                desc = '';
+        }
+        return $(`<p>${state.text}</p><small>${desc}</small>`);
+    }
+});
+
+$('#select-mime').select2();
+
+tippy('.tip', {
+    arrow: true,
+    theme: 'light-border'
 });
 
 window.onpageshow = evt => {

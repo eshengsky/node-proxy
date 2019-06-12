@@ -14,6 +14,9 @@ function switcherInit(el) {
 }
 document.querySelectorAll('[name="active-checkbox"]').forEach(el => switcherInit(el));
 
+$.fn.select2.defaults.set('width', '100%');
+$.fn.select2.defaults.set('minimumResultsForSearch', Infinity);
+
 const searcher = new QuickSearch({
     inputSelector: '[type=search]',
     findSelector: '.results tr',
@@ -51,17 +54,20 @@ $('#select-type').on('change', () => {
     $('#input-uri').removeClass('is-invalid');
     switch (type) {
         case 'regexp':
-            $('#input-uri').attr('placeholder', '正则匹配');
+            $('#input-uri').attr('placeholder', '正则表达式匹配');
             $('#group-uri').addClass('group-regexp');
             break;
         case 'exact':
-            $('#input-uri').attr('placeholder', '完全匹配');
+            $('#input-uri').attr('placeholder', '精确匹配');
             $('#group-uri').removeClass('group-regexp');
             break;
         default:
             $('#input-uri').attr('placeholder', '匹配开头');
             $('#group-uri').removeClass('group-regexp');
     }
+    setTimeout(() => {
+        $('#input-uri').focus();
+    }, 200);
 });
 
 // 缓存key
@@ -356,6 +362,7 @@ $('#btn-save').on('click', () => {
         uid,
         type: $('#select-type').val(),
         uri,
+        params: $('#input-params').val(),
         method: $('#select-method').val(),
         domainId: $('#select-domain').val(),
         keyType: $('#radio-custom').prop('checked') ? 'Custom' : 'Url',
@@ -417,21 +424,23 @@ $('#cache-modal').on('show.bs.modal', () => {
     const uid = $('#uid').val();
     if (!uid) {
         // 新增
-        $('#select-domain option:first').prop('selected', 'selected');
+        $('#select-domain').val('').change();
         $('#select-type').val('start').change();
         $('#input-uri').val('');
         $('#input-uri').removeClass('is-invalid');
-        $('#select-method').val('');
+        $('#input-params').val('');
+        $('#select-method').val('').change();
         $('#radio-url').click();
         $('#input-keyContent').val('');
-        $('#input-expired').val('3600');
+        $('#input-expired').val('300');
     } else {
         // 修改
         const data = $(`#${uid}`).data();
-        $('#select-domain').val(data.domainid);
+        $('#select-domain').val(data.domainid).change();
         $('#select-type').val(data.type).change();
         $('#input-uri').val(data.uri);
-        $('#select-method').val(data.method);
+        $('#input-params').val(data.params);
+        $('#select-method').val(data.method).change();
         const keyType = data.keytype;
         if (keyType === 'Custom') {
             $('#input-keyContent').val(data.keycontent);
@@ -446,6 +455,21 @@ $('#cache-modal').on('show.bs.modal', () => {
 // 模态框显示之后聚焦
 $('#cache-modal').on('shown.bs.modal', () => {
     $('#input-uri').focus();
+});
+
+$('#select-method').select2();
+
+$('#select-domain').select2({
+    width: 'calc(100% - 38px)'
+});
+
+$('#select-type').select2({
+    width: '74px'
+});
+
+tippy('.tip', {
+    arrow: true,
+    theme: 'light-border'
 });
 
 window.onpageshow = evt => {

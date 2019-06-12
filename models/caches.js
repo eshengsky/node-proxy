@@ -2,7 +2,7 @@
  * @Author: Sky.Sun 
  * @Date: 2018-04-18 15:51:26 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2018-07-11 12:09:29
+ * @Last Modified time: 2019-05-15 14:18:46
  */
 const mongoose = require('../db').mongoose;
 const cacheSchemaObj = {
@@ -23,6 +23,11 @@ const cacheSchemaObj = {
         required: true
     },
 
+    // 要匹配的请求参数
+    params: {
+        type: String
+    },
+
     // 要匹配的域名ID
     domainId: {
         type: String
@@ -33,7 +38,7 @@ const cacheSchemaObj = {
         type: String,
         required: true
     },
-
+    
     // 缓存自定义键
     keyContent: {
         type: String

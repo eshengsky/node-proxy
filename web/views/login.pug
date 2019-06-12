@@ -6,24 +6,22 @@ html(lang='en')
         link(rel='shortcut icon' href='/noginx/static/img/noginx.ico')
         link(rel='stylesheet', href='/noginx/static/bootswatch/dist/minty/bootstrap.min.css')
         link(rel='stylesheet', href='/noginx/static/css/iconfont.css')
-        link(rel='stylesheet', href='/noginx/static/css/index.css')
+        link(rel='stylesheet', href='/noginx/static/css/login.css')
         title Noginx - 用户登录
-    body.login
-        .container.login-container
-            .row.justify-content-center
-                .col-sm-8.col-lg-4
-                    .form-group.text-center
-                        i.iconfont.icon-shujufangwendaili.logo
-                    .form-group
-                        h5.text-center.mb-4 登录到 Noginx
-                    .form-group
-                        input.form-control.form-control-lg#input-username(name="username", placeholder="用户名")
-                    .form-group
-                        input.form-control.form-control-lg#input-password(type="password", name="password", placeholder="密码")
-                    button.btn.btn-info.btn-block.btn-lg#btn-login 登 录
-        footer.login-footer
-                    -const year = new Date().getFullYear();
-                    |&copy; #{year} Sky.Sun
+    body
+        .login
+            .login-header
+                .brand
+                    span 登录到 Noginx
+                .icon
+            .login-content
+                .form-group
+                    label.iconfont.icon-seeusero(for="input-username")
+                    input.form-control.form-control-lg#input-username(name="username", placeholder="用户名", autocomplete="off")
+                .form-group
+                    label.iconfont.icon-password(for="input-password")
+                    input.form-control.form-control-lg#input-password(type="password", name="password", placeholder="密码", autocomplete="new-password")
+                button.btn.btn-success.btn-block.btn-lg#btn-login 登 录
         script(src='/noginx/static/jquery/dist/jquery.min.js')
         script(src='/noginx/static/sweetalert/dist/sweetalert.min.js')
         script(src='/noginx/static/blueimp-md5/js/md5.min.js')

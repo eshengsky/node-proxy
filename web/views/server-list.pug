@@ -2,6 +2,7 @@ extends layout.pug
 
 block styles
     link(rel='stylesheet', href='/noginx/static/css/animate.min.css')
+    link(rel='stylesheet', href='/noginx/static/tippy.js/themes/light-border.css')
     link(rel='stylesheet', href='/noginx/static/css/index.css')
 block content
     .main-content
@@ -34,11 +35,13 @@ block content
                         label(for='input-name') 服务器
                         input.form-control#input-name(placeholder="服务器名称", spellcheck="false")
                     .form-group
-                        label 权重&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;服务器地址
+                        label 
+                            span 权重
+                            i.tip(data-tippy-content="如果添加了多台服务器，会自动负载均衡，并按权重分配请求。示例：配置了3台服务器，第3台性能较强，设置权重分别为1,1,2，则命中这3台服务器的几率分别是25%，25%，50%。") i
+                            span &nbsp;&nbsp;&nbsp;服务器地址
                         button.btn.btn-sm.btn-info.float-right.btn-new-exc#btn-new-address(type="button", title="添加") 
                             i.iconfont.icon-add
                         #host-container
-                        small.form-text.text-muted 说明：如果添加了多台服务器，则会自动负载均衡，并支持按权重分配请求。示例：配置了3台服务器，由于第3台性能较强，设置权重分别为1,1,2，则命中这3台服务器的几率分别是25%，25%，50%。
                     .form-group
                         label(for='input-remarks') 备注
                         textarea.form-control#input-remarks(rows='3', placeholder='备注信息', spellcheck="false")
@@ -51,6 +54,7 @@ block content
     script(src='/noginx/static/popper.js/dist/umd/popper.min.js')
     script(src='/noginx/static/bootstrap/dist/js/bootstrap.min.js')
     script(src='/noginx/static/sweetalert/dist/sweetalert.min.js')
+    script(src='/noginx/static/tippy.js/umd/index.all.min.js')
     script(src='/noginx/static/echarts/dist/echarts.min.js')
     script(src='/noginx/static/js/search.js')
     script(src='/noginx/static/js/servers.js')

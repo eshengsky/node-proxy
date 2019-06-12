@@ -4,6 +4,8 @@ block styles
     link(rel='stylesheet', href='/noginx/static/switchery/dist/switchery.min.css')
     link(rel='stylesheet', href='/noginx/static/css/animate.min.css')
     link(rel='stylesheet', data-name='vs/editor/editor.main', href='/noginx/static/monaco-editor/min/vs/editor/editor.main.css')
+    link(rel='stylesheet', href='/noginx/static/select2/dist/css/select2.min.css')
+    link(rel='stylesheet', href='/noginx/static/tippy.js/themes/light-border.css')
     link(rel='stylesheet', href='/noginx/static/css/index.css')
     if (!editable) 
         style(type='text/css').
@@ -56,101 +58,119 @@ block content
                     button.close(type='button' data-dismiss='modal' aria-label='Close')
                         span(aria-hidden='true') &times;
                 .modal-body
-                    .form-group
-                        label(for='') 请求方式
-                        select.custom-select.form-control#select-method
-                            option(value="") --不限--
-                            each method in methods
-                                option(value=method)=method
-                    .form-group
-                        label(for='') 匹配域名
-                        .input-group
-                            select.custom-select.form-control#select-domain
-                                option(value="") --不限--
-                                each domain in domainList
-                                    option(value=domain.id)=domain.domainPath
-                            .input-group-append
-                                span.my-input-group-text.my-input-group-text2
-                                    a(href="/noginx/domains/")
-                                        i.iconfont.icon-global(title="配置域名")
-                    .form-group
-                        label(for='input-uri') 匹配路径
-                        .input-group#group-uri
-                            .input-group-prepend
-                                select.custom-select.form-control.prepend-select#select-type
-                                    option(value='start') 开头
-                                    option(value='exact') 精确
-                                    option(value='regexp') 正则
-                            
-                            input.form-control#input-uri(placeholder="匹配开头", spellcheck="false")
-                    .form-group
-                        label(for='') 处理方式
-                        select.custom-select.form-control#select-process
-                            option(value='static') 静态文件
-                            option(value='rewrite') URL重写
-                            option(value='forward') 代理转发
-                            option(value='custom') 自定义响应
-                    #static-wrap.form-group
-                        label(for='') 文件或目录
-                        .input-group
-                            input.form-control#input-path(spellcheck="false" readonly)
-                            .input-group-append
-                                span.my-input-group-text
-                                    a
-                                        i#btn-show-file.iconfont.icon-Folder(title="浏览服务器文件")
-                        .custom-control.custom-checkbox#group-tryFile(title="若找不到文件，则尝试发送所配置文件路径下的index.html（单页应用推荐）")
-                            input.custom-control-input#check-tryFile(type="checkbox")
-                            label.custom-control-label(for="check-tryFile") 启用try_file
-                    #rewrite-wrap.form-group
-                        label(for='input-rewrite') 重定向地址
-                        input.form-control#input-rewrite(placeholder="支持相对路径", spellcheck="false")
-                    #forward-wrap.form-group
-                        label(for='') 转发服务器
-                        .input-group
-                            select.custom-select.form-control#select-content
-                                option(value="") --请选择--
-                                for server in serverList
-                                    option(value=server.id)=server.name
-                            .input-group-append
-                                span.my-input-group-text
-                                    a(href="/noginx/servers/")
-                                        i.iconfont.icon-server(title="配置服务器")
-                    #custom-wrap
-                        .form-group
-                            label(for='') 响应状态码
-                            select.custom-select.form-control#select-status
-                                option(value='200') 200
-                                option(value='400') 400
-                                option(value='403') 403
-                                option(value='404') 404
-                                option(value='500') 500
-                        .form-group
-                            label(for='') 响应类型
-                            select.custom-select.form-control#select-mime
-                                option(value='text/html') text/html
-                                option(value='text/plain') text/plain
-                                option(value='application/json') application/json
-                                option(value='application/javascript') application/javascript
-                                option(value='text/css') text/css
-                        .form-group
-                            label(for='') 响应内容
-                            .body-wrap
-                                #text-body(style='height: 300px;')
-                                .lang-mode-wrap
-                                    button#enter-fullscreen(title="切换全屏") 全屏
-                                    button#line-info(title="转到行")
-                                    select.form-control.form-control-sm#select-theme(title="选择主题")
-                                        option(value='vs') 浅色主题
-                                        option(value='vs-dark') 深色主题
-                                    select.form-control.form-control-sm#select-mode(title="选择语言模式")
-                                        option(value='html') HTML
-                                        option(value='plaintext') 纯文本
-                                        option(value='json') JSON
-                                        option(value='javascript') JavaScript
-                                        option(value='css') CSS
+                    .panel.req-panel
+                        p.split-title 匹配请求
+                        .panel-body
+                            .form-group
+                                label(for='') 请求方式
+                                select.custom-select.form-control#select-method
+                                    option(value="") --不限--
+                                    each method in methods
+                                        option(value=method)=method
+                            .form-group
+                                label(for='') 匹配域名
+                                .input-group
+                                    select.custom-select.form-control#select-domain
+                                        option(value="") --不限--
+                                        each domain in domainList
+                                            option(value=domain.id)=domain.domainPath
+                                    .input-group-append
+                                        span.my-input-group-text.my-input-group-text2
+                                            a(href="/noginx/domains/")
+                                                i.iconfont.icon-global(title="配置域名")
+                            .form-group
+                                label(for='input-uri') 
+                                    span 匹配路径 
+                                .input-group#group-uri
+                                    .input-group-prepend
+                                        select.custom-select.form-control.prepend-select#select-type
+                                            option(value='start') 开头
+                                            option(value='exact') 精确
+                                            option(value='regexp') 正则
+                                    
+                                    input.form-control#input-uri(placeholder="匹配开头", spellcheck="false")
+                            .form-group
+                                label(for='input-params') 
+                                    span 匹配参数
+                                i.tip(data-tippy-content="示例：query.from === 'home' && cookies.H5_CITY <br>内置对象：query: 查询字符串，body: 请求体，cookies: 客户端Cookie") i
+                                input.form-control#input-params(placeholder="返回布尔类型的表达式", spellcheck="false")
+                    .panel.res-panel
+                        p.split-title 处理响应
+                        .panel-body
+                            .form-group
+                                label(for='select-process') 处理方式
+                                select.custom-select.form-control#select-process
+                                    option(value='') --请选择--
+                                    option(value='static') 静态文件
+                                    option(value='rewrite') URL重写
+                                    option(value='forward') 代理转发
+                                    option(value='custom') 自定义响应
+                            #static-wrap.form-group
+                                label(for='') 文件或目录
+                                .input-group
+                                    input.form-control#input-path(spellcheck="false" readonly)
+                                    .input-group-append
+                                        span.my-input-group-text
+                                            a
+                                                i#btn-show-file.iconfont.icon-Folder(title="浏览服务器文件")
+                                .custom-control.custom-checkbox#group-tryFile
+                                    input.custom-control-input#check-tryFile(type="checkbox")
+                                    label.custom-control-label(for="check-tryFile") 启用try_file
+                                    i.tip(data-tippy-content="若找不到文件，则尝试发送所配置文件路径下的index.html（通常单页应用需勾选）") i
+                            #rewrite-wrap.form-group
+                                label(for='input-rewrite') 重定向地址
+                                input.form-control#input-rewrite(placeholder="支持相对路径", spellcheck="false")
+                            #forward-wrap.form-group
+                                label(for='select-content') 
+                                    span 转发服务器
+                                    i.tip(data-tippy-content="注意：选择转发到指定URL时，请求路径不会自动加到所配URL后面，必须手动设置！<br>内置变量：<br>$path：请求的完整path<br>$sub_path：匹配到的剩余path（仅限开头匹配模式，例如匹配路径是/test开头，请求URL是/test/foo/bar，则$sub_path就是/foo/bar）") i
+                                .input-group
+                                    select.custom-select.form-control#select-content
+                                        option(value="") --请选择--
+                                        for server in serverList
+                                            option(value=server.id)=server.name
+                                        option(value="url") [指定URL]
+                                    .input-group-append
+                                        span.my-input-group-text
+                                            a(href="/noginx/servers/")
+                                                i.iconfont.icon-server(title="配置服务器")
+                                input.form-control#input-forward(placeholder="请以http(s)开头", spellcheck="false")
+                            #custom-wrap
+                                .form-group
+                                    label(for='') 响应状态码
+                                    select.custom-select.form-control#select-status
+                                        option(value='200') 200
+                                        option(value='400') 400
+                                        option(value='403') 403
+                                        option(value='404') 404
+                                        option(value='500') 500
+                                .form-group
+                                    label(for='') 响应类型
+                                    select.custom-select.form-control#select-mime
+                                        option(value='text/html') text/html
+                                        option(value='text/plain') text/plain
+                                        option(value='application/json') application/json
+                                        option(value='application/javascript') application/javascript
+                                        option(value='text/css') text/css
+                                .form-group
+                                    label(for='') 响应内容
+                                    .body-wrap
+                                        #text-body(style='height: 300px;')
+                                        .lang-mode-wrap
+                                            button#enter-fullscreen(title="切换全屏") 全屏
+                                            button#line-info(title="转到行")
+                                            select.form-control.form-control-sm#select-theme(title="选择主题")
+                                                option(value='vs') 浅色主题
+                                                option(value='vs-dark') 深色主题
+                                            select.form-control.form-control-sm#select-mode(title="选择语言模式")
+                                                option(value='html') HTML
+                                                option(value='plaintext') 纯文本
+                                                option(value='json') JSON
+                                                option(value='javascript') JavaScript
+                                                option(value='css') CSS
                     .form-group
                         label(for='input-remarks') 备注
-                        textarea.form-control#input-remarks(rows='3', placeholder='特别说明、示例URL等...', spellcheck="false")
+                        textarea.form-control#input-remarks(rows='2', placeholder='特别说明、示例URL等...', spellcheck="false")
                 .modal-footer
                     a.btn.btn-link.btn-howto.text-info(href="/noginx/help/#常见问题") 如何配置？
                     button.btn.btn-default(type='button' data-dismiss='modal') 取消
@@ -166,7 +186,7 @@ block content
                     .current-path
                     .file-list
                 .modal-footer
-                    button.btn.btn-default(type='button' data-dismiss='modal') 取消
+                    button.btn.btn-default(type='button' data-dismiss='modal') 返回
                     button.btn.btn-info#btn-confirm-path(type='button') 确认选择
     .modal.animated.bounceInDown#custom-modal(data-keyboard="false")
         .modal-dialog.modal-dialog-centered(role='document')
@@ -211,5 +231,7 @@ block content
     script(src='/noginx/static/sortablejs/Sortable.min.js')
     script(src='/noginx/static/js/search.js')
     script(src='/noginx/static/sweetalert/dist/sweetalert.min.js')
+    script(src='/noginx/static/tippy.js/umd/index.all.min.js')
+    script(src='/noginx/static/select2/dist/js/select2.js')
     script(src='/noginx/static/monaco-editor/min/vs/loader.js')
     script(src='/noginx/static/js/index.js')

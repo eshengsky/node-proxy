@@ -2,7 +2,7 @@
  * @Author: Sky.Sun 
  * @Date: 2018-01-17 16:07:30 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2019-05-15 11:15:16
+ * @Last Modified time: 2019-06-12 16:22:08
  */
 const express = require('express');
 const app = express();
@@ -76,71 +76,132 @@ process.on('unhandledRejection', reason => {
 schedule.startJob();
 
 /**
- * 生成一个筛选函数
- * 筛选函数返回是否能找到对应的规则
+ * 从所配规则中，找出最匹配的那个规则并返回
  * 
- * @param {object} req - 请求
- * @returns {function} - 筛选函数
+ * @param {*} rules - 规则数组
+ * @param {*} req - 请求对象
  */
-function routeFilter(req) {
-    return item => {
+function getMatchedRule (rules, req) {
+    if (!rules || !rules.length) {
+        return null;
+    }
+
+    // 临时匹配数组，最多只可能有2条，其中开头匹配最多1条，正则匹配最多1条
+    const arr = [];
+
+    // 使用for而非forEach是为了方便continue流程控制
+    for (let i = 0; i < rules.length; i++) {
+        const item = rules[i];
         if (item.active && !item.deleted) {
-            // 首先检测域名是否一致
+            // 匹配域名
             let domainMatch = false;
             if (!item.domainId) {
                 domainMatch = true;
             } else {
-                const domain = settings.getDomains().find(t => t.id === item.domainId);
-                if (domain) {
+                const domains = settings.getDomains();
+                const domain = domains.find(t => t.id === item.domainId);
+                if (!domain) {
+                    domainMatch = false;
+                } else {
                     domainMatch = req.hostname === domain.domainPath;
-                    if (isDebug && req.query.__domain === domain.domainPath) {
-                        // 链接参数中的 __domain 与规则一致也认为匹配成功，方便本地调试
-                        domainMatch = true;
-                    }
                 }
             }
             if (!domainMatch) {
-                return false;
+                continue;
             }
 
-            // 判断请求方式
+            // 匹配请求方式
             if (item.method && item.method.toUpperCase() !== req.method.toUpperCase()) {
-                return false;
+                continue;
             }
 
+            // 匹配请求参数
+            if (item.params) {
+                const query = req.query;
+                const body = req.body;
+                const cookies = req.cookies;
+                try {
+                    if (!Boolean(eval(item.params))) {
+                        continue;
+                    }
+                } catch (err) {
+                    logger.error('匹配参数异常！params:', item.params);
+                    continue;
+                }
+            }
+
+            // 匹配路径
             let reqPath = req.path;
             let uri = item.uri;
+            if (item.type !== 'regexp') {
+                // 对于没有后缀的 req.path，尝试加上末尾斜杠（/）后再判断，提高容错
+                if (!path.extname(reqPath) && reqPath.substr(-1) !== '/') {
+                    reqPath = `${reqPath}/`;
+                }
 
-            // 正则匹配
-            if (item.type === 'regexp') {
+                // 对于没有后缀的 uri，尝试加上末尾斜杠（/）后再判断，提高容错
+                if (!path.extname(uri) && uri.substr(-1) !== '/') {
+                    uri = `${uri}/`;
+                }
+
+                if (item.type === 'exact') {
+                    // 精确匹配
+                    if (reqPath === uri) {
+                        // 精确匹配成功的话，终止遍历，直接返回结果
+                        return item;
+                    }
+                    continue;
+                } else {
+                    // 开头匹配
+                    if (reqPath.startsWith(uri)) {
+                        // 开头匹配成功的话，看数组中是否已经存在开头匹配的项了
+                        const existsIdx = arr.findIndex(t => t.type === 'start');
+                        if (existsIdx >= 0) {
+                            // 如果存在，再比较uri长度
+                            let existsItemUri = arr[existsIdx].uri;
+                            if (!path.extname(existsItemUri) && existsItemUri.substr(-1) !== '/') {
+                                existsItemUri = `${existsItemUri}/`;
+                            }
+                            if (uri.length > existsItemUri.length) {
+                                // 删除之前存在的规则，并在末尾存入uri更长的那条规则
+                                arr.splice(existsIdx, 1);
+                                arr.push(item);
+                            }
+                        } else {
+                            // 不存在，直接加入
+                            arr.push(item);
+                        }
+                    }
+                }
+            } else {
+                // 正则表达式匹配
                 uri = new RegExp(uri);
-                return uri.test(reqPath);
+                if (uri.test(reqPath)) {
+                    // 如果匹配成功，看下数组中是否已经存在正则匹配的项，如果不存在才存入
+                    if (!arr.some(t => t.type === 'regexp')) {
+                        arr.push(item);
+                    }
+                }
             }
-
-            // 对于没有后缀的 req.path，尝试加上末尾斜杠（/）后再判断，提高容错
-            if (!path.extname(reqPath) && reqPath.substr(-1) !== '/') {
-                reqPath = `${reqPath}/`;
-            }
-
-            // 对于没有后缀的 uri，尝试加上末尾斜杠（/）后再判断，提高容错
-            if (!path.extname(uri) && uri.substr(-1) !== '/') {
-                uri = `${uri}/`;
-            }
-
-            // 精确匹配
-            if (item.type === 'exact') {
-                return reqPath === uri;
-            }
-
-            // 匹配开头
-            if (item.type === 'start') {
-                return reqPath.startsWith(uri);
-            }
-
-            return false;
         }
-        return false;
-    };
+    }
+
+    // 精确匹配成功会直接返回，所以走到这一步时，一定只剩下开头匹配和正则匹配了，数组长度只可能有3种情况：0, 1, 2
+    if (!arr.length) {
+        return null;
+    }
+    if (arr.length === 1) {
+        return arr[0];
+    }
+
+    // 数组长度为2，说明一定是1条开头匹配，1条正则匹配，此时需要再判断下开头匹配是否是兜底规则
+    const bottomRuleIdx = arr.findIndex(t => (t.type === 'start' && t.uri === '/'));
+    if (bottomRuleIdx >= 0) {
+        arr.splice(bottomRuleIdx, 1);
+    }
+
+    // 此时，一定不存在兜底规则了，则取数组中的第一项返回，因为第一项规则必定是排序靠前的
+    return arr[0];
 }
 
 /**
@@ -185,15 +246,11 @@ app.use((req, res, next) => {
     // 2. 缓存处理，在身份验证之后进行
     function cacheHandler() {
         // 尝试匹配缓存配置
-        const cacheConf = settings.getCaches().find(routeFilter(req));
+        const cacheConf = getMatchedRule(settings.getCaches(), req);
         if (cacheConf) {
             logMsg += `命中缓存规则 {${cacheConf._id}} --> `;
 
-            if (req.headers['redis-cache-ignore']) {
-                // ServerLog 支持绕过缓存，方便开发和测试
-                logMsg += '不走缓存 (通过 ServerLog 绕过缓存) --> ';
-                routeHandler();
-            } else if (req.query[debugMode.debugParam] === 'true') {
+            if (req.query[debugMode.debugParam] === 'true') {
                 // 调试模式绕过缓存
                 logMsg += '不走缓存 (调试模式绕过缓存) --> ';
                 routeHandler();
@@ -288,7 +345,7 @@ app.use((req, res, next) => {
         }
 
         // 尝试匹配普通路由规则
-        const route = settings.getRoutes().find(routeFilter(req));
+        const route = getMatchedRule(settings.getRoutes(), req);
 
         // 找不到匹配的规则
         if (!route) {
@@ -395,13 +452,15 @@ app.use((req, res, next) => {
     }
 
     // 1. 尝试匹配身份验证规则
-    const permission = settings.getPermissions().find(routeFilter(req));
+    const permission = getMatchedRule(settings.getPermissions(), req);
     if (permission) {
         logMsg += `命中身份验证规则 {${permission._id}} --> `;
 
         // 找到了规则，继续判断是否在排除项中
         const excludes = permission.excludes;
-        const exclude = excludes.find(routeFilter(req));
+
+        //TODO:
+        const exclude = null;
 
         // 无符合的排除项，说明必须走身份验证
         if (!exclude) {
@@ -485,5 +544,6 @@ if (config.ssl.enable) {
     server = http.createServer(app);
 }
 server.listen(app.get('port'), () => {
-    logger.info('Noginx listening on port', server.address().port, 'with pid', process.pid);
+    const port = server.address().port;
+    logger.info(`Noginx listening on port ${port} with pid ${process.pid}, Admin URL: ${config.ssl.enable ? 'https' : 'http'}://localhost:${port}/noginx`);
 });
