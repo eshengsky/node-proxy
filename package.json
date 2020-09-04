@@ -43,7 +43,7 @@
     "select2": "^4.0.7",
     "serve-favicon": "^2.5.0",
     "serverlog-node": "^1.0.2",
-    "showdown": "^1.8.6",
+    "showdown": "^1.9.1",
     "sortablejs": "^1.7.0",
     "sweetalert": "^2.1.0",
     "switchery": "git+https://github.com/abpetkov/switchery.git",
