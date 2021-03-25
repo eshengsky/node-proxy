@@ -1,12 +1,12 @@
 extends layout.pug
 
 block styles
-    link(rel='stylesheet', href='/noginx/static/css/index.css')
+    link(rel='stylesheet', href='/node-proxy/static/css/index.css')
 
 block content
     .main-content
         .col.btn-line
-            a(href="/noginx/info/") 环境信息
+            a(href="/node-proxy/info/") 环境信息
         .table-responsive
             table.table.server-info
                 tbody
@@ -17,7 +17,7 @@ block content
                         td NODE_ENV 环境变量
                         td=info.nodeEnv
                     tr
-                        td Noginx 版本
+                        td Node Proxy 版本
                         td=`v${info.proxyVersion}`
                     tr
                         td MongoDB 连接字符串
@@ -49,6 +49,6 @@ block content
                     tr
                         td 配置热更新调度规则
                         td=info.config.job
-    script(src='/noginx/static/jquery/dist/jquery.min.js')
-    script(src='/noginx/static/bootstrap/dist/js/bootstrap.min.js')
+    script(src='/node-proxy/static/jquery/dist/jquery.min.js')
+    script(src='/node-proxy/static/bootstrap/dist/js/bootstrap.min.js')
     

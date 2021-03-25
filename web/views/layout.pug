@@ -2,25 +2,25 @@ doctype html
 html(lang='en')
     head
         meta(charset='utf-8')
-        link(rel='shortcut icon' href='/noginx/static/img/noginx.ico')
-        link(rel='stylesheet', href='/noginx/static/bootswatch/dist/minty/bootstrap.min.css')
-        link(rel='stylesheet', href='/noginx/static/css/iconfont.css')
+        link(rel='shortcut icon' href='/node-proxy/static/img/node-proxy.ico')
+        link(rel='stylesheet', href='/node-proxy/static/bootswatch/dist/minty/bootstrap.min.css')
+        link(rel='stylesheet', href='/node-proxy/static/css/iconfont.css')
         block styles
-        title Noginx - #{title}
+        title Node Proxy - #{title}
     body
         //- 顶部导航
         nav.navbar.navbar-expand.fixed-top
             .container-fluid
-                a.navbar-brand(href='/noginx/', title='高性能 HTTP 及反向代理服务器') 
+                a.navbar-brand(href='/node-proxy/', title='高性能 HTTP 及反向代理服务器') 
                     i.iconfont.icon-shujufangwendaili 
-                    |Noginx
+                    |Node Proxy
                 ul.navbar-nav
                     li.nav-item
-                        a.nav-link.text-muted(href='/noginx/help/')
+                        a.nav-link.text-muted(href='/node-proxy/help/')
                             i.iconfont.icon-question 
                             | 帮助
                     li.nav-item
-                        a.nav-link.text-muted(href='https://github.com/eshengsky/noginx', target='_blank')
+                        a.nav-link.text-muted(href='https://github.com/eshengsky/node-proxy', target='_blank')
                             i.iconfont.icon-github(style='font-size: 17px;') 
                             | 源码
                     li.nav-item
@@ -38,24 +38,24 @@ html(lang='en')
                                 span
                                 i.icon-x ×
                 .user-info
-                    span=user
-                    form(action="/noginx/logout", method="Post")
+                    span=user.username
+                    form(action="/node-proxy/logout", method="Post")
                         button(type="submit", title="退出登录")
                             i.iconfont.icon-log_out
         //- 左侧导航
         .sub-core
             .navigation-core
-                a.item-1(class={ current: path === '/' }, href='/noginx/')
+                a.item-1(class={ current: path === '/' }, href='/node-proxy/')
                     .title
                         h3 路由
                     .corner
                         i.icon-layout1.iconfont.icon-direction
-                a.item-2(class={ current: path === '/servers/' }, href='/noginx/servers/')
+                a.item-2(class={ current: path === '/servers/' }, href='/node-proxy/servers/')
                     .title
                         h3 服务器
                     .corner
                         i.icon-layout2.iconfont.icon-server
-                a.item-3(class={ current: path === '/caches/' }, href='/noginx/caches/')
+                a.item-3(class={ current: path === '/caches/' }, href='/node-proxy/caches/')
                     .title
                         h3 缓存设置
                         .desc
@@ -65,17 +65,17 @@ html(lang='en')
                                 | 条缓存
                     .corner
                         i.icon-layout3.iconfont.icon-redis
-                a.item-4(class={ current: path === '/domains/' }, href='/noginx/domains/')
+                a.item-4(class={ current: path === '/domains/' }, href='/node-proxy/domains/')
                     .title
                         h3 域名
                     .corner
                         i.icon-layout4.iconfont.icon-global
-                a.item-5(class={ current: path === '/info/' }, href='/noginx/info/')
+                a.item-5(class={ current: path === '/info/' }, href='/node-proxy/info/')
                     .title
                         h3 信息
                     .corner
                         i.icon-layout5.iconfont.icon-info
-                a.item-6(class={ current: path === '/permissions/' }, href='/noginx/permissions/')
+                a.item-6(class={ current: path === '/permissions/' }, href='/node-proxy/permissions/')
                     .title
                         h3 
                             |身份
@@ -93,7 +93,7 @@ html(lang='en')
         script.
             document.querySelector('.search-wrap .input-group-prepend').onclick = () => document.querySelector('.search-wrap input').focus();
             document.querySelector('.search-wrap .input-group-append').onclick = () => document.querySelector('.search-wrap input').focus();
-            $.get('/noginx/getCacheKeyLen').done(data => {
+            $.get('/node-proxy/getCacheKeyLen').done(data => {
                 document.querySelector('.key-count').textContent = data.data || 0;
             });
             window.clearSearch = () => {

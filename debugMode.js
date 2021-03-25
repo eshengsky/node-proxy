@@ -91,7 +91,7 @@ function getDebugHtml(sourceHtml, logs) {
     const serverlogHtml = generateServerLogHtml(logs);
 
     // 使用 prepend 添加到 body 顶部，使得 console 重写等功能提前于其它脚本
-    $('body').prepend(`<script src="/noginx/static/js/debug.js"></script>`);
+    $('body').prepend(`<script src="/node-proxy/static/js/debug.js"></script>`);
     $('body').prepend('<script src="//cdn.jsdelivr.net/npm/eruda"></script>');
     $('body').prepend(serverlogHtml);
     return $.html();

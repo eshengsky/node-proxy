@@ -30,7 +30,7 @@ const statuses = require('statuses');
 const Stream = require('stream');
 const util = require('util');
 const serverlog = require('serverlog-node');
-const logger = serverlog.getLogger('noginx');
+const logger = serverlog.getLogger('node-proxy');
 
 /**
  * Path function references.

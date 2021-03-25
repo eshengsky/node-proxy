@@ -50,7 +50,7 @@ $('#btn-new-domain').on('click', () => {
 
 // 点击导出
 $('#btn-export').on('click', () => {
-    window.location.href = '/noginx/exportDomains';
+    window.location.href = '/node-proxy/exportDomains';
 });
 
 // 点击导入
@@ -58,7 +58,7 @@ $('#btn-import').on('change', () => {
     const file = $('#btn-import')[0].files[0];
     const reader = new FileReader();
     reader.onload = () => {
-        $.post('/noginx/importDomains', {
+        $.post('/node-proxy/importDomains', {
             data: reader.result
         }).done(data => {
             if (data.code === 1) {
@@ -125,7 +125,7 @@ window.delDomain = uid => {
         dangerMode: true
     }).then(value => {
         if (value === 'btnConfirm') {
-            $.post('/noginx/delDomain', {
+            $.post('/node-proxy/delDomain', {
                 uid
             }).done(data => {
                 if (data.code === 1) {
@@ -180,7 +180,7 @@ $('#btn-save').on('click', () => {
 
     $('#btn-save').attr('disabled', 'disabled');
     const uid = $('#uid').val();
-    $.post('/noginx/saveDomain', {
+    $.post('/node-proxy/saveDomain', {
         uid,
         domainPath,
         remarks: $('#input-remarks').val()

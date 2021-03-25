@@ -5,7 +5,7 @@ const editable = $('#editable').val() === 'true';
 
 // 编辑器单例
 let editor;
-require.config({ paths: { 'vs': '/noginx/static/monaco-editor/min/vs' }});
+require.config({ paths: { 'vs': '/node-proxy/static/monaco-editor/min/vs' }});
 require.config({
     'vs/nls' : {
         availableLanguages: {
@@ -61,7 +61,7 @@ function draggerInit() {
                         seq: i + 1
                     });
                 }
-                $.post('/noginx/seq', {
+                $.post('/node-proxy/seq', {
                     seqList
                 }).done(data => {
                     if (data.code === 1) {
@@ -243,7 +243,7 @@ $('#btn-new-route').on('click', () => {
 
 // 点击导出
 $('#btn-export').on('click', () => {
-    window.location.href = '/noginx/exportRoutes';
+    window.location.href = '/node-proxy/exportRoutes';
 });
 
 // 点击导入
@@ -251,7 +251,7 @@ $('#btn-import').on('change', () => {
     const file = $('#btn-import')[0].files[0];
     const reader = new FileReader();
     reader.onload = () => {
-        $.post('/noginx/importRoutes', {
+        $.post('/node-proxy/importRoutes', {
             data: reader.result
         }).done(data => {
             if (data.code === 1) {
@@ -303,7 +303,7 @@ window.editRoute = uid => {
 // 点击切换启用
 window.activeRoute = (el, uid) => {
     const active = el.checked;
-    $.post('/noginx/active', {
+    $.post('/node-proxy/active', {
         uid,
         active
     }).done(data => {
@@ -355,7 +355,7 @@ window.delRoute = uid => {
         dangerMode: true
     }).then(value => {
         if (value === 'btnConfirm') {
-            $.post('/noginx/del', {
+            $.post('/node-proxy/del', {
                 uid
             }).done(data => {
                 if (data.code === 1) {
@@ -453,7 +453,7 @@ $('#btn-save').on('click', () => {
     $('#btn-save').attr('disabled', 'disabled');
     const uid = $('#uid').val();
     const tryFile = $('#check-tryFile').prop('checked');
-    $.post('/noginx/save', {
+    $.post('/node-proxy/save', {
         uid,
         type: $('#select-type').val(),
         uri,
@@ -792,7 +792,7 @@ $('#route-modal').on('hide.bs.modal', () => {
  * 检查 static 目录是否存在（新的测试环境可能缺少该目录，故给出明显提示）
  */
 function checkIfStaticExists(cb) {
-    $.get(`/noginx/getFiles?path=${topPath}`).done(data => {
+    $.get(`/node-proxy/getFiles?path=${topPath}`).done(data => {
         if (data.code === '-1') {
             swal({
                 title: '服务器目录异常',
@@ -814,7 +814,7 @@ checkIfStaticExists();
 
 function showFileList(path = topPath) {
     $('.file-list').addClass('cursor-wait');
-    $.get(`/noginx/getFiles?path=${path}`).done(data => {
+    $.get(`/node-proxy/getFiles?path=${path}`).done(data => {
         if (data.code === '1') {
             const currentDirPath = data.data.dirPath;
             $('.current-path').html(currentDirPath);
@@ -836,7 +836,7 @@ function showFileList(path = topPath) {
                 // 支持文件预览功能
                 let previewBtn = '';
                 if (item.isFile) {
-                    previewBtn = `<a class="file-preview-btn" title="文件预览" href="/noginx/filePreview?path=${encodeURIComponent(newPath)}" target="_blank">文件预览</a>`;
+                    previewBtn = `<a class="file-preview-btn" title="文件预览" href="/node-proxy/filePreview?path=${encodeURIComponent(newPath)}" target="_blank">文件预览</a>`;
                 }
 
                 return `<li class="${className}" title="${newPath}" data-path="${newPath}" onclick="fileActive(this${item.isDir ? ', true' : ''});"><p>${item.name}${previewBtn}</p></li>`;

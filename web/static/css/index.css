@@ -148,6 +148,13 @@ input[type="search"]::before {
     color: #888;
 }
 
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration { 
+    display: none;
+}
+
 .search-wrap input {
     width: 210px !important;
 }
@@ -161,10 +168,10 @@ input[type="search"]::before {
 .icon-x {
     font-style: normal;
     font-size: 15px;
-    line-height: 12px;
-    margin: 0 -2px 0 3px;
-    display: inline-block;
-    margin-top: -1px;
+    display: flex;
+    align-items: center;
+    margin-top: -2px;
+    margin-left: 4px;
 }
 
 input[type="search"]:focus {
@@ -268,8 +275,9 @@ tfoot {
 .search-count {
     border: none;
     width: 60px;
-    text-align: center;
-    display: inline-block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     -webkit-user-select: none;
     user-select: none;
     font-size: 12px;
@@ -1076,65 +1084,65 @@ input::-webkit-inner-spin-button {
 
 .file-list ul li.file-type::before {
     content: ' ';
-    background-image: url("/noginx/static/img/default_file.svg")
+    background-image: url("/node-proxy/static/img/default_file.svg")
 }
 
 .file-list ul li.dir-type::before {
     content: ' ';
-    background-image: url("/noginx/static/img/default_folder.svg")
+    background-image: url("/node-proxy/static/img/default_folder.svg")
 }
 
 .file-list ul li.dir-js::before,
 .file-list ul li.dir-javascript::before {
-    background-image: url("/noginx/static/img/folder_type_js.svg")
+    background-image: url("/node-proxy/static/img/folder_type_js.svg")
 }
 
 .file-list ul li.dir-css::before,
 .file-list ul li.dir-stylesheet::before,
 .file-list ul li.dir-stylesheets::before {
-    background-image: url("/noginx/static/img/folder_type_css.svg")
+    background-image: url("/node-proxy/static/img/folder_type_css.svg")
 }
 
 .file-list ul li.dir-img::before,
 .file-list ul li.dir-image::before,
 .file-list ul li.dir-images::before {
-    background-image: url("/noginx/static/img/folder_type_images.svg")
+    background-image: url("/node-proxy/static/img/folder_type_images.svg")
 }
 
 .file-list ul li.dir-asset::before, .file-list ul li.dir-assets::before {
-    background-image: url("/noginx/static/img/folder_type_asset.svg")
+    background-image: url("/node-proxy/static/img/folder_type_asset.svg")
 }
 
 .file-list ul li.dir-route::before, .file-list ul li.dir-routes::before, .file-list ul li.dir-router::before {
-    background-image: url("/noginx/static/img/folder_type_route.svg")
+    background-image: url("/node-proxy/static/img/folder_type_route.svg")
 }
 
 .file-list ul li.dir-src::before {
-    background-image: url("/noginx/static/img/folder_type_src.svg")
+    background-image: url("/node-proxy/static/img/folder_type_src.svg")
 }
 
 .file-list ul li.dir-dist::before {
-    background-image: url("/noginx/static/img/folder_type_dist.svg")
+    background-image: url("/node-proxy/static/img/folder_type_dist.svg")
 }
 
 .file-list ul li.dir-config::before {
-    background-image: url("/noginx/static/img/folder_type_config.svg")
+    background-image: url("/node-proxy/static/img/folder_type_config.svg")
 }
 
 .file-list ul li.dir-component::before, .file-list ul li.dir-components::before {
-    background-image: url("/noginx/static/img/folder_type_component.svg")
+    background-image: url("/node-proxy/static/img/folder_type_component.svg")
 }
 
 .file-list ul li.dir-node_modules::before {
-    background-image: url("/noginx/static/img/folder_type_node.svg")
+    background-image: url("/node-proxy/static/img/folder_type_node.svg")
 }
 
 .file-list ul li.dir-view::before, .file-list ul li.dir-views::before {
-    background-image: url("/noginx/static/img/folder_type_view.svg")
+    background-image: url("/node-proxy/static/img/folder_type_view.svg")
 }
 
 .file-list ul li.dir-model::before, .file-list ul li.dir-models::before {
-    background-image: url("/noginx/static/img/folder_type_model.svg")
+    background-image: url("/node-proxy/static/img/folder_type_model.svg")
 }
 
 .file-list ul li.back-type::before {
@@ -1146,31 +1154,31 @@ input::-webkit-inner-spin-button {
 }
 
 .file-list ul li.file-js::before {
-    background-image: url("/noginx/static/img/file_type_light_js.svg")
+    background-image: url("/node-proxy/static/img/file_type_light_js.svg")
 }
 
 .file-list ul li.file-css::before {
-    background-image: url("/noginx/static/img/file_type_css.svg")
+    background-image: url("/node-proxy/static/img/file_type_css.svg")
 }
 
 .file-list ul li.file-md::before {
-    background-image: url("/noginx/static/img/file_type_markdown.svg")
+    background-image: url("/node-proxy/static/img/file_type_markdown.svg")
 }
 
 .file-list ul li.file-html::before, .file-list ul li.file-htm::before {
-    background-image: url("/noginx/static/img/file_type_html.svg")
+    background-image: url("/node-proxy/static/img/file_type_html.svg")
 }
 
 .file-list ul li.file-json::before {
-    background-image: url("/noginx/static/img/file_type_light_json.svg")
+    background-image: url("/node-proxy/static/img/file_type_light_json.svg")
 }
 
 .file-list ul li.file-vue::before {
-    background-image: url("/noginx/static/img/file_type_vue.svg")
+    background-image: url("/node-proxy/static/img/file_type_vue.svg")
 }
 
 .file-list ul li.file-txt::before {
-    background-image: url("/noginx/static/img/file_type_text.svg")
+    background-image: url("/node-proxy/static/img/file_type_text.svg")
 }
 
 .file-list ul li.file-bmp::before,
@@ -1179,15 +1187,15 @@ input::-webkit-inner-spin-button {
 .file-list ul li.file-png::before,
 .file-list ul li.file-gif::before,
 .file-list ul li.file-ico::before {
-    background-image: url("/noginx/static/img/file_type_image.svg")
+    background-image: url("/node-proxy/static/img/file_type_image.svg")
 }
 
 .file-list ul li.file-pug::before {
-    background-image: url("/noginx/static/img/file_type_pug.svg")
+    background-image: url("/node-proxy/static/img/file_type_pug.svg")
 }
 
 .file-list ul li.file-hbs::before {
-    background-image: url("/noginx/static/img/file_type_handlebars.svg")
+    background-image: url("/node-proxy/static/img/file_type_handlebars.svg")
 }
 
 .remove-hidden {

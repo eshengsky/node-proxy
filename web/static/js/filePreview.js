@@ -1,6 +1,6 @@
 // 编辑器单例
 let editor;
-require.config({ paths: { 'vs': '/noginx/static/monaco-editor/min/vs' }});
+require.config({ paths: { 'vs': '/node-proxy/static/monaco-editor/min/vs' }});
 require.config({
     'vs/nls' : {
         availableLanguages: {
@@ -82,7 +82,7 @@ if (matched && matched[0]) {
 }
 $('#select-mode').val(mode).change();
 
-$.get('/noginx/getFileContent', {
+$.get('/node-proxy/getFileContent', {
     path
 }).done(data => {
     initEditor(data, mode);

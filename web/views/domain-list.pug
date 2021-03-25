@@ -1,9 +1,9 @@
 extends layout.pug
 
 block styles
-    link(rel='stylesheet', href='/noginx/static/switchery/dist/switchery.min.css')
-    link(rel='stylesheet', href='/noginx/static/css/animate.min.css')
-    link(rel='stylesheet', href='/noginx/static/css/index.css')
+    link(rel='stylesheet', href='/node-proxy/static/@flexem/switchery/dist/switchery.min.css')
+    link(rel='stylesheet', href='/node-proxy/static/css/animate.min.css')
+    link(rel='stylesheet', href='/node-proxy/static/css/index.css')
     if (!editable) 
         style(type='text/css').
             .results tr:hover .seq {
@@ -16,7 +16,7 @@ block styles
 block content
     .main-content
         .col.btn-line
-            a(href="/noginx/domains/") 域名
+            a(href="/node-proxy/domains/") 域名
             if (editable)
                 button.btn.btn-info.mr-2#btn-new-domain 
                     i.iconfont.icon-add1
@@ -59,14 +59,14 @@ block content
                         label(for='input-remarks') 备注
                         textarea.form-control#input-remarks(rows='3', placeholder='备注信息', spellcheck="false")
                 .modal-footer
-                    a.btn.btn-link.btn-howto.text-info(href="/noginx/help/#如何创建域名？") 如何配置？
+                    a.btn.btn-link.btn-howto.text-info(href="/node-proxy/help/#如何创建域名？") 如何配置？
                     button.btn.btn-default(type='button' data-dismiss='modal') 取消
                     button.btn.btn-info#btn-save(type='button') 保存修改
     input#uid(type="hidden")
     input#editable(type="hidden", value=editable.toString())
-    script(src='/noginx/static/jquery/dist/jquery.min.js')
-    script(src='/noginx/static/popper.js/dist/umd/popper.min.js')
-    script(src='/noginx/static/bootstrap/dist/js/bootstrap.min.js')
-    script(src='/noginx/static/js/search.js')
-    script(src='/noginx/static/sweetalert/dist/sweetalert.min.js')
-    script(src='/noginx/static/js/domain.js')
+    script(src='/node-proxy/static/jquery/dist/jquery.min.js')
+    script(src='/node-proxy/static/popper.js/dist/umd/popper.min.js')
+    script(src='/node-proxy/static/bootstrap/dist/js/bootstrap.min.js')
+    script(src='/node-proxy/static/js/search.js')
+    script(src='/node-proxy/static/sweetalert/dist/sweetalert.min.js')
+    script(src='/node-proxy/static/js/domain.js')

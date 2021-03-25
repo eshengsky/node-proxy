@@ -114,6 +114,22 @@ body {
     border-radius: 6px;
 }
 
+.gitlab {
+    display: block;
+    width: 50px;
+    height: 50px;
+    background-image: url("../img/gitlab.png");
+    background-color: transparent;
+    background-size: cover;
+    margin: 10px auto 0 auto;
+    border-radius: 50%;
+    transition: background-color .3s;
+}
+
+.gitlab:hover {
+    background-color: #0000002e;
+}
+
 @media (max-width: 767px) {
     body {
         background: #f9f9f9;

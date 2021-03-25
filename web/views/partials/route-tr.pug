@@ -63,7 +63,7 @@ tr(id=route.id, data-type=route.type, data-uri=route.uri, data-params=route.para
                             if (server) {
                                 serverName = server.name;
                             }
-                        a.text-info(href='/noginx/servers/') #{serverName}
+                        a.text-info(href='/node-proxy/servers/') #{serverName}
         .d-none=route.id
     td(class={inactive: !route.active})
         if route.remarks

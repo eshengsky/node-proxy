@@ -2,7 +2,7 @@
  * @Author: Sky.Sun 
  * @Date: 2018-01-17 16:07:30 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2019-06-12 16:22:08
+ * @Last Modified time: 2021-03-24 15:57:16
  */
 const express = require('express');
 const app = express();
@@ -18,7 +18,7 @@ const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const serverlog = require('serverlog-node');
 serverlog.config(config.serverlog);
-const logger = serverlog.getLogger('noginx');
+const logger = serverlog.getLogger('node-proxy');
 const webRoute = require('./web/route');
 const schedule = require('./schedule');
 const common = require('./utilities/common');
@@ -223,14 +223,14 @@ app.use(helmet());
  * 添加Server头
  */
 app.use((req, res, next) => {
-    res.setHeader('Server', `noginx v${version}`);
+    res.setHeader('Server', `node-proxy v${version}`);
     next();
 });
 
 /**
  * 配置界面
  */
-app.use('/noginx', webRoute);
+app.use('/node-proxy', webRoute);
 
 /**
  * 处理网站icon请求
@@ -545,5 +545,5 @@ if (config.ssl.enable) {
 }
 server.listen(app.get('port'), () => {
     const port = server.address().port;
-    logger.info(`Noginx listening on port ${port} with pid ${process.pid}, Admin URL: ${config.ssl.enable ? 'https' : 'http'}://localhost:${port}/noginx`);
+    logger.info(`Node Proxy listening on port ${port} with pid ${process.pid}, Admin URL: ${config.ssl.enable ? 'https' : 'http'}://localhost:${port}/node-proxy`);
 });

@@ -9,7 +9,7 @@ const configPath = require('./getConfigPath')();
 const config = require(configPath);
 const dbPath = config.db.mongodb;
 const serverlog = require('serverlog-node');
-const logger = serverlog.getLogger('noginx');
+const logger = serverlog.getLogger('node-proxy');
 
 // mongoose.set('bufferCommands', false);
 mongoose.connect(dbPath, {

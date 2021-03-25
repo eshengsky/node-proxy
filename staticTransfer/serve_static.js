@@ -21,7 +21,7 @@ const resolve = require('path')
 const send = require('./send');
 const url = require('url');
 const serverlog = require('serverlog-node');
-const logger = serverlog.getLogger('noginx');
+const logger = serverlog.getLogger('node-proxy');
 
 /**
  * Module exports.

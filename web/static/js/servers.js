@@ -30,7 +30,7 @@ $('#btn-new-server').on('click', () => {
 
 // 点击导出
 $('#btn-export').on('click', () => {
-    window.location.href = '/noginx/exportServers';
+    window.location.href = '/node-proxy/exportServers';
 });
 
 // 点击导入
@@ -38,7 +38,7 @@ $('#btn-import').on('change', () => {
     const file = $('#btn-import')[0].files[0];
     const reader = new FileReader();
     reader.onload = () => {
-        $.post('/noginx/importServers', {
+        $.post('/node-proxy/importServers', {
             data: reader.result
         }).done(data => {
             if (data.code === 1) {
@@ -105,7 +105,7 @@ window.delServer = uid => {
         dangerMode: true
     }).then(value => {
         if (value === 'btnConfirm') {
-            $.post('/noginx/delServer', {
+            $.post('/node-proxy/delServer', {
                 uid
             }).done(data => {
                 if (data.code === 1) {
@@ -186,7 +186,7 @@ $('#btn-save').on('click', () => {
 
     $('#btn-save').attr('disabled', 'disabled');
     const uid = $('#uid').val();
-    $.post('/noginx/saveServer', {
+    $.post('/node-proxy/saveServer', {
         uid,
         name,
         addresses: JSON.stringify(addresses),

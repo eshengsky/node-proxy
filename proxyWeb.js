@@ -11,7 +11,7 @@ const config = require(configPath);
 const settings = require('./settings');
 const debugMode = require('./debugMode');
 const serverlog = require('serverlog-node');
-const logger = serverlog.getLogger('noginx-webui');
+const logger = serverlog.getLogger('node-proxy-webui');
 
 const proxy = httpProxy.createProxyServer({
     xfwd: true,

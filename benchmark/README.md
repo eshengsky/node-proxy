@@ -1,6 +1,6 @@
 # 性能测试
 
-noginx 性能基准测试。
+node-proxy 性能基准测试。
 
 ### 先决条件
 
@@ -31,7 +31,7 @@ Usage: wrk <options> <url>
 * Ubuntu 16.04, 6G, 4核
 * Node.js v8.9.4
 * pm2 v3.0.0
-* noginx v1.1.0
+* node-proxy v1.1.0
 * nginx v1.10.3
 
 #### 服务器
@@ -42,7 +42,7 @@ $ NODE_ENV=production pm2 reverseServer.js -i 4
 ```
 运行在 `http://127.0.0.1:9001` 。
 
-* noginx 服务器
+* node-proxy 服务器
 ```bash
 $ NODE_ENV=production config=development pm2 server.js -i 4
 ```
@@ -94,7 +94,7 @@ Requests/sec:  52267.42
 Transfer/sec:      6.48MB
 ```
 
-* noginx 反向代理
+* node-proxy 反向代理
 ```
 sky@sky-ubuntu:~$ wrk -c 200 -d 10s http://127.0.0.1:9000/testProxy
 Running 10s test @ http://127.0.0.1:9000/testProxy

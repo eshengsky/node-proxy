@@ -81,7 +81,7 @@ body * {
 
 .file-name:before {
     content: ' ';
-    background-image: url("/noginx/static/img/default_file.svg");
+    background-image: url("/node-proxy/static/img/default_file.svg");
     background-position: 0;
     background-repeat: no-repeat;
     top: 7px;
@@ -92,31 +92,31 @@ body * {
 }
 
 .file-name.file-js::before {
-    background-image: url("/noginx/static/img/file_type_light_js.svg")
+    background-image: url("/node-proxy/static/img/file_type_light_js.svg")
 }
 
 .file-name.file-css::before {
-    background-image: url("/noginx/static/img/file_type_css.svg")
+    background-image: url("/node-proxy/static/img/file_type_css.svg")
 }
 
 .file-name.file-md::before {
-    background-image: url("/noginx/static/img/file_type_markdown.svg")
+    background-image: url("/node-proxy/static/img/file_type_markdown.svg")
 }
 
 .file-name.file-html::before, .file-name.file-htm::before {
-    background-image: url("/noginx/static/img/file_type_html.svg")
+    background-image: url("/node-proxy/static/img/file_type_html.svg")
 }
 
 .file-name.file-json::before {
-    background-image: url("/noginx/static/img/file_type_light_json.svg")
+    background-image: url("/node-proxy/static/img/file_type_light_json.svg")
 }
 
 .file-name.file-vue::before {
-    background-image: url("/noginx/static/img/file_type_vue.svg")
+    background-image: url("/node-proxy/static/img/file_type_vue.svg")
 }
 
 .file-name.file-txt::before {
-    background-image: url("/noginx/static/img/file_type_text.svg")
+    background-image: url("/node-proxy/static/img/file_type_text.svg")
 }
 
 .file-name.file-bmp::before,
@@ -125,15 +125,15 @@ body * {
 .file-name.file-png::before,
 .file-name.file-gif::before,
 .file-name.file-ico::before {
-    background-image: url("/noginx/static/img/file_type_image.svg")
+    background-image: url("/node-proxy/static/img/file_type_image.svg")
 }
 
 .file-name.file-pug::before {
-    background-image: url("/noginx/static/img/file_type_pug.svg")
+    background-image: url("/node-proxy/static/img/file_type_pug.svg")
 }
 
 .file-name.file-hbs::before {
-    background-image: url("/noginx/static/img/file_type_handlebars.svg")
+    background-image: url("/node-proxy/static/img/file_type_handlebars.svg")
 }
 
 .err {

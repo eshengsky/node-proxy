@@ -2,7 +2,7 @@
  * @Author: Sky.Sun 
  * @Date: 2018-07-09 16:23:41 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2019-05-14 10:31:54
+ * @Last Modified time: 2021-03-24 16:59:32
  */
 module.exports = {
     /**
@@ -44,7 +44,7 @@ module.exports = {
     /**
      * 文件选择器中的静态文件根目录
      */
-    staticDirPath: 'C:',
+    staticDirPath: '/usr/local',
 
     /**
      * 调试模式的参数名
@@ -66,19 +66,33 @@ module.exports = {
     }],
 
     /**
-     * noginx系统的访问权限
+     * node-proxy系统的访问权限
      */
     auth: {
         /**
-         * 允许登录的用户，密码必须经过md5加密
+         * 用户名密码方式的用户列表
+         * 密码必须经过md5加密
          */
-        users: {
-            dev: 'e10adc3949ba59abbe56e057f20f883e',
-            admin: 'e10adc3949ba59abbe56e057f20f883e'
+        local: [{
+            username: 'admin',
+            password: 'e10adc3949ba59abbe56e057f20f883e'
+        }],
+
+        /**
+         * Gitlab - OAuth2方式登录
+         */
+        gitlab: {
+            enable: true,
+            baseURL: 'http://10.0.13.97:58888/',
+            clientID: '1cd7928d7262b102ac042dbc929d6cb5e10e5e8f4260d94fb772f888f695a789',
+            clientSecret: '2008b8cb5e5c3a04a3db8d74d9a1c25fa23a98453961fa2d630e17a8785f35f1',
+            callbackURL: 'http://localhost:9000/node-proxy/auth/gitlab/callback',
         },
 
         /**
-         * 拥有编辑权限的用户，如：['user1', 'user2']，配置为 ['*'] 则所有用户都有编辑权限
+         * 拥有编辑权限的用户
+         * 如：['user1', 'user2']
+         * 配置为 ['*'] 则所有用户都有编辑权限
          */
         editableUsers: ['*']
     },
@@ -110,12 +124,12 @@ module.exports = {
         /**
          * MongoDB 连接字符串，支持集群
          */
-        mongodb: 'mongodb://127.0.0.1:27017/noginx',
+        mongodb: 'mongodb://127.0.0.1:27017/node-proxy',
 
         /**
          * Redis 键前缀
          */
-        redisKeyPrefix: 'Noginx:',
+        redisKeyPrefix: 'nodeproxy:',
 
         /**
          * Redis 连接信息，如果配置为一个数组则视为集群
@@ -135,7 +149,7 @@ module.exports = {
         },
         extension: {
             enable: true,
-            key: 'noginx_secret_key'
+            key: 'node-proxy_secret_key'
         }
     }
 };

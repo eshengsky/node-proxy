@@ -3,16 +3,16 @@ html(lang='en')
     head
         meta(charset='utf-8')
         meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
-        link(rel='shortcut icon' href='/noginx/static/img/noginx.ico')
-        link(rel='stylesheet', href='/noginx/static/bootswatch/dist/minty/bootstrap.min.css')
-        link(rel='stylesheet', href='/noginx/static/css/iconfont.css')
-        link(rel='stylesheet', href='/noginx/static/css/login.css')
-        title Noginx - 用户登录
+        link(rel='shortcut icon' href='/node-proxy/static/img/node-proxy.ico')
+        link(rel='stylesheet', href='/node-proxy/static/bootswatch/dist/minty/bootstrap.min.css')
+        link(rel='stylesheet', href='/node-proxy/static/css/iconfont.css')
+        link(rel='stylesheet', href='/node-proxy/static/css/login.css')
+        title Node Proxy - 用户登录
     body
         .login
             .login-header
                 .brand
-                    span 登录到 Noginx
+                    span 登录到 Node Proxy
                 .icon
             .login-content
                 .form-group
@@ -22,7 +22,9 @@ html(lang='en')
                     label.iconfont.icon-password(for="input-password")
                     input.form-control.form-control-lg#input-password(type="password", name="password", placeholder="密码", autocomplete="new-password")
                 button.btn.btn-success.btn-block.btn-lg#btn-login 登 录
-        script(src='/noginx/static/jquery/dist/jquery.min.js')
-        script(src='/noginx/static/sweetalert/dist/sweetalert.min.js')
-        script(src='/noginx/static/blueimp-md5/js/md5.min.js')
-        script(src='/noginx/static/js/login.js')
+                if showGitlab
+                    a.gitlab(href='/node-proxy/auth/gitlab', title='使用Gitlab账号登录系统')
+        script(src='/node-proxy/static/jquery/dist/jquery.min.js')
+        script(src='/node-proxy/static/sweetalert/dist/sweetalert.min.js')
+        script(src='/node-proxy/static/blueimp-md5/js/md5.min.js')
+        script(src='/node-proxy/static/js/login.js')

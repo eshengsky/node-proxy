@@ -1,6 +1,6 @@
 ###### **修改规则后要重启吗？**
 
-不需要。Noginx 会根据配置每隔一段时间自动获取最新的路由、服务器等规则。
+不需要。Node Proxy 会根据配置每隔一段时间自动获取最新的路由、服务器等规则。
 
 ###### **如何设置匹配路径？**
 
@@ -73,7 +73,7 @@
 
 设置完匹配路径后，选择处理方式类型为 "静态文件"，在 "文件或目录：/data/nfsroot/client/static/" 后输入你想要对应的服务器的目录或文件路径即可。示例：
 
-![image](/noginx/static/img/1.png)
+![image](/node-proxy/static/img/1.png)
 
 当接收到请求：  
 `/visa`  
@@ -91,7 +91,7 @@
 
 但对于单页应用，路由由前端脚本控制，上面第 2 个例子就不适用了，此时可以尝试勾选 try_file，这样当找不到文件时，会尝试发送所配置文件路径下的index.html。示例：
 
-![image](/noginx/static/img/2.png)
+![image](/node-proxy/static/img/2.png)
 
 勾选 try_file 后，当接收到请求：  
 `/visa/aaa/bbb/test.html`  
@@ -104,7 +104,7 @@
 
 设置完匹配路径后，选择处理方式类型为 "URL重写"，在 "地址：" 后输入你想要重定向的 URL 即可。重写后的 URL 可以是相对路径、绝对路径或者带协议的完整网址。示例：
 
-![image](/noginx/static/img/3.png)
+![image](/node-proxy/static/img/3.png)
 
 当接收到请求：  
 `/webapp/around`  
@@ -113,7 +113,7 @@
 
 如果匹配路径是正则匹配，重定向后的地址支持替换子表达式（使用变量 $1, $2...）。示例：
 
-![image](/noginx/static/img/4.png)
+![image](/node-proxy/static/img/4.png)
 
 当接收到请求：  
 `/webapp/product-123`  
@@ -122,7 +122,7 @@
 
 如果你要支持将查询字符串一并带到重写后的 URL 中，可以使用变量 $query。示例：
 
-![image](/noginx/static/img/9.png)
+![image](/node-proxy/static/img/9.png)
 
 当接收到请求：  
 `/place/123?a=1&b=2`  
@@ -131,9 +131,9 @@
 
 ###### **如何设置转发？**
 
-设置完匹配路径后，选择处理方式类型为 "转发"，在 "服务器：" 后选择你要转发到的服务器即可。服务器需要预先在 [服务器](/noginx/servers) 页面进行添加操作。示例：
+设置完匹配路径后，选择处理方式类型为 "转发"，在 "服务器：" 后选择你要转发到的服务器即可。服务器需要预先在 [服务器](/node-proxy/servers) 页面进行添加操作。示例：
 
-![image](/noginx/static/img/5.png)
+![image](/node-proxy/static/img/5.png)
 
 当接收到请求：  
 `/mainSearch/index.html`  
@@ -141,26 +141,26 @@
 
 ###### **如何创建服务器？**
 
-在 [服务器](/noginx/servers/) 页面可以配置转发到的服务器信息。其中 "服务器地址" 必须是以 `http` 或 `https` 开头的完整地址。支持配置多个地址，系统会自动进行负载均衡。示例：
+在 [服务器](/node-proxy/servers/) 页面可以配置转发到的服务器信息。其中 "服务器地址" 必须是以 `http` 或 `https` 开头的完整地址。支持配置多个地址，系统会自动进行负载均衡。示例：
 
-![image](/noginx/static/img/8.png)
+![image](/node-proxy/static/img/8.png)
 
 ###### **如何设置登录后才能访问？**
 
-在 [身份验证](/noginx/permissions/) 页面可以配置哪些请求必须在身份验证通过后才能继续处理。  
+在 [身份验证](/node-proxy/permissions/) 页面可以配置哪些请求必须在身份验证通过后才能继续处理。  
 当前有 2 种验证方式：  
 
 * 仅允许已登录用户访问
 
-系统会根据 Cookie 中的 `lvsessionid` 调用用户接口来判断当前用户是否已登录，如果未登录，则自动跳转到登录页面；如果已登录，则查找 [路由处理](/noginx/) 中是否有匹配的路由规则以进行后续操作。
+系统会根据 Cookie 中的 `lvsessionid` 调用用户接口来判断当前用户是否已登录，如果未登录，则自动跳转到登录页面；如果已登录，则查找 [路由处理](/node-proxy/) 中是否有匹配的路由规则以进行后续操作。
 
 * 微信访问时需要微信授权登录
 
-如果当前页面是在微信中访问，且 Cookie 中没有 `session_id`，则认为未登录，自动跳转到微信授权页面；如果已登录，则查找 [路由处理](/noginx/) 中是否有匹配的路由规则以进行后续操作。
+如果当前页面是在微信中访问，且 Cookie 中没有 `session_id`，则认为未登录，自动跳转到微信授权页面；如果已登录，则查找 [路由处理](/node-proxy/) 中是否有匹配的路由规则以进行后续操作。
 
 示例：
 
-![image](/noginx/static/img/6.png)
+![image](/node-proxy/static/img/6.png)
 
 当接收到请求：  
 `/webapp/my`  
@@ -168,9 +168,9 @@
 
 ###### **什么是身份验证的排除项？**
 
-在 [身份验证](/noginx/permissions/) 页面配置请求时，可以设置排除项，排除项将不走身份验证。示例：
+在 [身份验证](/node-proxy/permissions/) 页面配置请求时，可以设置排除项，排除项将不走身份验证。示例：
 
-![image](/noginx/static/img/7.png)
+![image](/node-proxy/static/img/7.png)
 
 当接收到请求：  
 `/webapp/my/main`  

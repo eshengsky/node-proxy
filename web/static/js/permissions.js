@@ -147,7 +147,7 @@ $('#btn-new-permission').on('click', () => {
 
 // 点击导出
 $('#btn-export').on('click', () => {
-    window.location.href = '/noginx/exportPermissions';
+    window.location.href = '/node-proxy/exportPermissions';
 });
 
 // 点击导入
@@ -155,7 +155,7 @@ $('#btn-import').on('change', () => {
     const file = $('#btn-import')[0].files[0];
     const reader = new FileReader();
     reader.onload = () => {
-        $.post('/noginx/importPermissions', {
+        $.post('/node-proxy/importPermissions', {
             data: reader.result
         }).done(data => {
             if (data.code === 1) {
@@ -222,7 +222,7 @@ window.delPermission = uid => {
         dangerMode: true
     }).then(value => {
         if (value === 'btnConfirm') {
-            $.post('/noginx/delPermission', {
+            $.post('/node-proxy/delPermission', {
                 uid
             }).done(data => {
                 if (data.code === 1) {
@@ -305,7 +305,7 @@ $('#btn-save').on('click', () => {
 
     $('#btn-save').attr('disabled', 'disabled');
     const uid = $('#uid').val();
-    $.post('/noginx/savePermission', {
+    $.post('/node-proxy/savePermission', {
         uid,
         auth,
         type: $('#select-type').val(),

@@ -1,19 +1,21 @@
 {
-  "name": "noginx",
-  "version": "2.0.0",
-  "description": "High performance HTTP and reverse proxy server based on Node.js.",
+  "name": "node-proxy",
+  "version": "3.0.0",
+  "description": "High performance HTTP and reverse proxy server, based on Node.js.",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "test": "NODE_ENV=test mocha ./test/test.js"
+    "dev": "config=development node server.js",
+    "start": "config=production node server.js",
+    "test": "config=test mocha ./test/test.js"
   },
   "author": "eshengsky@163.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/eshengsky/noginx"
+    "url": "https://github.com/eshengsky/node-proxy"
   },
   "license": "MIT",
   "dependencies": {
+    "@flexem/switchery": "0.8.2",
     "blueimp-md5": "^2.10.0",
     "bootstrap": "^4.1.1",
     "bootswatch": "^4.1.1",
@@ -37,6 +39,7 @@
     "node-schedule": "^1.3.0",
     "parseurl": "^1.3.2",
     "passport": "^0.4.0",
+    "passport-gitlab2": "^5.0.0",
     "passport-local": "^1.0.0",
     "popper.js": "^1.14.3",
     "pug": "^2.0.3",
@@ -46,7 +49,6 @@
     "showdown": "^1.8.6",
     "sortablejs": "^1.7.0",
     "sweetalert": "^2.1.0",
-    "switchery": "git+https://github.com/abpetkov/switchery.git",
     "tippy.js": "^4.3.1",
     "uuid": "^3.3.2"
   },

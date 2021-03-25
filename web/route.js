@@ -2,7 +2,7 @@
  * @Author: Sky.Sun 
  * @Date: 2018-02-07 12:02:40 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2019-06-12 16:27:32
+ * @Last Modified time: 2021-03-24 15:55:22
  */
 const express = require('express');
 const router = express.Router();
@@ -11,9 +11,10 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 const passport = require('passport');
 const Strategy = require('passport-local').Strategy;
+const GitLabStrategy = require('passport-gitlab2').Strategy;
 const ensureLogin = require('connect-ensure-login');
 const serverlog = require('serverlog-node');
-const logger = serverlog.getLogger('noginx-webui');
+const logger = serverlog.getLogger('node-proxy-webui');
 const pug = require('pug');
 const routeCompiledFunc = pug.compileFile('./web/views/partials/route-tr.pug');
 const serverCompiledFunc = pug.compileFile('./web/views/partials/server-item.pug');
@@ -28,7 +29,8 @@ const cacheModel = require('../models/caches').cacheModel;
 const domainModel = require('../models/domains').domainModel;
 const configPath = require('../getConfigPath')();
 const config = require(configPath);
-const userConfig = config.auth.users;
+const localUsers = config.auth.local;
+const gitlabOptions = config.auth.gitlab;
 const canEdit = require('./auth').canEdit;
 const authMw = require('./auth').authMw;
 const common = require('../utilities/common');
@@ -57,30 +59,41 @@ const mongoUrl = config.db.mongodb;
  * @param {object} req - request
  */
 const getCurrentUser = req => {
-    return `${req.user} [${req.ip}]`;
+    return `${req.user.username} [${req.ip}]`;
 }
 
+// 本地用户验证策略
 passport.use(new Strategy(
     (username, password, cb) => {
         // Check if user valid
-        if (userConfig[username] && userConfig[username] === password) {
+        const findUser = localUsers.find(t => t.username === username && t.password === password);
+        if (findUser) {
             // Pass
-            return cb(null, username);
+            return cb(null, findUser);
         }
 
         // Failure
         return cb(null, false);
     }));
 
+// Gitlab OAuth 验证策略
+passport.use(new GitLabStrategy({
+    clientID: gitlabOptions.clientID,
+    clientSecret: gitlabOptions.clientSecret,
+    callbackURL: gitlabOptions.callbackURL,
+    baseURL: gitlabOptions.baseURL
+    },
+    function(accessToken, refreshToken, profile, cb) {
+    cb(null, profile);
+    }
+));
+
 passport.serializeUser((username, cb) => {
     cb(null, username);
 });
 
-passport.deserializeUser((username, cb) => {
-    if (userConfig[username]) {
-        return cb(null, username);
-    }
-    return cb(new Error('用户名或密码错误！'));
+passport.deserializeUser((user, cb) => {
+    return cb(null, user);
 });
 
 /**
@@ -98,7 +111,7 @@ router.use(express.urlencoded({
 }));
 
 router.use(session({
-    secret: 'noginxproxyserverbyskysun',
+    secret: 'node-proxyproxyserverbyskysun',
     saveUninitialized: true,
     resave: true,
     store: new MongoStore({
@@ -112,7 +125,9 @@ router.use(passport.session());
  * 登录页面
  */
 router.get('/login', (req, res) => {
-    res.render('login');
+    res.render('login', {
+        showGitlab: gitlabOptions.enable
+    });
 });
 
 /**
@@ -135,7 +150,7 @@ router.post('/login', (req, res) => {
         } else {
             // 登录操作
             req.logIn(user, err => {
-                let returnTo = '/noginx/';
+                let returnTo = '/node-proxy/';
                 if (err) {
                     logger.error(err);
                     res.json({
@@ -162,13 +177,24 @@ router.post('/login', (req, res) => {
  */
 router.post('/logout', (req, res) => {
     req.logout();
-    res.redirect('/noginx/login');
+    res.redirect('/node-proxy/login');
 });
+
+router.get('/auth/gitlab', passport.authenticate('gitlab'));
+
+router.get('/auth/gitlab/callback',
+  passport.authenticate('gitlab', {
+    failureRedirect: '/node-proxy/login'
+  }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/node-proxy/');
+  });
 
 /**
  * 这之后的路由需要登录后才允许访问
  */
-router.use(ensureLogin.ensureLoggedIn('/noginx/login'));
+router.use(ensureLogin.ensureLoggedIn('/node-proxy/login'));
 
 /**
  * 首页
@@ -507,7 +533,7 @@ router.get('/exportRoutes', (req, res) => {
             res.status(500).send(err.message);
             return;
         }
-        res.setHeader('Content-disposition', 'attachment; filename=noginx_routes.json');
+        res.setHeader('Content-disposition', 'attachment; filename=node-proxy_routes.json');
         res.setHeader('Content-type', 'application/json');
         res.send(routes);
     });
@@ -770,7 +796,7 @@ router.get('/exportServers', (req, res) => {
             res.status(500).send(err.message);
             return;
         }
-        res.setHeader('Content-disposition', 'attachment; filename=noginx_servers.json');
+        res.setHeader('Content-disposition', 'attachment; filename=node-proxy_servers.json');
         res.setHeader('Content-type', 'application/json');
         res.send(servers);
     });
@@ -1047,7 +1073,7 @@ router.get('/exportPermissions', (req, res) => {
             res.status(500).send(err.message);
             return;
         }
-        res.setHeader('Content-disposition', 'attachment; filename=noginx_permissions.json');
+        res.setHeader('Content-disposition', 'attachment; filename=node-proxy_permissions.json');
         res.setHeader('Content-type', 'application/json');
         res.send(permissions);
     });
@@ -1353,7 +1379,7 @@ router.get('/exportCaches', (req, res) => {
             res.status(500).send(err.message);
             return;
         }
-        res.setHeader('Content-disposition', 'attachment; filename=noginx_caches.json');
+        res.setHeader('Content-disposition', 'attachment; filename=node-proxy_caches.json');
         res.setHeader('Content-type', 'application/json');
         res.send(caches);
     });
@@ -1725,7 +1751,7 @@ router.get('/exportDomains', (req, res) => {
             res.status(500).send(err.message);
             return;
         }
-        res.setHeader('Content-disposition', 'attachment; filename=noginx_domains.json');
+        res.setHeader('Content-disposition', 'attachment; filename=node-proxy_domains.json');
         res.setHeader('Content-type', 'application/json');
         res.send(domains);
     });

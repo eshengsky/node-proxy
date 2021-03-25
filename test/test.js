@@ -9,7 +9,7 @@ const serverModel = require('../models/servers').serverModel;
 const port = 8900;
 should();
 
-describe('noginx test', function () {
+describe('node-proxy test', function () {
     this.timeout(5000);
     let stdout = '';
     let child;
@@ -57,7 +57,7 @@ describe('noginx test', function () {
 
     describe('base', () => {
         it('should startup server successfully', () => {
-            stdout.should.contains(`Noginx listening on port ${port}`);
+            stdout.should.contains(`Node Proxy listening on port ${port}`);
             stdout.should.contains('Redis connected');
             stdout.should.contains('MongoDB connected');
         });
@@ -476,7 +476,7 @@ describe('noginx test', function () {
 
         it('should handle properly when domain is specified', done => {
             const domain = new domainModel({
-                domainPath: 'noginxtest1.com'
+                domainPath: 'node-proxytest1.com'
             });
             domain.save((err, item) => {
                 if (err) {
@@ -503,7 +503,7 @@ describe('noginx test', function () {
                             rp({
                                 url: `http://127.0.0.1:${port}/hasDomain`,
                                 headers: {
-                                    host: 'noginxtest1.com'
+                                    host: 'node-proxytest1.com'
                                 },
                                 simple: false,
                                 resolveWithFullResponse: true
@@ -511,7 +511,7 @@ describe('noginx test', function () {
                             rp({
                                 url: `http://127.0.0.1:${port}/hasDomain`,
                                 headers: {
-                                    host: 'noginxtest2.com'
+                                    host: 'node-proxytest2.com'
                                 },
                                 simple: false,
                                 resolveWithFullResponse: true
@@ -598,10 +598,10 @@ describe('noginx test', function () {
                     ]).then(results => {
                         results[0].statusCode.should.eq(200);
                         results[0].headers['content-type'].should.contains('text/html');
-                        results[0].body.should.eq('<h3>hello noginx</h3>');
+                        results[0].body.should.eq('<h3>hello node-proxy</h3>');
                         results[1].statusCode.should.eq(200);
                         results[1].headers['content-type'].should.contains('text/html');
-                        results[1].body.should.eq('<h3>hello noginx</h3>');
+                        results[1].body.should.eq('<h3>hello node-proxy</h3>');
                         results[2].statusCode.should.eq(404);
                         results[2].headers['content-type'].should.contains('text/plain');
                         results[2].body.should.eq('Not Found');
@@ -685,13 +685,13 @@ describe('noginx test', function () {
                     ]).then(results => {
                         results[0].statusCode.should.eq(200);
                         results[0].headers['content-type'].should.contains('text/html');
-                        results[0].body.should.eq('<h3>hello noginx</h3>');
+                        results[0].body.should.eq('<h3>hello node-proxy</h3>');
                         results[1].statusCode.should.eq(200);
                         results[1].headers['content-type'].should.contains('text/html');
-                        results[1].body.should.eq('<h3>hello noginx</h3>');
+                        results[1].body.should.eq('<h3>hello node-proxy</h3>');
                         results[2].statusCode.should.eq(200);
                         results[2].headers['content-type'].should.contains('text/html');
-                        results[2].body.should.eq('<h3>hello noginx</h3>');
+                        results[2].body.should.eq('<h3>hello node-proxy</h3>');
                         results[3].statusCode.should.eq(404);
                         results[3].headers['content-type'].should.contains('text/plain');
                         results[3].body.should.eq('Not Found');
@@ -872,19 +872,19 @@ describe('noginx test', function () {
                     ]).then(results => {
                         results[0].statusCode.should.eq(200);
                         results[0].headers['content-type'].should.contains('text/html');
-                        results[0].body.should.eq('<h3>hello noginx</h3>');
+                        results[0].body.should.eq('<h3>hello node-proxy</h3>');
                         results[1].statusCode.should.eq(200);
                         results[1].headers['content-type'].should.contains('text/html');
-                        results[1].body.should.eq('<h3>hello noginx</h3>');
+                        results[1].body.should.eq('<h3>hello node-proxy</h3>');
                         results[2].statusCode.should.eq(200);
                         results[2].headers['content-type'].should.contains('text/html');
-                        results[2].body.should.eq('<h3>hello noginx</h3>');
+                        results[2].body.should.eq('<h3>hello node-proxy</h3>');
                         results[3].statusCode.should.eq(200);
                         results[3].headers['content-type'].should.contains('text/html');
-                        results[3].body.should.eq('<h3>hello noginx</h3>');
+                        results[3].body.should.eq('<h3>hello node-proxy</h3>');
                         results[4].statusCode.should.eq(200);
                         results[4].headers['content-type'].should.contains('text/html');
-                        results[4].body.should.eq('<h3>hello noginx</h3>');
+                        results[4].body.should.eq('<h3>hello node-proxy</h3>');
                         done();
                     }).catch(err => {
                         done(err);

@@ -2,7 +2,7 @@
  * @Author: Sky.Sun 
  * @Date: 2018-02-13 09:46:39 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2018-07-12 15:27:38
+ * @Last Modified time: 2021-03-24 15:30:36
  */
 const configPath = require('../getConfigPath')();
 const config = require(configPath);
@@ -13,14 +13,13 @@ const editableUsers = config.auth.editableUsers;
  * @param {object} req - 请求对象
  */
 const canEdit = req => {
-    const user = req.user;
-
     // 如果配置项包含了*，则所有用户可编辑
     if (editableUsers.includes('*')) {
         return true;
     }
-    
-    return editableUsers.includes(user);
+
+    const user = req.user;
+    return editableUsers.includes(user.username);
 };
 
 module.exports.canEdit = canEdit;

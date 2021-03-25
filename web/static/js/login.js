@@ -17,13 +17,13 @@ $('#btn-login').on('click', () => {
     const btnLogin = $('#btn-login');
     btnLogin.attr('disabled', 'disabled');
     btnLogin.text('登录中...');
-    $.post('/noginx/login', {
+    $.post('/node-proxy/login', {
         username,
         password: md5(password)
     }).done(data => {
         if (data.code === 1) {
             // 成功
-            window.location.href = data.data || '/noginx/';
+            window.location.href = data.data || '/node-proxy/';
         } else {
             // 失败
             swal({

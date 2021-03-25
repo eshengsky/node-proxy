@@ -1,18 +1,14 @@
-<a href="https://github.com/eshengsky/noginx"><img src="https://github.com/eshengsky/noginx/blob/master/web/static/img/noginx.png" height="120" align="right"></a>
+<a href="https://github.com/eshengsky/node-proxy"><img src="https://github.com/eshengsky/node-proxy/blob/master/web/static/img/node-proxy.png" height="120" align="right"></a>
 
-# Noginx
+# Node Proxy
 
 基于 Node.js 的高性能 HTTP 及反向代理服务器，类似于 [Nginx](http://nginx.org/)。
 
-[![Build Status](https://travis-ci.org/eshengsky/noginx.svg?branch=master)](https://travis-ci.org/eshengsky/noginx)
+[![Build Status](https://travis-ci.org/eshengsky/node-proxy.svg?branch=master)](https://travis-ci.org/eshengsky/node-proxy)
 
-### Noginx的含义
+### 为什么使用Node Proxy
 
-Noginx 不是 No nginx（否定 nginx），而是 Node.js based nginx（基于 Node.js 的 nginx），更是 Not only nginx（不仅仅是 nginx）。
-
-### 为什么使用Noginx
-
-如果你的项目符合以下任一点，你就可以尝试使用 Noginx：
+如果你的项目符合以下任一点，你就可以尝试使用 Node Proxy：
 * 你的项目本身就是基于 Node.js，你希望代理服务器也使用相同的技术；
 * 你的团队更熟悉 JavaScript，而不是 C/C++/Lua；
 * 你希望有一个 WebUI 配置界面，而不是过时的纯文本配置方式；
@@ -22,7 +18,7 @@ Noginx 不是 No nginx（否定 nginx），而是 Node.js based nginx（基于 N
 
 ### 界面预览
 
-![image](https://raw.githubusercontent.com/eshengsky/noginx/master/preview.png)
+![image](./preview.png)
 
 ### 功能与特色
 
@@ -45,52 +41,53 @@ Noginx 不是 No nginx（否定 nginx），而是 Node.js based nginx（基于 N
     * 无需开发人员自己判断登录、跳转登录
 * WebUI 配置界面
     * 美观、优雅、现代的 UI 设计
+    * 支持内置账号、Gitlab两种登录方式
     * 支持权限管理 (只读、可写)
 * 修改规则配置后无需重启服务器
 * 集成日志查看神器 [chrome-extension-server-log](https://github.com/eshengsky/ServerLog/tree/master/chrome-extension-server-log)
-* Noginx 处理的网页都支持 [调试模式](#调试模式)
+* Node Proxy 处理的网页都支持 [调试模式](#调试模式)
 
 ### 与 Nginx 的比较
 
 |   服务器   | 并发能力 | 静态资源处理能力 | 配置方式 | 配置备份 | 是否需重启 | 扩展能力 |
 |:----------:|----------|---------------|--------------|------------|------------|------------|
 | Nginx      | 很强 | 很快 | 纯文本配置方式，易拼写错误或重复，配置存储在本地文件中。 | 通常需手动备份，也没有配置修改记录。 | 通常需重启服务。 | 强，但需要掌握 C、Lua 等语言，且要运维去担任开发角色。 |
-| Noginx | 很强 | 一般（但通常有CDN） | WebUI 配置界面，支持下拉选择、格式检查等，配置存储在数据库中。 | 任何配置操作（包括删除）都会在数据库中存档以供追溯和恢复。| 支持运行时修改并生效，无需重启。 | 强，全端技术统一（JavaScript），可方便地添加任何想要的逻辑。 |
+| Node Proxy | 很强 | 一般（但通常有CDN） | WebUI 配置界面，支持下拉选择、格式检查等，配置存储在数据库中。 | 任何配置操作（包括删除）都会在数据库中存档以供追溯和恢复。| 支持运行时修改并生效，无需重启。 | 强，全端技术统一（JavaScript），可方便地添加任何想要的逻辑。 |
 
 ### 流程图
 
-Noginx 处理请求从接收到响应的基本流程示意：  
-[Noginx Workflow](https://www.processon.com/view/link/5b46c90be4b00c2f18c9b5f7)
+Node Proxy 处理请求从接收到响应的基本流程示意：  
+[Node Proxy Workflow](https://www.processon.com/view/link/5b46c90be4b00c2f18c9b5f7)
 
 ### 快速开始
 
 #### 下载源码
 
-点击 `Clone or download` 下载源码，或在 [Release](https://github.com/eshengsky/noginx/releases) 页面下载指定版本代码。
+点击 `Clone or download` 下载源码，或在 [Release](https://github.com/eshengsky/node-proxy/releases) 页面下载指定版本代码。
 
 #### 安装依赖
 
 ```bash
-$ npm install
+$ yarn
 ```
 
-#### 启动 Noginx
+#### 启动 Node Proxy
 
 ```bash
-$ node server.js
+$ yarn start
 ```
 
-访问 [http://localhost:9000/noginx/](http://localhost:9000/noginx/)，默认用户名/密码：dev/123456.
+访问 [http://localhost:9000/node-proxy/](http://localhost:9000/node-proxy/)，默认账号：admin/123456.
 
-如果你使用了 [chrome-extension-server-log](https://github.com/eshengsky/ServerLog/tree/master/chrome-extension-server-log)，默认 secret key 请填写：`noginx_secret_key`.
+如果你使用了 [chrome-extension-server-log](https://github.com/eshengsky/ServerLog/tree/master/chrome-extension-server-log)，默认 secret key 请填写：`node-proxy_secret_key`.
 
 ### 配置说明
 
-Noginx 中的配置可分为 2 类：系统配置和规则配置。
+Node Proxy 中的配置可分为 2 类：系统配置和规则配置。
 
 * 系统配置
 
-一般是服务器启动时就需要获取并生效的配置参数，如数据库连接等，需要手动修改配置文件，修改后必须重启 Noginx。
+一般是服务器启动时就需要获取并生效的配置参数，如数据库连接等，需要手动修改配置文件，修改后必须重启 Node-Proxy。
 
 配置文件必须放置于 `/config/` 目录下，你可以通过启动服务器时传入变量 `config` 来指定当前环境使用哪个配置文件。如：
 
@@ -142,44 +139,62 @@ Array 类型，请求方式配置
 Array 类型，页面的身份验证
 
 ##### auth
-Object 类型，Noginx系统的访问权限配置
+Object 类型，Node-Proxy系统的访问权限配置
 
-#### auth.users
-Object 类型，允许登录的用户，属性名是登录名，属性值是密码，密码必须经过md5加密
+##### auth.local
+Array 类型，用户名密码方式的用户列表，数组元素是用户对象，属性username是登录名，属性password是密码，密码必须经过md5加密
 
-#### auth.editableUsers
+##### auth.gitlab
+Object 类型，Gitlab - OAuth2方式登录的相关配置
+
+##### auth.gitlab.enable
+Booleana 类型，是否开启Gitlab登录方式
+
+##### auth.gitlab.baseURL
+String 类型，Gitlab的地址，可以配置成内网部署的Gitlab站点URL
+
+##### auth.gitlab.clientID
+String 类型，Gitlab应用的ID
+
+##### auth.gitlab.clientSecret
+String 类型，Gitlab应用的Secret
+
+##### auth.gitlab.callbackURL
+String 类型，Gitlab应用的回调地址
+
+##### auth.editableUsers
 Array 类型，允许编辑的用户，如：['user1', 'user2']，配置为 ['*'] 则所有用户都有编辑权限
 
-#### serverFileCache
+##### serverFileCache
 Object 类型，静态资源服务端缓存设置
 
-#### serverFileCache.enable
+##### serverFileCache.enable
 Boolean 类型，是否开启服务端缓存
 
-#### serverFileCache.max
+##### serverFileCache.max
 Number 类型，所有缓存值的总大小限制
 
-#### serverFileCache.maxAge
+##### serverFileCache.maxAge
 Number 类型，缓存过期时间，单位毫秒
 
-#### db
+##### db
 Object 类型，数据库配置
 
-#### db.mongodb
+##### db.mongodb
 String 类型，MongoDB 连接字符串，支持集群
 
-#### db.redisKeyPrefix
+##### db.redisKeyPrefix
 String 类型，Redis 键前缀
 
-#### db.redisConnect
+##### db.redisConnect
 String 或 Array 类型，Redis 连接信息，如果配置为一个数组则视为集群
 
-#### serverlog
+##### serverlog
 Object 类型，[ServerLog](https://github.com/eshengsky/ServerLog/blob/master/README_zh.md#configoptions) 模块配置参数
 
 * 规则配置
 
-规则配置是指与请求相关联的路由、服务器、缓存等配置信息，通过访问 [http://localhost:9000/noginx/](http://localhost:9000/noginx/) 进行修改，系统会定时自动更新配置，故修改后无需重启服务器。
+规则配置是指与请求相关联的路由、服务器、缓存等配置信息，通过访问 [http://localhost:9000/node-proxy/](http://localhost:9000/node-proxy/) 进行修改，系统会定时自动更新配置，故修改后无需重启服务器。
 
 ### 环境部署
 
@@ -189,13 +204,13 @@ Object 类型，[ServerLog](https://github.com/eshengsky/ServerLog/blob/master/R
 #### 安装pm2
 
 ```bash
-$ npm install -g pm2
+$ yarn global add pm2
 ```
 
 #### 启动服务
 
 ```bash
-$ NODE_ENV=production pm2 start server.js -i 0
+$ config=production NODE_ENV=production pm2 start server.js -i 0
 ```
 
 ### 日志查看
@@ -212,14 +227,14 @@ $ NODE_ENV=production pm2 start server.js -i 0
 
 ### 使用帮助
 
-登录后访问 http://localhost:9000/noginx/help/ 查看帮助。
+登录后访问 http://localhost:9000/node-proxy/help/ 查看帮助。
 
 ### 测试
 
 #### 功能测试
 ```bash
-$ npm test
+$ yarn test
 ```
 
 #### 性能测试
-见 [benchmark](https://github.com/eshengsky/noginx/tree/master/benchmark) 目录。
+见 [benchmark](https://github.com/eshengsky/node-proxy/tree/master/benchmark) 目录。

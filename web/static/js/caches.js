@@ -108,7 +108,7 @@ $('#btn-new-cache').on('click', () => {
 
 // 点击导出
 $('#btn-export').on('click', () => {
-    window.location.href = '/noginx/exportCaches';
+    window.location.href = '/node-proxy/exportCaches';
 });
 
 // 点击导入
@@ -116,7 +116,7 @@ $('#btn-import').on('change', () => {
     const file = $('#btn-import')[0].files[0];
     const reader = new FileReader();
     reader.onload = () => {
-        $.post('/noginx/importCaches', {
+        $.post('/node-proxy/importCaches', {
             data: reader.result
         }).done(data => {
             if (data.code === 1) {
@@ -178,7 +178,7 @@ $('#btn-confirm-clear').on('click', () => {
         inputkey.focus();
         return;
     }
-    $.post('/noginx/clearAllCache', {
+    $.post('/node-proxy/clearAllCache', {
         key
     }).done(data => {
         if (data.code === 1) {
@@ -231,7 +231,7 @@ window.editCache = uid => {
 // 点击切换启用
 window.activeCache = (el, uid) => {
     const active = el.checked;
-    $.post('/noginx/activeCache', {
+    $.post('/node-proxy/activeCache', {
         uid,
         active
     }).done(data => {
@@ -283,7 +283,7 @@ window.delCache = uid => {
         dangerMode: true
     }).then(value => {
         if (value === 'btnConfirm') {
-            $.post('/noginx/delCache', {
+            $.post('/node-proxy/delCache', {
                 uid
             }).done(data => {
                 if (data.code === 1) {
@@ -358,7 +358,7 @@ $('#btn-save').on('click', () => {
 
     $('#btn-save').attr('disabled', 'disabled');
     const uid = $('#uid').val();
-    $.post('/noginx/saveCache', {
+    $.post('/node-proxy/saveCache', {
         uid,
         type: $('#select-type').val(),
         uri,

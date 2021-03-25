@@ -1,11 +1,11 @@
 extends layout.pug
 
 block styles
-    link(rel='stylesheet', href='/noginx/static/switchery/dist/switchery.min.css')
-    link(rel='stylesheet', href='/noginx/static/css/animate.min.css')
-    link(rel='stylesheet', href='/noginx/static/select2/dist/css/select2.min.css')
-    link(rel='stylesheet', href='/noginx/static/tippy.js/themes/light-border.css')
-    link(rel='stylesheet', href='/noginx/static/css/index.css')
+    link(rel='stylesheet', href='/node-proxy/static/@flexem/switchery/dist/switchery.min.css')
+    link(rel='stylesheet', href='/node-proxy/static/css/animate.min.css')
+    link(rel='stylesheet', href='/node-proxy/static/select2/dist/css/select2.min.css')
+    link(rel='stylesheet', href='/node-proxy/static/tippy.js/themes/light-border.css')
+    link(rel='stylesheet', href='/node-proxy/static/css/index.css')
     if (!editable) 
         style(type='text/css').
             .results tr:hover .seq {
@@ -18,7 +18,7 @@ block styles
 block content
     .main-content
         .col.btn-line
-            a(href="/noginx/caches/") 缓存设置
+            a(href="/node-proxy/caches/") 缓存设置
             if (editable)
                 button.btn.btn-info.mr-2#btn-new-cache 
                     i.iconfont.icon-add1
@@ -78,7 +78,7 @@ block content
                                             option(value=domain.id)=domain.domainPath
                                     .input-group-append
                                         span.my-input-group-text.my-input-group-text2
-                                            a(href="/noginx/domains/")
+                                            a(href="/node-proxy/domains/")
                                                 i.iconfont.icon-global(title="配置域名")
                             .form-group
                                 label(for='input-uri') 匹配路径
@@ -116,7 +116,7 @@ block content
                                     .input-group-append
                                         span.input-group-text 秒
                 .modal-footer
-                    a.btn.btn-link.btn-howto.text-info(href="/noginx/help/#如何配置缓存？", target="_blank") 如何配置？
+                    a.btn.btn-link.btn-howto.text-info(href="/node-proxy/help/#如何配置缓存？", target="_blank") 如何配置？
                     button.btn.btn-default(type='button' data-dismiss='modal') 取消
                     button.btn.btn-info#btn-save(type='button') 保存修改
     .modal#clear-modal
@@ -134,17 +134,17 @@ block content
                                 span.input-group-text=cacheKeyPrefix
                             input.form-control#input-clear-key(placeholder="", spellcheck="false", value="*")
                 .modal-footer
-                    a.btn.btn-link.btn-howto.text-info(href="/noginx/help/#如何清除缓存？", target="_blank") 如何配置？
+                    a.btn.btn-link.btn-howto.text-info(href="/node-proxy/help/#如何清除缓存？", target="_blank") 如何配置？
                     button.btn.btn-default(type='button' data-dismiss='modal') 取消
                     button.btn.btn-secondary#btn-confirm-clear(type='button') 确认清除
     input#uid(type="hidden")
     input#editable(type="hidden", value=editable.toString())
-    script(src='/noginx/static/jquery/dist/jquery.min.js')
-    script(src='/noginx/static/popper.js/dist/umd/popper.min.js')
-    script(src='/noginx/static/bootstrap/dist/js/bootstrap.min.js')
-    script(src='/noginx/static/switchery/dist/switchery.min.js')
-    script(src='/noginx/static/js/search.js')
-    script(src='/noginx/static/sweetalert/dist/sweetalert.min.js')
-    script(src='/noginx/static/tippy.js/umd/index.all.min.js')
-    script(src='/noginx/static/select2/dist/js/select2.js')
-    script(src='/noginx/static/js/caches.js')
+    script(src='/node-proxy/static/jquery/dist/jquery.min.js')
+    script(src='/node-proxy/static/popper.js/dist/umd/popper.min.js')
+    script(src='/node-proxy/static/bootstrap/dist/js/bootstrap.min.js')
+    script(src='/node-proxy/static/@flexem/switchery/dist/switchery.min.js')
+    script(src='/node-proxy/static/js/search.js')
+    script(src='/node-proxy/static/sweetalert/dist/sweetalert.min.js')
+    script(src='/node-proxy/static/tippy.js/umd/index.all.min.js')
+    script(src='/node-proxy/static/select2/dist/js/select2.js')
+    script(src='/node-proxy/static/js/caches.js')
