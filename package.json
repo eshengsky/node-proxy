@@ -42,7 +42,7 @@
     "passport-gitlab2": "^5.0.0",
     "passport-local": "^1.0.0",
     "popper.js": "^1.14.3",
-    "pug": "^2.0.3",
+    "pug": "^3.0.1",
     "select2": "^4.0.7",
     "serve-favicon": "^2.5.0",
     "serverlog-node": "^1.0.2",
