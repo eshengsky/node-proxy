@@ -2,7 +2,7 @@
  * @Author: Sky.Sun 
  * @Date: 2018-07-09 16:23:41 
  * @Last Modified by: Sky.Sun
- * @Last Modified time: 2021-03-24 16:59:37
+ * @Last Modified time: 2021-03-28 14:09:23
  */
 module.exports = {
     /**
@@ -82,11 +82,11 @@ module.exports = {
          * Gitlab - OAuth2方式登录
          */
         gitlab: {
-            enable: true,
-            baseURL: 'http://10.0.13.97:58888/',
-            clientID: '1cd7928d7262b102ac042dbc929d6cb5e10e5e8f4260d94fb772f888f695a789',
-            clientSecret: '2008b8cb5e5c3a04a3db8d74d9a1c25fa23a98453961fa2d630e17a8785f35f1',
-            callbackURL: 'http://localhost:9000/node-proxy/auth/gitlab/callback',
+            enable: false,
+            baseURL: '',
+            clientID: '',
+            clientSecret: '',
+            callbackURL: '',
         },
 
         /**
